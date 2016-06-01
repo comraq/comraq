@@ -1,10 +1,10 @@
 export default wagner => {
   // Client JS Paths
   wagner.constant("BIN_PATH", "./dist");
-  wagner.constant("JS_SRC", "./src/index.js")
+  wagner.constant("JS_SRC", "./src/index.js");
   wagner.constant("JS_SRC_GLOB", [
-                    "./src/**/*.js"
-                  ]);
+    "./src/**/*.js"
+  ]);
   wagner.constant("JS_DEST", "comraq.min.js");
 
   wagner.constant("JS_VEND_SRC", "./vendor/index.js");

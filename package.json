@@ -4,7 +4,7 @@
   "description": "Skeleton project with my preferred gulp, browserify setup",
   "main": "server-transpiled/index.js",
   "scripts": {
-    "test": "./node_modules/gulp/bin/gulp.js test-ajax",
+    "test": "./node_modules/gulp/bin/gulp.js test-karma",
     "build": "./node_modules/gulp/bin/gulp.js build-all --production",
     "buildd": "./node_modules/gulp/bin/gulp.js build-all",
     "watchd": "./node_modules/gulp/bin/gulp.js watch-all"
@@ -40,6 +40,8 @@
     "browserify": "*",
     "browserify-shim": "*",
     "chai": "*",
+    "eslint": "^2.11.1",
+    "eslint-plugin-react": "^5.1.1",
     "gulp": "*",
     "gulp-babel": "*",
     "gulp-concat": "*",

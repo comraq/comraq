@@ -1,7 +1,7 @@
 import ajax from "../src/utils/ajax";
 
-describe("utils: ", () => {
-  describe("ajax", () => {
+describe("utils:", () => {
+  describe("ajax:", () => {
     let server;
     before(() => server = sinon.fakeServer.create());
     after(() => server.restore());
@@ -41,7 +41,7 @@ describe("utils: ", () => {
         expect(res.data.message).to.deep.equal("Success!");
         done();
       })
-      .catch(done)
+      .catch(done);
     
       let req = server.requests[1];
       req.requestBody.should.have.property("postkey", "post value");

@@ -30,7 +30,7 @@ const ajax = req =>
         else
           reject(JSON.stringify(res));
       }
-    }
+    };
 
     let defaultHeaders = {
       "Content-Type": "application/json"
@@ -46,6 +46,6 @@ const ajax = req =>
     }
 
     xmlhttp.send(body);
-  })
+  });
 
 export default ajax;

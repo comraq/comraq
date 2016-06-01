@@ -1,9 +1,6 @@
 // Karma configuration
 // Generated on Sun May 15 2016 11:21:04 GMT-0400 (EDT)
 
-var JS_SRC = "./src/**/*.js",
-    JS_TESTS_SRC = "./test/**/*.spec.js";
-
 module.exports = function(config) {
   config.set({
 
@@ -18,7 +15,7 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      "./test/ajax.spec.js"
+      "./test/**.spec.js"
     ],
 
 
@@ -30,7 +27,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      "./test/ajax.spec.js": [ "browserify" ]
+      "./test/**.spec.js": [ "browserify" ]
     },
 
     // Browserify Configuration
@@ -78,5 +75,5 @@ module.exports = function(config) {
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: Infinity
-  })
-}
+  });
+};
