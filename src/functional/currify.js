@@ -1,4 +1,4 @@
-import { isFunction } from "../utils/checks";
+import { isFunction } from "./../utils/checks";
 
 const currify = selfFunc => {
   if (!isFunction(selfFunc))
@@ -6,16 +6,20 @@ const currify = selfFunc => {
       `First argument '${selfFunc}' of currify is not a function!`
     );
 
-  return (...args) => {
-    const next = args[0];
+  return function() {
+    const next = arguments[0];
+
     if (!isFunction(next)) {
       // First argument is not a function, execute and return result
-      return selfFunc.apply(null, args);
+
+      // Always pass all potential arguments to to-be-called function (selfFunc)
+      // Regardless of selfFunc.length
+      return selfFunc.apply(null, arguments);
     }
 
-    return function() {
-      return currify(selfFunc)(next.apply(null, arguments));
-    };
+    // Always pass all potential arguments to to-be-called function (selfFunc)
+    // Regardless of selfFunc.length
+    return (...args) => currify(selfFunc)(next.apply(null, args));
   };
 };
 
