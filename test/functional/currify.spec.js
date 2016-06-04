@@ -89,6 +89,8 @@ export default () => {
     // Map Functions
     const capNames = e =>
       Object.assign({}, e, { name: e.name.toUpperCase() });
+    const repeatOnce = e =>
+      Object.assign({}, e, { name: e.name + e.name });
 
     const capFirst = e =>
       Object.assign({}, e, {
@@ -116,14 +118,13 @@ export default () => {
       map(capFirst)
     );
     const getFrequentName = pipe(
-      map(capFirst),
-      filter(realName),
-      filter(oneWord),
+      map(repeatOnce, capFirst),
+      filter(realName, oneWord),
       reduce(fullName)
     );
 
     getFullCapsName(data).should.equal("YIN YI RAN");
     getFullName(data).should.equal("Yin Yi Ran");
-    getFrequentName(data).should.equal("Adam Yin");
+    getFrequentName(data).should.equal("AdamAdam YinYin");
   });
 };

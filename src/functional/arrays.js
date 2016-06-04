@@ -43,8 +43,37 @@ const getResults = (name, arrayFunc, ...args) => {
 
 export const map = (...args) => getResults("Map", Array.prototype.map, ...args);
 
+/**
+ * A filter allowing any number of functions to be passed and composed
+ * before a final filter function returning a boolean is called
+ */
 export const filter = (...args) =>
-  getResults("Filter", Array.prototype.filter, ...args);
+  getResults("Filter", Array.prototype.filter,
+    ...(args.map(arg => {
+      /**
+       * Add a hook to each function passed to filter, by returning the
+       * array elem value if not false, allowing the continuation of
+       * function composition before returning boolean to filter
+       * 
+       * If false, shortcircuit and return false immediately
+       *
+       * Note: Since, non-filter methods can be passed, check strict
+       *       equality with false to avoid entries such as
+       *       number 0 type coercing into false
+       */
+      let result = arg;
+      if (isFunction(arg)) {
+        result = (e, i, array) => {
+          if (e === false || arg(e, i, array) === false )
+            return false;
+
+          return e || arg(e, i, array);
+        };
+      }
+
+      return result;
+    }))
+  );
 
 export const reduceLeft = (...args) =>
   getResults("ReduceLeft", Array.prototype.reduce, ...args);
