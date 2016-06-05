@@ -1,6 +1,6 @@
 import { isFunction } from "./../utils/checks";
 
-const currify = selfFunc => {
+const composable = selfFunc => {
   if (!isFunction(selfFunc))
     throw new Error(
       `First argument '${selfFunc}' of currify is not a function!`
@@ -19,8 +19,8 @@ const currify = selfFunc => {
 
     // Always pass all potential arguments to to-be-called function (selfFunc)
     // Regardless of selfFunc.length
-    return (...args) => currify(selfFunc)(next.apply(null, args));
+    return (...args) => composable(selfFunc)(next.apply(null, args));
   };
 };
 
-export default currify;
+export default composable;

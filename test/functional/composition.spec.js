@@ -1,5 +1,5 @@
 import { compose, pipe } from "../../src/functional/composition";
-import currify from "../../src/functional/currify";
+import composable from "../../src/functional/composable";
 
 export default () => {
   const a = 10, b = -4, c = 0, d = 100;
@@ -7,8 +7,8 @@ export default () => {
   const incBy10 = value => value + 10;
   const triple = value => value * 3;
 
-  const inc10C = currify(incBy10);
-  const tripleC = currify(triple);
+  const inc10C = composable(incBy10);
+  const tripleC = composable(triple);
 
   describe("compose:", () => {
     it("should return a function when only functions supplied", () => {
@@ -31,7 +31,7 @@ export default () => {
     });
 
     it("returned function can compose and "
-       + "currify with any number of functions", () => {
+       + "composable with any number of functions", () => {
 
       const resultA = compose(compose(inc10C, tripleC),
                         compose(tripleC, inc10C))(a);
@@ -67,7 +67,7 @@ export default () => {
     });
 
     it("returned function can pipe and "
-       + "currify with any number of functions", () => {
+       + "composable with any number of functions", () => {
 
       const resultA = pipe(pipe(inc10C, tripleC),
                         pipe(tripleC, inc10C))(a);

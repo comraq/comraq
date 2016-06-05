@@ -1,8 +1,8 @@
 import { isFunction, isArray } from "./../utils/checks";
 
-import currify from "./currify";
+import composable from "./composable";
 
-const getResult = (reducer, ...args) => {
+const getResult = (reducer, spread, ...args) => {
   return reducer.call(args, (result, func) => {
     if (!isFunction(func))
       throw new Error("Composition functions cannot take non-function "
@@ -12,7 +12,7 @@ const getResult = (reducer, ...args) => {
      * All user function params captured/bundled in array
      * Spread/Rest to pass them all into user function
      */
-    if (isArray(result))
+    if (isArray(result) && spread)
       return func(...result);
 
     else
@@ -28,7 +28,7 @@ export const compose = (...args) => {
     if (args.length <= 1)
       throw new Error("Functions must be supplied before targets!");
 
-    return getResult(Array.prototype.reduceRight, ...args);
+    return getResult(Array.prototype.reduceRight, false, ...args);
   }
 
   /**
@@ -37,9 +37,15 @@ export const compose = (...args) => {
    *
    * Call user func by bundling all potential params in array
    */
-  return currify((...targets) =>
-    getResult(Array.prototype.reduceRight, ...args, targets)
-  );
+  return composable((...targets) => {
+    let spread = true;
+    if (targets.length <= 1) {
+      spread = false;
+      targets = targets[0];
+    }
+
+    return getResult(Array.prototype.reduceRight, spread, ...args, targets);
+  });
 
 };
 
@@ -51,10 +57,16 @@ export const pipe = (...args) => {
       return target;
 
     else
-      return getResult(Array.prototype.reduce, ...args);
+      return getResult(Array.prototype.reduce, false, ...args);
   }
 
-  return currify((...targets) =>
-    getResult(Array.prototype.reduce, targets, ...args)
-  );
+  return composable((...targets) => {
+    let spread = true;
+    if (targets.length <= 1) {
+      spread = false;
+      targets = targets[0];
+    }
+
+    return getResult(Array.prototype.reduce, spread, targets, ...args);
+  });
 };

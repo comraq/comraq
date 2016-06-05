@@ -1,4 +1,4 @@
-import currify from "./../../src/functional/currify";
+import composable from "./../../src/functional/composable";
 import { compose, pipe } from "./../../src/functional/composition";
 
 import {
@@ -7,64 +7,64 @@ import {
          reduceLeft as reduce
        } from "./../../src/functional/arrays";
 
-export default () => {
-  const testData = [ 1, 2, 3 ];
+import { namesData, numbersData } from "./../test-data";
 
+export default () => {
   const incBy10 = numbers => numbers.map(arg => arg + 10);
   const triple = numbers => numbers.map(arg => arg * 3);
 
   it("should return a function", () => {
-    const result = currify(incBy10);
+    const result = composable(incBy10);
 
     result.should.be.a("function");
   });
 
   it("should throw error with non-function as first argument", () => {
-    expect(currify).to.throw(/.*/);
-    expect(currify.bind(null, "a string")).to.throw(/.*/);
-    expect(currify.bind(null, "a string", incBy10)).to.throw(/.*/);
+    expect(composable).to.throw(/.*/);
+    expect(composable.bind(null, "a string")).to.throw(/.*/);
+    expect(composable.bind(null, "a string", incBy10)).to.throw(/.*/);
   });
 
-  it("currified function should evaluate results "
+  it("composable function should evaluate results "
      + "if non-function is passed as first argument", () => {
     const add = (a, b = -1, c = -3) => a + b + c;
-    const addC = currify(add);
+    const addC = composable(add);
 
     addC(10, 11, 12).should.equal(add(10, 11, 12));
     addC(10).should.equal(add(10));
   });
 
-  it("currified function should return a function "
+  it("composable function should return a function "
      + "if function is passed as first argument", () => {
-    const inc10C = currify(incBy10);
+    const inc10C = composable(incBy10);
 
     inc10C(() => {}).should.be.a("function");
   });
 
-  it("currified function should be composable "
-     + "with non-currified functions", () => {
-    const tripleC = currify(triple);
+  it("composable function should be composable "
+     + "with non-composable functions", () => {
+    const tripleC = composable(triple);
     const inc10ThenTriple = tripleC(incBy10);
 
     inc10ThenTriple.should.be.a("function");
-    inc10ThenTriple(testData).should.deep.equal(testData
+    inc10ThenTriple(numbersData).should.deep.equal(numbersData
       .map(e =>
         (e + 10) * 3
       )
     );
   });
 
-  it("currified function composed with non-currified functions "
+  it("composable function composed with non-composable functions "
      + "cannot be further composed", () => {
-    const tripleC = currify(triple);
+    const tripleC = composable(triple);
     const inc10ThenTriple = tripleC(incBy10);
 
     expect(inc10ThenTriple.bind(null, incBy10)).to.throw(/.*/);
   });
 
-  it("currified functions can infinitely compose", () => {
-    const tripleC = currify(triple);
-    const inc10C = currify(incBy10);
+  it("composable functions can infinitely compose", () => {
+    const tripleC = composable(triple);
+    const inc10C = composable(incBy10);
 
     let temp = inc10C;
     for (let i = 0; i < 9; ++i)
@@ -73,19 +73,12 @@ export default () => {
     const inc100Triple = tripleC(temp);
 
     inc100Triple.should.be.a("function");
-    inc100Triple(testData).should.deep.equal(
-      testData.map(e => (e + 10 * 10) * 3)
+    inc100Triple(numbersData).should.deep.equal(
+      numbersData.map(e => (e + 10 * 10) * 3)
     );
   });
 
   it("works with map, reduce and filter", () => {
-    const data = [
-      { name: "adam", type: "common name" },
-      { name: "comraq", type: "username" },
-      { name: "yin", type: "last name" },
-      { name: "yi ran", type: "first name" }
-    ];
-
     // Map Functions
     const capNames = e =>
       Object.assign({}, e, { name: e.name.toUpperCase() });
@@ -123,8 +116,8 @@ export default () => {
       reduce(fullName)
     );
 
-    getFullCapsName(data).should.equal("YIN YI RAN");
-    getFullName(data).should.equal("Yin Yi Ran");
-    getFrequentName(data).should.equal("AdamAdam YinYin");
+    getFullCapsName(namesData).should.equal("YIN YI RAN");
+    getFullName(namesData).should.equal("Yin Yi Ran");
+    getFrequentName(namesData).should.equal("AdamAdam YinYin");
   });
 };

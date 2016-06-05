@@ -1,11 +1,13 @@
 import currySpecs from "./functional/curry.spec";
-import currifySpecs from "./functional/currify.spec";
-import arraysSpecs from "./functional/arrays.spec";
+import composableSpecs from "./functional/composable.spec";
 import compositionSpecs from "./functional/composition.spec";
+import arraysSpecs from "./functional/arrays.spec";
+import propSpecs from "./functional/prop.spec";
 
 describe("functional:", () => {
   describe("curry:", currySpecs);
-  describe("currify:", currifySpecs);
+  describe("composable:", composableSpecs);
   describe("composition:", compositionSpecs);
   describe("arrays:", arraysSpecs);
+  describe("prop:", propSpecs);
 });
