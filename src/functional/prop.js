@@ -1,7 +1,6 @@
 import { isString, isNumber, isUndefined, isNull } from "./../utils/checks";
 
-import curry from "./curry";
-import composable from "./composable";
+import { currify } from "./curry";
 
 /**
  * @function - Gets the property of a target object
@@ -14,32 +13,30 @@ import composable from "./composable";
  *   - value of property from target if found
  *   - null otherwise
  */
-export const getProp = (prop, target) => {
+export const getProp = currify((prop, target) => {
   if (!isString(prop) && !isNumber(prop))
     throw new Error(
       `First argument '${prop}' of getProp must be string or number!`
     );
 
-  if (!isUndefined(target) && !isNull(target))
-    return (isUndefined(target[prop]))? null: target[prop];
+  if (isUndefined(target) || isNull(target) || (isUndefined(target[prop])))
+    return null;
 
-  return composable(curry(getProp, prop));
-};
+  return target[prop];
+});
 
-export const withProp = (prop, value = null, target) => {
+export const withProp = currify((prop, value = null, target) => {
   if (!isString(prop) && !isNumber(prop))
     throw new Error(
       `First argument '${prop}' of getProp must be string or number!`
     );
 
+  let temp = {};
   if (!isUndefined(target) && !isNull(target)) {
     target = (isString(target))? {}: target;
 
-    let temp = {};
     temp[prop] = value;
-
-    return Object.assign({}, target, temp);
   }
 
-  return composable(curry(withProp, prop, value));
-};
+  return Object.assign({}, target, temp);
+}, 3);

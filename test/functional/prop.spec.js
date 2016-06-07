@@ -5,7 +5,7 @@ import { getProp, withProp } from "./../../src/functional/prop";
 import {
          map,
          filter,
-         reduceLeft as reduce
+         reduce
        } from "./../../src/functional/arrays";
 
 import {
@@ -24,7 +24,7 @@ export default () => {
     });
 
     it("should throw error when prop is not string or number", () => {
-      expect(getProp).to.throw(/.*/);
+      expect(getProp.bind(null, undefined, true)).to.throw(/.*/);
       expect(getProp.bind(null, [], 1234)).to.throw(/.*/);
       expect(getProp.bind(null, {}, "a string")).to.throw(/.*/);
       expect(getProp.bind(null, null, "a string")).to.throw(/.*/);
@@ -39,13 +39,13 @@ export default () => {
 
     it("can be used in composition with other functions", () => {
       const A = compose(
-        map(upper, getProp("name")),
-        filter(positive, getProp("id"))
+        map(compose(upper, getProp("name"))),
+        filter(compose(positive, getProp("id")))
       );
 
       const B = pipe(namesData, getProp(0), getProp("id"), triple);
       const C = compose(triple, getProp("id"), getProp(0));
-      const D = reduce(add)(A);
+      const D = compose(reduce(add), A);
     
       A(namesData).should.deep.equal([ "ADAM", "COMRAQ", "YIN" ]);
       B.should.equal(namesData[0]["id"] * 3);
@@ -61,11 +61,11 @@ export default () => {
     });
 
     it("should throw error when prop is not string or number", () => {
-      expect(withProp).to.throw(/.*/);
-      expect(withProp.bind(null, [], 1234)).to.throw(/.*/);
-      expect(withProp.bind(null, {}, "a string")).to.throw(/.*/);
-      expect(withProp.bind(null, null, "a string")).to.throw(/.*/);
-      expect(withProp.bind(null, true, "a string")).to.throw(/.*/);
+      expect(withProp.bind(null, false, null, undefined)).to.throw(/.*/);
+      expect(withProp.bind(null, [], 1234, true)).to.throw(/.*/);
+      expect(withProp.bind(null, {}, "a string", null)).to.throw(/.*/);
+      expect(withProp.bind(null, null, "a string", undefined)).to.throw(/.*/);
+      expect(withProp.bind(null, true, "a string", 1)).to.throw(/.*/);
     });
 
     it("should return new object if prop, value and target are passed", () => {
@@ -89,15 +89,15 @@ export default () => {
     });
 
     it("can be used in composition with other functions", () => {
-      const A = pipe(namesData, filter(positive, withProp("id", -1)));
+      const A = pipe(namesData, filter(compose(positive, withProp("id", -1))));
       A.should.deep.equal([]);
 
       const lengthLT = composable((len, e) => e.length < len);
       let lenLT5 = curry(lengthLT, 5);
 
       const B = compose(
-        map(upper, getProp(2), withProp(2, "random")),
-        filter(lenLT5, getProp("name"))
+        map(compose(upper, getProp(2), withProp(2, "random"))),
+        filter(compose(lenLT5, getProp("name")))
       );
 
       B(namesData).should.deep.equal([ "RANDOM", "RANDOM" ]);

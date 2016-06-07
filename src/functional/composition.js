@@ -1,7 +1,5 @@
 import { isFunction, isArray } from "./../utils/checks";
 
-import composable from "./composable";
-
 const getResult = (reducer, spread, ...args) => {
   return reducer.call(args, (result, func) => {
     if (!isFunction(func))
@@ -37,7 +35,7 @@ export const compose = (...args) => {
    *
    * Call user func by bundling all potential params in array
    */
-  return composable((...targets) => {
+  return (...targets) => {
     let spread = true;
     if (targets.length <= 1) {
       spread = false;
@@ -45,8 +43,7 @@ export const compose = (...args) => {
     }
 
     return getResult(Array.prototype.reduceRight, spread, ...args, targets);
-  });
-
+  };
 };
 
 export const pipe = (...args) => {
@@ -60,7 +57,7 @@ export const pipe = (...args) => {
       return getResult(Array.prototype.reduce, false, ...args);
   }
 
-  return composable((...targets) => {
+  return (...targets) => {
     let spread = true;
     if (targets.length <= 1) {
       spread = false;
@@ -68,5 +65,5 @@ export const pipe = (...args) => {
     }
 
     return getResult(Array.prototype.reduce, spread, targets, ...args);
-  });
+  };
 };

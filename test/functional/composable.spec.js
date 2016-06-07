@@ -4,7 +4,7 @@ import { compose, pipe } from "./../../src/functional/composition";
 import {
          map,
          filter,
-         reduceLeft as reduce
+         reduce
        } from "./../../src/functional/arrays";
 
 import { namesData, numbersData } from "./../test-data";
@@ -104,15 +104,20 @@ export default () => {
     const fullName = (curr, next) =>
       curr.name + ` ${next.name}`;
 
-    const getFullCapsName = reduce(fullName)(filter(legalName))(map(capNames));
+    const getFullCapsName = compose(
+      reduce(fullName),
+      filter(legalName),
+      map(capNames)
+    );
     const getFullName = compose(
       reduce(fullName),
       filter(legalName),
       map(capFirst)
     );
     const getFrequentName = pipe(
-      map(repeatOnce, capFirst),
-      filter(realName, oneWord),
+      map(compose(repeatOnce, capFirst)),
+      filter(oneWord),
+      filter(realName),
       reduce(fullName)
     );
 

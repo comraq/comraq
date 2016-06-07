@@ -1,6 +1,6 @@
 export { default as map } from "./map";
 export { default as filter } from "./filter";
 export { default as reverse } from "./reverse";
-export { reduceLeft, reduceRight } from "./reduce";
+export { default as reduce, reduceRight } from "./reduce";
 
-//TODO: every/all, 
+//TODO: every/all, some, join, first, last

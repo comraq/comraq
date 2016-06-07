@@ -1,9 +1,10 @@
 import { compose } from "./../../src/functional/composition";
+import { trace } from "./../../src/functional/utils";
 
 import {
          map,
          filter,
-         reduceLeft as reduceL,
+         reduce as reduceL,
          reduceRight as reduceR
        } from "./../../src/functional/arrays";
 
@@ -33,23 +34,16 @@ export default () => {
     });
 
     it("should throw error with non-function before last argument", () => {
-      expect(map).to.throw(/.*/);
+      expect(map.bind(null, undefined, undefined)).to.throw(/.*/);
       expect(map.bind(null, "a string", numbersData)).to.throw(/.*/);
       expect(map.bind(null, triple, "a string", numbersData)).to.throw(/.*/);
     });
 
     it("can infinitely compose", () => {
-      const A = map(inc10(triple(inc10)));
-      const B = map(inc10, inc10, triple);
-      const C = map(inc10(compose(triple, inc10, inc10)));
-      const D = map(inc10(compose(triple, inc10, inc10)))(map(inc10));
-      const E = map(triple, inc10, inc10, numbersData);
+      const B = map(compose(inc10, inc10, triple));
+      const C = compose(map(inc10), map(compose(triple, inc10, inc10)));
+      const E = map(compose(triple, inc10, inc10))(numbersData);
 
-      A(numbersData).should.deep.equal(numbersData
-        .map(e =>
-          (e + 10) * 3 + 10
-        )
-      );
       B(numbersData).should.deep.equal(numbersData
         .map(e =>
           e * 3 + 10 + 10
@@ -58,11 +52,6 @@ export default () => {
       C(numbersData).should.deep.equal(numbersData
         .map(e =>
           (e + 10 + 10) * 3 + 10
-        )
-      );
-      D(numbersData).should.deep.equal(numbersData
-        .map(e =>
-          (e + 10 + 10 + 10) * 3 + 10
         )
       );
 
@@ -89,18 +78,20 @@ export default () => {
     });
 
     it("should throw error with non-function before last argument", () => {
-      expect(filter).to.throw(/.*/);
+      expect(filter.bind(null, inc10, {})).to.throw(/.*/);
       expect(filter.bind(null, "a string", numbersData)).to.throw(/.*/);
       expect(filter.bind(null, triple, "a string", numbersData)).to.throw(/.*/);
     });
 
     it("can infinitely compose", () => {
-      const A = filter(positive, triple);
-      const B = filter(even, inc10, inc10, triple);
-      const C = filter(even(compose(triple, inc10, inc10)));
-      const D = filter(even(compose(triple, inc10, inc10)))(map(inc10));
-      const E = filter(positive)(
-                  filter(even, inc10, triple, triple, numbersData)
+      const A = filter(compose(positive, triple));
+      const B = filter(compose(even, inc10, inc10, triple));
+      const D = compose(
+                  filter(compose(even, triple, inc10, inc10)), map(inc10)
+                );
+      const E = compose(
+                  filter(positive),
+                  filter(compose(even, inc10, triple, triple))
                 );
 
       A(numbersData).should.deep.equal(numbersData
@@ -113,11 +104,6 @@ export default () => {
           (e * 3 + 10 + 10) % 2 === 0
         )
       );
-      C(numbersData).should.deep.equal(numbersData
-        .filter(e =>
-          ((e + 10 + 10) * 3) % 2 === 0
-        )
-      );
       D(numbersData).should.deep.equal(numbersData
         .map(e =>
           e + 10
@@ -126,7 +112,7 @@ export default () => {
           ((e + 10 + 10) * 3) % 2 === 0
         )
       );
-      E.should.deep.equal(numbersData
+      E(numbersData).should.deep.equal(numbersData
         .filter(e =>
           (e * 3 * 3 + 10) % 2 === 0 && e > 0
         )
@@ -148,15 +134,19 @@ export default () => {
     });
 
     it("should throw error with non-function before last argument", () => {
-      expect(reduceL).to.throw(/.*/);
+      expect(reduceL.bind(null, add, null)).to.throw(/.*/);
       expect(reduceL.bind(null, "a string", numbersData)).to.throw(/.*/);
       expect(reduceL.bind(null, add, "a string", numbersData)).to.throw(/.*/);
     });
 
     it("should reduce array results to single value", () => {
       const A = reduceL(add);
-      const B = reduceL(subtract)(map(triple));
-      const C = reduceL(add)(map(inc10, triple))(filter(even));
+      const B = compose(reduceL(subtract), map(triple));
+      const C = compose(
+        reduceL(add),
+        map(compose(inc10, triple)),
+        filter(even)
+      );
 
       A(numbersData).should.equal(numbersData
         .reduce((a, b) =>
@@ -201,15 +191,19 @@ export default () => {
     });
 
     it("should throw error with non-function before last argument", () => {
-      expect(reduceR).to.throw(/.*/);
+      expect(reduceR.bind(null, add, null)).to.throw(/.*/);
       expect(reduceR.bind(null, "a string", numbersData)).to.throw(/.*/);
       expect(reduceR.bind(null, add, "a string", numbersData)).to.throw(/.*/);
     });
 
     it("should reduce array results to single value", () => {
       const A = reduceR(add);
-      const B = reduceR(subtract)(map(triple));
-      const C = reduceR(add)(map(inc10, triple))(filter(even));
+      const B = compose(reduceR(subtract), map(triple));
+      const C = compose(
+        reduceR(add),
+        map(compose(inc10, triple)),
+        filter(even)
+      );
       const D = reduceR(add);
       const E = reduceR(subtract);
 

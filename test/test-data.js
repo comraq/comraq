@@ -1,5 +1,3 @@
-import composable from "./../src/functional/composable";
-
 export const numbersData = [ 1, 2, 3, 10, 0, -3 ];
 
 export const namesData = [
@@ -9,15 +7,15 @@ export const namesData = [
   { name: "yi ran", type: "first name", id: -3 }
 ];
 
-export const inc10 = composable(value => value + 10);
-export const triple = composable(value => value * 3);
+export const inc10 = value => value + 10;
+export const triple = value => value * 3;
 
-export const even = composable(value => value % 2 === 0);
-export const positive = composable(value => value > 0);
+export const even = value => value % 2 === 0;
+export const positive = value => value > 0;
 
-export const add = composable((valA, valB) => valA + valB);
-export const subtract = composable((valA, valB) => valA - valB);
-export const upper = composable(e => e.toUpperCase());
+export const add = (valA, valB) => valA + valB;
+export const subtract = (valA, valB) => valA - valB;
+export const upper = e => e.toUpperCase();
 
 export const multiply = (a, b) => a * b;
 export const getZero = () => 0;
