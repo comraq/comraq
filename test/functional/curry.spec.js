@@ -1,4 +1,6 @@
-import curry from "../../src/functional/curry";
+import { curry, currify } from "../../src/functional/curry";
+
+import { multiply, getZero, add } from "../test-data";
 
 export default () => {
   describe("curry:", () => {
@@ -40,9 +42,26 @@ export default () => {
     });
   });
 
-  describe("autoCurry:", () => {
-    it("should return a function", () => {
-      expect.fail(true, true, "autoCurry not yet implemented");
+  describe("currify:", () => {
+    it("should return a function with not enough arguments passed", () => {
+      currify(a => a).should.be.a("function");
+      currify((a, b) => b)(123).should.be.a("function");
+    });
+
+    it("should evaluate results when enough arguments are passed", () => {
+      expect(currify(() => {})).to.equal(undefined);
+      currify(getZero).should.equal(0);
+      currify(multiply)(13)(2).should.equal(26);
+    });
+
+    it("currified functions can take variadic number of arguments", () => {
+      const fiveArgs = function(a, b, c, d, e) {
+        return Array.prototype.reduce.call(arguments, add);
+      };
+
+      currify(getZero).should.equal(0);
+      currify(multiply)(13, 2).should.equal(26);
+      currify(fiveArgs)(1, 2)(3, 4, 5).should.equal(15);
     });
   });
 };

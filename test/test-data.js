@@ -19,3 +19,7 @@ export const add = composable((valA, valB) => valA + valB);
 export const subtract = composable((valA, valB) => valA - valB);
 export const upper = composable(e => e.toUpperCase());
 
+export const multiply = (a, b) => a * b;
+export const getZero = () => 0;
+
+export const addAll = (...vals) => vals.reduce(add);
