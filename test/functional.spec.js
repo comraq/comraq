@@ -3,6 +3,8 @@ import composableSpecs from "./functional/composable.spec";
 import compositionSpecs from "./functional/composition.spec";
 import arraysSpecs from "./functional/arrays.spec";
 import propSpecs from "./functional/prop.spec";
+import stringsSpecs from "./functional/strings.spec";
+import fantasyLandSpecs from "./functional/fantasy-land.spec";
 
 describe("functional:", () => {
   describe("curry:", currySpecs);
@@ -10,4 +12,6 @@ describe("functional:", () => {
   describe("composition:", compositionSpecs);
   describe("arrays:", arraysSpecs);
   describe("prop:", propSpecs);
+  describe("strings:", stringsSpecs);
+  describe("fantasy-land:", fantasyLandSpecs);
 });

@@ -2,6 +2,7 @@ import { curry } from "./../../src/functional/curry";
 import composable from "./../../src/functional/composable";
 import { compose, pipe } from "./../../src/functional/composition";
 import { getProp, withProp } from "./../../src/functional/prop";
+import { upper } from "./../../src/functional/strings";
 import {
          map,
          filter,
@@ -11,7 +12,6 @@ import {
 import {
          namesData,
          positive,
-         upper,
          triple,
          add
        } from "./../test-data";

@@ -15,7 +15,6 @@ export const positive = value => value > 0;
 
 export const add = (valA, valB) => valA + valB;
 export const subtract = (valA, valB) => valA - valB;
-export const upper = e => e.toUpperCase();
 
 export const multiply = (a, b) => a * b;
 export const getZero = () => 0;

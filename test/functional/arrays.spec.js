@@ -1,11 +1,12 @@
 import { compose } from "./../../src/functional/composition";
-import { trace } from "./../../src/functional/utils";
 
 import {
-         map,
-         filter,
+         map, filter,
          reduce as reduceL,
-         reduceRight as reduceR
+         reduceRight as reduceR,
+         slice,
+         head, tail,
+         take, takeWhile
        } from "./../../src/functional/arrays";
 
 import {
@@ -233,6 +234,41 @@ export default () => {
       );
       D(numbersData).should.equal(reduceL(add, numbersData));
       E(numbersData).should.not.equal(reduceL(subtract, numbersData));
+    });
+  });
+
+  describe("slice:", () => {
+    it("should return a sub-array or substring", () => {
+      const s = "asdfg";
+      const a = [ true, false, null, s, 104 ];
+
+      slice(0, 3)(s).should.equal("asd");
+      slice(2)(4)(a).should.deep.equal([ null, s ]);
+    });
+  });
+
+  describe("head:", () => {
+    it("should return the first element of the array", () => {
+      expect.fail(head, null, "test not yet implemented");
+    });
+  });
+
+  describe("tail:", () => {
+    it("should return all array elements except the first", () => {
+      expect.fail(tail, null, "test not yet implemented");
+    });
+  });
+
+  describe("take:", () => {
+    it("should return a sub-array from the head specified by count", () => {
+      expect.fail(take, null, "test not yet implemented");
+    });
+  });
+
+  describe("takeWhile:", () => {
+    it("should return a sub-array from the head until "
+       + "function passed as argument returns false", () => {
+      expect.fail(takeWhile, null, "test not yet implemented");
     });
   });
 };
