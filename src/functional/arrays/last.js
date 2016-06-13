@@ -1,8 +1,12 @@
-import { isArray, isUndefined } from "./../../utils/checks";
+import { isArray, isUndefined, isIterable } from "./../../utils/checks";
 
 export default a => {
-  if (!isArray(a))
-    throw new Error(`Cannot get last element of non-array ${a}!`);
+  if (!isIterable(a))
+    throw new Error(`Cannot get last element of non-iterable ${a}!`);
 
-  return (isUndefined(a[a.length - 1]))? null: a[a.length - 1];
+  else if (isArray(a))
+    return (isUndefined(a[a.length - 1]))? null: a[a.length - 1];
+
+  for (var item of a) {}
+  return item;
 };

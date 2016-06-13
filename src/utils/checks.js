@@ -18,3 +18,5 @@ export const isNull = target => is(target, "Null");
 export const isUndefined = target => is(target, "Undefined");
 
 export const isBoolean = target => is(target, "Boolean");
+
+export const isIterable = target => isFunction(target[Symbol.iterator]);

@@ -6,7 +6,7 @@ import { upper } from "./../../src/functional/strings";
 import {
          map,
          filter,
-         reduce
+         reduce1
        } from "./../../src/functional/arrays";
 
 import {
@@ -45,7 +45,7 @@ export default () => {
 
       const B = pipe(namesData, getProp(0), getProp("id"), triple);
       const C = compose(triple, getProp("id"), getProp(0));
-      const D = compose(reduce(add), A);
+      const D = compose(reduce1(add), A);
     
       A(namesData).should.deep.equal([ "ADAM", "COMRAQ", "YIN" ]);
       B.should.equal(namesData[0]["id"] * 3);

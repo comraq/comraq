@@ -4,7 +4,7 @@ import { compose, pipe } from "./../../src/functional/composition";
 import {
          map,
          filter,
-         reduce
+         reduce1
        } from "./../../src/functional/arrays";
 
 import { namesData, numbersData } from "./../test-data";
@@ -105,12 +105,12 @@ export default () => {
       curr.name + ` ${next.name}`;
 
     const getFullCapsName = compose(
-      reduce(fullName),
+      reduce1(fullName),
       filter(legalName),
       map(capNames)
     );
     const getFullName = compose(
-      reduce(fullName),
+      reduce1(fullName),
       filter(legalName),
       map(capFirst)
     );
@@ -118,7 +118,7 @@ export default () => {
       map(compose(repeatOnce, capFirst)),
       filter(oneWord),
       filter(realName),
-      reduce(fullName)
+      reduce1(fullName)
     );
 
     getFullCapsName(namesData).should.equal("YIN YI RAN");

@@ -7,6 +7,8 @@ export const namesData = [
   { name: "yi ran", type: "first name", id: -3 }
 ];
 
+export const array1 = [ true, false, null, "asdfg", 104 ];
+
 export const inc10 = value => value + 10;
 export const triple = value => value * 3;
 

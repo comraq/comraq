@@ -1,11 +1,14 @@
+import { isNumber } from "./../../src/utils/checks";
 import { compose } from "./../../src/functional/composition";
 
 import {
          map, filter,
          reduce as reduceL,
          reduceRight as reduceR,
+         reduce1 as reduceL1,
+         reduceRight1 as reduceR1,
          slice,
-         head, tail,
+         head, tail, init, last,
          take, takeWhile
        } from "./../../src/functional/arrays";
 
@@ -16,18 +19,19 @@ import {
          even,
          positive,
          add,
-         subtract
+         subtract,
+         array1
        } from "./../test-data";
 
 export default () => {
   describe("map:", () => {
-    it("should return a function when array not supplied", () => {
+    it("should return a function when iterable not supplied", () => {
       const result = map(inc10);
 
       result.should.be.a("function");
     });
 
-    it("should evaluate results when array is supplied", () => {
+    it("should evaluate results when iterable is supplied", () => {
       const result1 = map(inc10, numbersData);
       const result2 = map(inc10)(numbersData);
 
@@ -65,13 +69,13 @@ export default () => {
   });
 
   describe("filter:", () => {
-    it("should return a function when array not supplied", () => {
+    it("should return a function when iterable not supplied", () => {
       const result = filter(even);
 
       result.should.be.a("function");
     });
 
-    it("should evaluate results when array is supplied", () => {
+    it("should evaluate results when iterable is supplied", () => {
       const result1 = filter(even, numbersData);
       const result2 = filter(even)(numbersData);
 
@@ -122,29 +126,82 @@ export default () => {
   });
 
   describe("reduceLeft:", () => {
-    it("should return a function when array not supplied", () => {
+    it("should return a function when iterable not supplied", () => {
       const result = reduceL(add);
       result.should.be.a("function");
     });
 
-    it("should evaluate results when array is supplied", () => {
-      const result1 = reduceL(subtract, numbersData);
-      const result2 = reduceL(subtract)(numbersData);
+    it("should evaluate results when iterable is supplied", () => {
+      const result1 = reduceL(subtract, 0, numbersData);
+      const result2 = reduceL(subtract, 0)(numbersData);
 
       result1.should.deep.equal(result2);
     });
 
     it("should throw error with non-function before last argument", () => {
-      expect(reduceL.bind(null, add, null)).to.throw(/.*/);
-      expect(reduceL.bind(null, "a string", numbersData)).to.throw(/.*/);
-      expect(reduceL.bind(null, add, "a string", numbersData)).to.throw(/.*/);
+      expect(reduceL.bind(null, add, null, null)).to.throw(/.*/);
+      expect(reduceL.bind(null, "a string", numbersData, true)).to.throw(/.*/);
     });
 
-    it("should reduce array results to single value", () => {
-      const A = reduceL(add);
-      const B = compose(reduceL(subtract), map(triple));
+    it("should reduce iterable results to single value", () => {
+      const A = reduceL(add, -3);
+      const B = compose(reduceL(subtract, 100), map(triple));
       const C = compose(
-        reduceL(add),
+        reduceL(add, 0),
+        map(compose(inc10, triple)),
+        filter(even)
+      );
+
+      A(numbersData).should.equal(numbersData
+        .reduce((a, b) =>
+          a + b
+        , -3)
+      );
+      B(numbersData).should.equal(numbersData
+        .map(e =>
+          e * 3
+        )
+        .reduce((a, b) =>
+          a - b
+        , 100)
+      );
+      C(numbersData).should.equal(numbersData
+        .filter(e =>
+          e % 2 === 0
+        )
+        .map(e =>
+          e * 3 + 10
+        )
+        .reduce((a, b) =>
+          a + b
+        , 0)
+      );
+    });
+  });
+
+  describe("reduceLeft1:", () => {
+    it("should return a function when iterable not supplied", () => {
+      const result = reduceL1(add);
+      result.should.be.a("function");
+    });
+
+    it("should evaluate results when iterable is supplied", () => {
+      const result1 = reduceL1(subtract, numbersData);
+      const result2 = reduceL1(subtract)(numbersData);
+
+      result1.should.deep.equal(result2);
+    });
+
+    it("should throw error with non-function before last argument", () => {
+      expect(reduceL1.bind(null, add, null)).to.throw(/.*/);
+      expect(reduceL1.bind(null, "a string", numbersData)).to.throw(/.*/);
+    });
+
+    it("should reduce iterable results to single value", () => {
+      const A = reduceL1(add);
+      const B = compose(reduceL1(subtract), map(triple));
+      const C = compose(
+        reduceL1(add),
         map(compose(inc10, triple)),
         filter(even)
       );
@@ -174,39 +231,94 @@ export default () => {
         )
       );
     });
-
   });
 
   describe("reduceRight:", () => {
-    it("should return a function when array not supplied", () => {
+    it("should return a function when iterable not supplied", () => {
       const result = reduceR(add);
 
       result.should.be.a("function");
     });
 
-    it("should evaluate results when array is supplied", () => {
-      const result1 = reduceR(subtract, numbersData);
-      const result2 = reduceR(subtract)(numbersData);
+    it("should evaluate results when iterable is supplied", () => {
+      const result1 = reduceR(subtract, 100, numbersData);
+      const result2 = reduceR(subtract, 100)(numbersData);
 
       result1.should.deep.equal(result2);
     });
 
     it("should throw error with non-function before last argument", () => {
-      expect(reduceR.bind(null, add, null)).to.throw(/.*/);
-      expect(reduceR.bind(null, "a string", numbersData)).to.throw(/.*/);
-      expect(reduceR.bind(null, add, "a string", numbersData)).to.throw(/.*/);
+      expect(reduceR.bind(null, add, null, true)).to.throw(/.*/);
+      expect(reduceR.bind(null, "a string", numbersData, null)).to.throw(/.*/);
     });
 
-    it("should reduce array results to single value", () => {
-      const A = reduceR(add);
-      const B = compose(reduceR(subtract), map(triple));
+    it("should reduce iterable results to single value", () => {
+      const A = reduceR(add, 29);
+      const B = compose(reduceR(subtract, 7), map(triple));
       const C = compose(
-        reduceR(add),
+        reduceR(add, 3),
         map(compose(inc10, triple)),
         filter(even)
       );
-      const D = reduceR(add);
-      const E = reduceR(subtract);
+      const D = reduceR(add, -3);
+
+      A(numbersData).should.equal(numbersData
+        .reduceRight((a, b) =>
+          a + b
+        , 29)
+      );
+      B(numbersData).should.equal(numbersData
+        .map(e =>
+          e * 3
+        )
+        .reduceRight((a, b) =>
+          a - b
+        , 7)
+      );
+      C(numbersData).should.equal(numbersData
+        .filter(e =>
+          e % 2 === 0
+        )
+        .map(e =>
+          e * 3 + 10
+        )
+        .reduceRight((a, b) =>
+          a + b
+        , 3)
+      );
+      D(numbersData).should.equal(reduceL(add, -3, numbersData));
+    });
+  });
+
+  describe("reduceRight1:", () => {
+    it("should return a function when iterable not supplied", () => {
+      const result = reduceR1(add);
+
+      result.should.be.a("function");
+    });
+
+    it("should evaluate results when iterable is supplied", () => {
+      const result1 = reduceR1(subtract, numbersData);
+      const result2 = reduceR1(subtract)(numbersData);
+
+      result1.should.deep.equal(result2);
+    });
+
+    it("should throw error with non-function before last argument", () => {
+      expect(reduceR1.bind(null, add, null)).to.throw(/.*/);
+      expect(reduceR1.bind(null, "a string", numbersData)).to.throw(/.*/);
+    });
+
+    it("should reduce iterable results to single value", () => {
+      const A = reduceR1(add);
+      const B = compose(reduceR1(subtract), map(triple));
+      const C = compose(
+        reduceR1(add),
+        map(compose(inc10, triple)),
+        filter(even)
+      );
+      const D = reduceR1(add);
+      const E = reduceR1(subtract);
 
       A(numbersData).should.equal(numbersData
         .reduceRight((a, b) =>
@@ -232,43 +344,57 @@ export default () => {
           a + b
         )
       );
-      D(numbersData).should.equal(reduceL(add, numbersData));
-      E(numbersData).should.not.equal(reduceL(subtract, numbersData));
+      D(numbersData).should.equal(reduceL1(add, numbersData));
+      E(numbersData).should.not.equal(reduceL1(subtract, numbersData));
     });
   });
 
   describe("slice:", () => {
     it("should return a sub-array or substring", () => {
       const s = "asdfg";
-      const a = [ true, false, null, s, 104 ];
 
       slice(0, 3)(s).should.equal("asd");
-      slice(2)(4)(a).should.deep.equal([ null, s ]);
+      slice(2)(4)(array1).should.deep.equal([ null, s ]);
     });
   });
 
   describe("head:", () => {
-    it("should return the first element of the array", () => {
-      expect.fail(head, null, "test not yet implemented");
+    it("should return the first element of the iterable", () => {
+      head(array1).should.be.true;
     });
   });
 
   describe("tail:", () => {
-    it("should return all array elements except the first", () => {
-      expect.fail(tail, null, "test not yet implemented");
+    it("should return all iterable elements except the first", () => {
+      tail(array1).should.deep.equal(slice(1, array1.length)(array1));
+    });
+  });
+
+  describe("init:", () => {
+    it("should return all iterable elements except the last", () => {
+      init(array1).should.deep.equal(slice(0, -1)(array1));
+    });
+  });
+
+  describe("last:", () => {
+    it("should return the last element of the iterable", () => {
+      last(array1).should.equal(104);
     });
   });
 
   describe("take:", () => {
-    it("should return a sub-array from the head specified by count", () => {
-      expect.fail(take, null, "test not yet implemented");
+    it("should return a sub collection of iterable "
+       + "from the head specified by count", () => {
+      take(2)(array1).should.deep.equal(slice(0, 2)(array1));
     });
   });
 
   describe("takeWhile:", () => {
-    it("should return a sub-array from the head until "
+    it("should return a sub collection of iterable from the head until "
        + "function passed as argument returns false", () => {
-      expect.fail(takeWhile, null, "test not yet implemented");
+      const notNumber = x => !isNumber(x);
+
+      takeWhile(notNumber)(array1).should.deep.equal(slice(0, 4)(array1));
     });
   });
 };

@@ -1,7 +1,7 @@
 {
-  "name": "gulp-setup",
+  "name": "comraq",
   "version": "0.0.0",
-  "description": "Skeleton project with my preferred gulp, browserify setup",
+  "description": "A list of my own utility functions with my preferred gulp, browserify setup",
   "main": "server-transpiled/index.js",
   "scripts": {
     "test": "./node_modules/gulp/bin/gulp.js test-karma",

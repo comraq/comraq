@@ -1,12 +1,12 @@
-import { isArray, isIterable, isFunction } from "./../../utils/checks";
-import { getIterator, reduce as iterReduce } from "./../iterables";
+import { isFunction, isArray, isIterable } from "./../../utils/checks";
+import { getIterator } from "./../iterables";
 
 export default a => {
   if (!isIterable(a))
-    throw new Error(`Cannot get tail elements of non-iterable ${a}!`);
+    throw new Error(`Cannot get init elements of non-iterable ${a}!`);
 
   else if (isArray(a))
-    return (a.length > 1)? a.slice(1): [];
+    return (a.length > 1)? a.slice(0, -1): [];
 
   // TODO: Eliminate the below checks after creating a Monoid class
   //       and checking for instanceof Monoid
@@ -21,11 +21,15 @@ export default a => {
     );
 
   const iterator = getIterator(a);
-  iterator.next();
-  return iterReduce(
-    (acc, next) => acc.concatMutable(next),
-    a.empty(),
-    a,
-    iterator
-  );
+  const acc = a.empty();
+
+  let curr = iterator.next();
+  let next = iterator.next();
+  while (!next.done) {
+    acc.concatMutable(curr.value);
+    curr = next;
+    next = iterator.next();
+  }
+
+  return acc;
 };
