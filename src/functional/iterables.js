@@ -1,3 +1,8 @@
+/**
+ * @function getIterator
+ * @param {iterable} target
+ * - 
+ */
 export const getIterator = target => target[Symbol.iterator]();
 
 export const reverse = iterable => {
