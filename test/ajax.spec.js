@@ -12,7 +12,7 @@ describe("utils:", () => {
         url: "/"
       }).then(res => {
         res = JSON.parse(res);
-        res.data.should
+        res.body.should
           .have.property("some key", "some value");
 
         done();
@@ -38,13 +38,13 @@ describe("utils:", () => {
         }
       }).then(res => {
         res = JSON.parse(res);
-        expect(res.data.message).to.deep.equal("Success!");
+        expect(res.body.message).to.deep.equal("Success!");
         done();
       })
       .catch(done);
     
       let req = server.requests[1];
-      req.requestBody.should.have.property("postkey", "post value");
+      JSON.parse(req.requestBody).should.have.property("postkey", "post value");
 
       req.respond(
         200,

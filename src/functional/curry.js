@@ -1,23 +1,48 @@
 import { isFunction } from "../utils/checks";
 
-export const curry = (func, ...args) => {
+/**
+ * @public @function curry
+ * - curries a function with any number of arguments
+ *
+ * @param {Function} func
+ * - the function to curry
+ *
+ * @param {Any, variadic} ...args
+ * - any number of arguments
+ *
+ * @returns {Function}
+ * - the curried function
+ *
+ * @throws Error
+ * - non-function passed as first argument
+ */
+const curry = (func, ...args) => {
   if (!isFunction(func))
     throw new Error(`First argument '${func}' of curry is not a function!`);
 
-  return func.bind(null, ...args);
+  return func.bind(this, ...args);
 };
 
+export default curry;
+
 /**
- * @function - Auto curries a function
- * @param {function} func
+ * @public @function currify
+ * - auto curries a function
+ *
+ * @param {Function} func
  *   - the function to be auto-curried
- * @param {number|optional} fnLen
+ *
+ * @param {Number} fnLen (optional)
  *   - the expected number of arguments of func, as variadic functions or
  *     those with default parameters will not have a useful length property,
  *     pass in fnLen to specify a custom function.length if preferred
- * @return {function}
+ *
+ * @return {Function}
  *   - a curried function that will auto-curry func if not enough parameters
  *     are passed in
+ *
+ * @throws Error
+ * - non-function passed as first argument
  */
 export const currify = (func, fnLen = 0) => {
   if (!isFunction(func))

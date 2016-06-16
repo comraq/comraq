@@ -58,7 +58,8 @@ module.exports = {
       }
     ],
     "max-len": [
-      "error"
+      "error",
+      { "ignoreUrls": true }
     ],
     "no-console": [ "off" ]
   }

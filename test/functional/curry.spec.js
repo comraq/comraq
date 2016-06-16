@@ -1,4 +1,4 @@
-import { curry, currify } from "../../src/functional/curry";
+import { default as curry, currify } from "../../src/functional/curry";
 
 import { multiply, getZero, add } from "../test-data";
 

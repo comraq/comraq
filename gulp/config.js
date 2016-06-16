@@ -42,6 +42,7 @@ export default wagner => {
     browserifyInst => {
       let instance = browserifyInst || transformedInst;
       let production = plugins.util.env.production || false;
+      let minify = plugins.util.env.nomin || false;
 
       return instance
         .bundle()
@@ -56,7 +57,10 @@ export default wagner => {
                   plugins.sourcemaps.init({ loadMaps: true })
                :
                   plugins.util.noop())
-          .pipe(plugins.uglify())
+          .pipe((!minify)?
+                    plugins.uglify()
+                 :
+                    plugins.util.noop())
         .pipe((!production)?
                 plugins.sourcemaps.write() : plugins.util.noop())
         .pipe(gulp.dest(BIN_PATH));
