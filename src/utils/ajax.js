@@ -19,6 +19,9 @@ import { isString } from "./checks";
  * - promise resolved if ajax response successful (status 200s),
  *   rejected if unsuccessful (status 300s, 400s, 500s)
  *
+ * @see @function getXmlHttpResponse
+ * - for the response object from the rejection/resolution of the promise
+ *
  * @link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
  */
 export default req =>
