@@ -1,27 +1,47 @@
 import { isFunction, isArray, isIterable } from "./../../utils/checks";
 import { getIterator } from "./../iterables";
 
-export default a => {
-  if (!isIterable(a))
-    throw new Error(`Cannot get init elements of non-iterable ${a}!`);
+/**
+ * @public @function init
+ * - gets all except the last element of the iterable
+ * 
+ * @param {Iterable} target
+ * - the target iterable
+ *
+ * @returns {Iterable}
+ * - an iterable with all but the last element of the iterable
+ * - empty iterable if empty
+ *
+ * @throws Error
+ * - target is not/does not implement the iterable interface
+ *
+ * @throws Error
+ * - non-monoid without an empty method
+ * 
+ * @throws Error
+ * - non-monoid without a concatMutable(concat) method
+ */
+export default target => {
+  if (!isIterable(target))
+    throw new Error(`Cannot get init elements of non-iterable ${target}!`);
 
-  else if (isArray(a))
-    return (a.length > 1)? a.slice(0, -1): [];
+  else if (isArray(target))
+    return (target.length > 1)? target.slice(0, -1): [];
 
   // TODO: Eliminate the below checks after creating a Monoid class
   //       and checking for instanceof Monoid
-  else if (!isFunction(a.empty))
+  else if (!isFunction(target.empty))
     throw new Error(
-      "tail cannot be applied on a monoid without the empty method!"
+      "init cannot be applied on a monoid without the empty method!"
     );
 
-  else if (!isFunction(a.concatMutable))
+  else if (!isFunction(target.concatMutable))
     throw new Error(
-      "tail cannot be applied on a monoid without the concatMutable method!"
+      "init cannot be applied on a monoid without the concatMutable method!"
     );
 
-  const iterator = getIterator(a);
-  const acc = a.empty();
+  const iterator = getIterator(target);
+  const acc = target.empty();
 
   let curr = iterator.next();
   let next = iterator.next();

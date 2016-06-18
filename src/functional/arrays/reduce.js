@@ -6,6 +6,28 @@ import {
   reduce as iterReduce
 } from "./../iterables";
 
+/**
+ * @public @function reduce
+ * - reduce left against an iterable taking an reducer and an accumulator
+ *
+ * @param {Function} func
+ * - the reducing function, reducer
+ *
+ * @param {Any} acc
+ * - the initial accumulator
+ *
+ * @param {Iterable} iterable
+ * - the iterable collection to be reduced
+ *
+ * @returns {Any}
+ * - the accumulated result, same type as acc
+ *
+ * @throws Error
+ * - reducer func, is not a function
+ *
+ * @throws Error
+ * - iterable is not/does not implement the iterable interface
+ */
 export default currify((func, acc, iterable) => {
   if (!isFunction(func))
     throw new Error(
@@ -23,6 +45,13 @@ export default currify((func, acc, iterable) => {
   return iterReduce(func, acc, iterable);
 });
 
+/**
+ * @public @function reduce1
+ * - same as reduce except without needing an accumulator by passing the
+ *   first element in the iteration as the accumulator
+ *
+ * @see @function reduce
+ */
 export const reduce1 = currify((func, iterable) => {
   if (!isFunction(func))
     throw new Error(
@@ -41,6 +70,12 @@ export const reduce1 = currify((func, iterable) => {
   return iterReduce(func, iterator.next().value, iterable, 1, iterator);
 });
 
+/**
+ * @public @function reduceRight
+ * - same as reduce except traversing the iterable in the reverse order
+ *
+ * @see @function reduce
+ */
 export const reduceRight = currify((func, acc, iterable) => {
   if (!isFunction(func))
     throw new Error(
@@ -59,6 +94,13 @@ export const reduceRight = currify((func, acc, iterable) => {
   return iterReduce(func, acc, iterable);
 });
 
+/**
+ * @public @function reduceRight1
+ * - same as reduceRight except without needing an accumulator by passing the
+ *   first element in the iteration as the accumulator
+ *
+ * @see @function reduceRight
+ */
 export const reduceRight1 = currify((func, iterable) => {
   if (!isFunction(func))
     throw new Error(

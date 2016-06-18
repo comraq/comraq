@@ -3,21 +3,33 @@ import { currify } from "./../curry";
 import reduceL from "./reduce";
 
 /**
- * @function filter     
- * - filters against a Monoid or an iterable collection using reduceL
+ * @public @function filter
+ * - filter against a functor, a Monoid or an iterable collection
+ *   by applying a predicate against all elements using reduceL
  *
- * @throws non-iterable 
- * - Monoid does not enforce iteration, no need to check for isIterable.
- *   As a result, reduceL might throw non-iterable!
+ * @param {Function} predicate
+ * - the predicate function applied against each element in the iterable
+ *
+ * @param {Any|Iterable|Functor} functor
+ * - the target iterable/functor
+ *
+ * @throws Error
+ * - predicate is not a function
+ *
+ * @throws Error
+ * - non-monoid without an empty method
+ * 
+ * @throws Error
+ * - non-monoid without a concatMutable(concat) method
  */
-export default currify((func, monoid) => {
-  if (!isFunction(func))
+export default currify((predicate, monoid) => {
+  if (!isFunction(predicate))
     throw new Error(
       "filter cannot be applied without first specifying a function!"
     );
 
   else if (isFunction(monoid.filter))
-    return monoid.filter(func);
+    return monoid.filter(predicate);
 
   // TODO: Eliminate the below checks after creating a Monoid class
   //       and checking for instanceof Monoid
@@ -32,7 +44,7 @@ export default currify((func, monoid) => {
     );
 
   return reduceL((acc, next, index, monoid) => {
-    if (func(next, index, monoid) === false)
+    if (predicate(next, index, monoid) === false)
       return acc;
 
     return acc.concatMutable(next);

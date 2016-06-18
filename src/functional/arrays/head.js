@@ -1,12 +1,25 @@
 import { isArray, isUndefined, isIterable } from "./../../utils/checks";
 import { getIterator } from "./../iterables";
 
-export default a => {
-  if (!isIterable(a))
-    throw new Error(`Cannot get head element of non-iterable ${a}!`);
+/**
+ * @public @function head
+ * - gets the first element of the iterable
+ * 
+ * @param {Iterable} target
+ * - the target iterable
+ *
+ * @returns {Any|Null}
+ * - the first element of the iterable or null if no elements remain
+ *
+ * @throws Error
+ * - target is not/does not implement the iterable interface
+ */
+export default target => {
+  if (!isIterable(target))
+    throw new Error(`Cannot get head element of non-iterable ${target}!`);
 
-  else if (isArray(a))
-    return (isUndefined(a[0]))? null: a[0];
+  else if (isArray(target))
+    return (isUndefined(target[0]))? null: target[0];
 
-  return getIterator(a).next().value;
+  return getIterator(target).next().value;
 };

@@ -1,5 +1,5 @@
 import { currify } from "./curry";
-import { isIterable, isFunction } from "./../utils/checks";
+import { isIterable, isFunction, isArray } from "./../utils/checks";
 
 /**
  * @public @function getIterator
@@ -42,6 +42,9 @@ export const reverse = target => {
     throw new Error(
       `Cannot get iterator of non-iterable ${target}!`
     );
+
+  else if (isArray(target))
+    return target.slice().reverse();
 
   let result = [];
   for (const item of target)

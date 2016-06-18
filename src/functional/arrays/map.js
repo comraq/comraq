@@ -3,12 +3,23 @@ import { currify } from "./../curry";
 import reduceL from "./reduce";
 
 /**
- * @function map     
+ * @public @function map
  * - map against a functor, a Monoid or an iterable collection using reduceL
  *
- * @throws non-iterable 
- * - Monoid does not enforce iteration, no need to check for isIterable.
- *   As a result, reduceL might throw non-iterable!
+ * @param {Function} func
+ * - the mapping function applied against each element in the iterable
+ *
+ * @param {Any|Iterable|Functor} functor
+ * - the target iterable/functor
+ *
+ * @throws Error
+ * - mapping function func is not a function
+ *
+ * @throws Error
+ * - non-monoid without an empty method
+ * 
+ * @throws Error
+ * - non-monoid without a concatMutable(concat) method
  */
 export default currify((func, functor) => {
   if (!isFunction(func))
