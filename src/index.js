@@ -1,5 +1,5 @@
-import utils from "./utils";
-import functional from "./functional";
+import * as utils from "./utils";
+import * as functional from "./functional";
 
 const comraq = { utils, functional };
 
@@ -9,4 +9,3 @@ if (window)
   window.comraq = comraq;
 
 export default comraq;
-

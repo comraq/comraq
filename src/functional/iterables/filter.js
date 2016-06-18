@@ -1,11 +1,11 @@
 import { isFunction } from "./../../utils/checks";
 import { currify } from "./../curry";
-import reduceL from "./reduce";
+import reduce from "./reduce";
 
 /**
  * @public @function filter
  * - filter against a functor, a Monoid or an iterable collection
- *   by applying a predicate against all elements using reduceL
+ *   by applying a predicate against all elements using reduce
  *
  * @param {Function} predicate
  * - the predicate function applied against each element in the iterable
@@ -43,7 +43,7 @@ export default currify((predicate, monoid) => {
       "filter cannot be applied on a monoid without the concatMutable method!"
     );
 
-  return reduceL((acc, next, index, monoid) => {
+  return reduce((acc, next, index, monoid) => {
     if (predicate(next, index, monoid) === false)
       return acc;
 

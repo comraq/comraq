@@ -1,4 +1,5 @@
-import ajax from "../src/utils/ajax";
+import comraq from "../src";
+const { ajax } = comraq.utils;
 
 describe("utils:", () => {
   describe("ajax:", () => {

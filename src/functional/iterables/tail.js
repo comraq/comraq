@@ -1,5 +1,6 @@
 import { isArray, isIterable, isFunction } from "./../../utils/checks";
-import { getIterator, reduce as iterReduce } from "./../iterables";
+import getIterator from "./get-iterator";
+import iterReduce from "./iterable-reduce";
 
 /**
  * @public @function tail

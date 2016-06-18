@@ -1,13 +1,4 @@
-import curry from "./../../src/functional/curry";
-import composable from "./../../src/functional/composable";
-import { compose, pipe } from "./../../src/functional/composition";
-import { getProp, withProp } from "./../../src/functional/prop";
-import { upper } from "./../../src/functional/strings";
-import {
-         map,
-         filter,
-         reduce1
-       } from "./../../src/functional/arrays";
+import comraq from "./../../src";
 
 import {
          namesData,
@@ -15,6 +6,14 @@ import {
          triple,
          add
        } from "./../test-data";
+
+const {
+  curry, composable, compose, pipe,
+  getProp, withProp
+} = comraq.functional;
+
+const { upper } = comraq.functional.strings;
+const { map, filter, reduce1 } = comraq.functional.iterables;
 
 export default () => {
   describe("getProp:", () => {

@@ -1,13 +1,9 @@
-import composable from "./../../src/functional/composable";
-import { compose, pipe } from "./../../src/functional/composition";
-
-import {
-         map,
-         filter,
-         reduce1
-       } from "./../../src/functional/arrays";
+import comraq from "./../../src";
 
 import { namesData, numbersData } from "./../test-data";
+
+const { composable, compose, pipe } = comraq.functional;
+const { map, filter, reduce1 } = comraq.functional.iterables;
 
 export default () => {
   const incBy10 = numbers => numbers.map(arg => arg + 10);

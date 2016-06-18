@@ -1,6 +1,6 @@
 import { isArray, isIterable, isFunction } from "./../../utils/checks";
 import { currify } from "./../curry";
-import { getIterator } from "./../iterables";
+import getIterator from "./get-iterator";
 
 /**
  * @public @function take

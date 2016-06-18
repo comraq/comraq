@@ -1,5 +1,5 @@
 import { isFunction, isArray, isIterable } from "./../../utils/checks";
-import { getIterator } from "./../iterables";
+import getIterator from "./get-iterator";
 
 /**
  * @public @function init

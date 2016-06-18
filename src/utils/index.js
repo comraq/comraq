@@ -1,6 +1,4 @@
 import * as checks from "./checks";
-import ajax from "./ajax";
 
-export default {
-  checks, ajax
-};
+export { checks };
+export { default as ajax } from "./ajax";

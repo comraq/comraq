@@ -1,4 +1,4 @@
-import * as T from "./../../src/functional/transducers";
+import comraq from "./../../src";
 
 export default () => {
   describe("transduce:", () => {
@@ -7,7 +7,7 @@ export default () => {
     });
 
     it("should get results if a collection is provided", () => {
-      expect.fail(T, null, "test not yet implemented");
+      expect.fail(comraq, null, "test not yet implemented");
     });
   });
 
@@ -17,7 +17,7 @@ export default () => {
     });
 
     it("should get results if a collection is provided", () => {
-      expect.fail(T, null, "test not yet implemented");
+      expect.fail(comraq, null, "test not yet implemented");
     });
   });
 };

@@ -1,10 +1,10 @@
 import { isFunction } from "./../../utils/checks";
 import { currify } from "./../curry";
-import reduceL from "./reduce";
+import reduce from "./reduce";
 
 /**
  * @public @function map
- * - map against a functor, a Monoid or an iterable collection using reduceL
+ * - map against a functor, a Monoid or an iterable collection using reduce
  *
  * @param {Function} func
  * - the mapping function applied against each element in the iterable
@@ -42,7 +42,7 @@ export default currify((func, functor) => {
       "map cannot be applied on a monoid without the concatMutable method!"
     );
 
-  return reduceL((acc, next, index, functor) =>
+  return reduce((acc, next, index, functor) =>
     acc.concatMutable(func(next, index, functor))
   , functor.empty(), functor);
 });

@@ -1,4 +1,6 @@
-import * as fl from "./../../src/functional/fantasy-land";
+import comraq from "./../../src";
+
+const { concat, join } = comraq.functional.algebraic;
 
 export default () => {
   const s1 = "aSdf";
@@ -10,8 +12,8 @@ export default () => {
   describe("semigroup:", () => {
     describe("concat:", () => {
       it("should concatenate two semigroups", () => {
-        fl.concat(s2)(s1).should.equal("aSdf1234");
-        fl.concat(a2, a1).should.deep.equal([ "a", "b", false]);
+        concat(s2)(s1).should.equal("aSdf1234");
+        concat(a2, a1).should.deep.equal([ "a", "b", false]);
       });
     });
   });
@@ -19,7 +21,7 @@ export default () => {
   describe("monad:", () => {
     describe("join:", () => {
       it("should join/flatten two monads", () => {
-        expect.fail(null, null, "test not implemented");
+        expect.fail(join, null, "test not implemented");
       });
     });
   });

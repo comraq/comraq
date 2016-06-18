@@ -1,6 +1,8 @@
-import { default as curry, currify } from "../../src/functional/curry";
+import comraq from "./../../src";
 
 import { multiply, getZero, add } from "../test-data";
+
+const { curry, currify } = comraq.functional;
 
 export default () => {
   describe("curry:", () => {

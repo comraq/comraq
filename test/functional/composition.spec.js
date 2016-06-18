@@ -1,6 +1,8 @@
-import { compose, pipe } from "./../../src/functional/composition";
+import comraq from "./../../src";
 
 import { inc10, triple } from "./../test-data";
+
+const { compose, pipe } = comraq.functional;
 
 export default () => {
   const a = 10, b = -4, c = 0, d = 100;

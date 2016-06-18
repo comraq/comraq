@@ -1,10 +1,8 @@
 import { isFunction, isIterable } from "./../../utils/checks";
 import { currify } from "./../curry";
-import {
-  getIterator,
-  reverse as reverseIterable,
-  reduce as iterReduce
-} from "./../iterables";
+import iterReduce from "./iterable-reduce";
+import getIterator from "./get-iterator";
+import reverseIterable from "./reverse";
 
 /**
  * @public @function reduce

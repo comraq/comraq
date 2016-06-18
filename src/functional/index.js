@@ -1,21 +1,12 @@
-import composable from "./composable";
 import * as strings from "./strings";
 import * as arrays from "./arrays";
-
 import * as iterables from "./iterables";
+import * as algebraic from "./algebraic";
 
-import { trace } from "./utils";
-import { getProp, withProp } from "./prop";
-import { default as curry, currify } from "./curry";
-import { compose, pipe } from "./composition";
+export { strings, arrays, iterables, algebraic };
 
-export default {
-  composable: composable,
-  strings,
-  arrays,
-  iterables,
-  trace,
-  getProp, withProp,
-  curry, currify,
-  compose, pipe
-};
+export { default as composable } from "./composable";
+export { trace } from "./utils";
+export { getProp, withProp } from "./prop";
+export { default as curry, currify } from "./curry";
+export { compose, pipe } from "./composition";
