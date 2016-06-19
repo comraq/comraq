@@ -1,4 +1,5 @@
-import { isOfClass, isFunction } from "./../../utils/checks";
+import { isInstance, isFunction } from "./../../utils/checks";
+import identity from "./../identity";
 
 const transformerInit = Symbol.for("transformer-init");
 const transformerCompletion = Symbol.for("transformer-completion");
@@ -24,12 +25,20 @@ const transformerStep = Symbol.for("transformer-step");
  *
  * @see @function init
  */
+  /*
 class _Transformer {
   constructor(step, complete, init) {
     this[transformerStep] = step;
     this[transformerCompletion] = complete;
     this[transformerInit] = init;
   }
+}
+*/
+function _Transformer(step, complete, init) {
+  step[transformerStep] = step;
+  step[transformerCompletion] = complete;
+  step[transformerInit] = init;
+  return step;
 }
 
 /**
@@ -50,9 +59,9 @@ class _Transformer {
  */
 export default (
   step,
-  complete = acc => step(acc),
+  complete = identity,
   init = () => step()
-) => new _Transformer(step, complete, init);
+) => _Transformer(step, complete, init);
 
 /**
  * @public @function step
@@ -74,12 +83,12 @@ export default (
  * @returns {Any}
  * - the return value of target's step function
  *
- * @throws Error
+ * @throws TypeError
  * - if target does not implement the _Transformer interface
  */
 export const step = (target, acc, next, ...args) => {
   if (!isTransformer(target))
-    throw new Error(
+    throw new TypeError(
       `${target} does not implement the Transformer interface`
     );
 
@@ -100,12 +109,12 @@ export const step = (target, acc, next, ...args) => {
  * @returns {Any}
  * - the return value of target's complete function
  *
- * @throws Error
+ * @throws TypeError
  * - if target does not implement the _Transformer interface
  */
 export const complete = (target, acc) => {
   if (!isTransformer(target))
-    throw new Error(
+    throw new TypeError(
       `${target} does not implement the Transformer interface`
     );
 
@@ -123,16 +132,16 @@ export const complete = (target, acc) => {
  * @returns {Any}
  * - the return value of target's init function
  *
- * @throws Error
+ * @throws TypeError
  * - if target does not implement the _Transformer interface
  */
 export const init = target => {
   if (!isTransformer(target))
-    throw new Error(
+    throw new TypeError(
       `${target} does not implement the Transformer interface`
     );
 
-  return target[transformerStep]();
+  return target[transformerInit]();
 };
 
 /**
@@ -148,8 +157,7 @@ export const init = target => {
  *   false otherwise
  */
 export const isTransformer = target =>
-  isOfClass(_Transformer, target) || (
-    isFunction(target[transformerStep]) &&
-    isFunction(target[transformerCompletion]) &&
-    isFunction(target[transformerInit])
-  );
+  isFunction(target[transformerStep]) &&
+  isFunction(target[transformerCompletion]) &&
+  isFunction(target[transformerInit]);
+  

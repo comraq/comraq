@@ -1,8 +1,11 @@
 import { isFunction, isIterable } from "./../../utils/checks";
 import { currify } from "./../curry";
+
 import iterReduce from "./iterable-reduce";
 import getIterator from "./get-iterator";
 import reverseIterable from "./reverse";
+
+import { isTransformer } from "./../transducers/Transformer";
 
 /**
  * @public @function reduce
@@ -20,24 +23,21 @@ import reverseIterable from "./reverse";
  * @returns {Any}
  * - the accumulated result, same type as acc
  *
- * @throws Error
+ * @throws TypeError
  * - reducer func, is not a function
  *
- * @throws Error
+ * @throws TypeError
  * - iterable is not/does not implement the iterable interface
  */
 export default currify((func, acc, iterable) => {
   if (!isFunction(func))
-    throw new Error(
-      "reduce1 cannot be applied without first specifying a function!"
+    throw new TypeError(
+      "reduce cannot be applied without first specifying a function!"
     );
 
-  else if (isFunction(iterable.reduce))
-    return iterable.reduce(func, acc);
-
   else if (!isIterable(iterable))
-    throw new Error(
-      "reduce1 cannot be applied on a non-iterable!"
+    throw new TypeError(
+      "reduce cannot be applied on a non-iterable!"
     );
 
   return iterReduce(func, acc, iterable);
@@ -52,15 +52,12 @@ export default currify((func, acc, iterable) => {
  */
 export const reduce1 = currify((func, iterable) => {
   if (!isFunction(func))
-    throw new Error(
+    throw new TypeError(
       "reduce1 cannot be applied without first specifying a function!"
     );
 
-  else if (isFunction(iterable.reduce))
-    return iterable.reduce(func);
-
   else if (!isIterable(iterable))
-    throw new Error(
+    throw new TypeError(
       "reduce1 cannot be applied on a non-iterable!"
     );
 
@@ -76,15 +73,12 @@ export const reduce1 = currify((func, iterable) => {
  */
 export const reduceRight = currify((func, acc, iterable) => {
   if (!isFunction(func))
-    throw new Error(
+    throw new TypeError(
       "reduceRight cannot be applied without first specifying a function!"
     );
 
-  else if (isFunction(iterable.reduceRight))
-    return iterable.reduceRight(func, acc);
-
   else if (!isIterable(iterable))
-    throw new Error(
+    throw new TypeError(
       "reduceRight cannot be applied on a non-iterable!"
     );
 
@@ -101,15 +95,12 @@ export const reduceRight = currify((func, acc, iterable) => {
  */
 export const reduceRight1 = currify((func, iterable) => {
   if (!isFunction(func))
-    throw new Error(
+    throw new TypeError(
       "reduceRight1 cannot be applied without first specifying a function!"
     );
 
-  else if (isFunction(iterable.reduceRight))
-    return iterable.reduceRight(func);
-
   else if (!isIterable(iterable))
-    throw new Error(
+    throw new TypeError(
       "reduceRight1 cannot be applied on a non-iterable!"
     );
 

@@ -1,4 +1,4 @@
-import { isOfClass } from "./../../utils/checks";
+import { isInstance } from "./../../utils/checks";
 
 const reducedValue = Symbol.for("reduced-value");
 const reducedFlag = Symbol.for("reduced-flag");
@@ -48,7 +48,7 @@ export const deref = target => target[reducedValue];
  *   reduced-flag is set, false otherwise
  */
 export const isReduced = target =>
-  isOfClass(_Reduced, target) || target[reducedFlag];
+  isInstance(_Reduced, target) || target[reducedFlag];
 
 /**
  * @public @function ensureReduced

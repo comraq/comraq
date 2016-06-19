@@ -3,6 +3,9 @@ import { isIterable, isFunction } from "./../../utils/checks";
 
 import getIterator from "./get-iterator";
 
+import { isTransformer, step, complete } from "./../transducers/Transformer";
+import { isReduced, deref } from "./../transducers/Reduced";
+
 /**
  * @private @function reduce
  * - reduces down the list of elements in the iterable given a reducing
@@ -41,14 +44,17 @@ const reduce =  currify((
   index = 0,
   iterator = getIterator(iterable)
 ) => {
-  if (!isFunction(func))
-    throw new Error(
-      `iterables - reduce expected a reducing function, got ${func}!`
-    );
-
-  else if (!isIterable(iterable))
+  if (!isIterable(iterable))
     throw new Error(
       `Cannot get iterator of non-iterable ${iterable}!`
+    );
+
+  else if (isTransformer(func))
+    return reduceT(func, acc, iterable, index, iterator);
+
+  else if (!isFunction(func))
+    throw new Error(
+      `iterableReduce expected a reducing function, got ${func}!`
     );
 
   let item = iterator.next();
@@ -60,3 +66,24 @@ const reduce =  currify((
 });
 
 export default reduce;
+
+const reduceT = currify((
+  func,
+  acc,
+  iterable,
+  index,
+  iterator
+) => {
+  let item = iterator.next();
+
+  console.log(`each iteration, acc: ${JSON.stringify(acc)}, item: ${JSON.stringify(item)}`);
+
+  if (item.done)
+    return complete(func, acc);
+
+  acc = step(func, acc, item.value, index, iterator);
+  if (isReduced(acc))
+    return deref(acc);
+
+  return reduceT(func, acc, iterable, index + 1, iterator);
+});

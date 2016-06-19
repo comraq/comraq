@@ -147,17 +147,18 @@ export const isObject = target => is(target, "Object");
 export const isIterable = target => isFunction(target[Symbol.iterator]);
 
 /**
- * @public @function isOfClass
- * - checks for whether target is an instance of a class
+ * @public @function isInstance
+ * - checks for whether target is an instance of a
+ *   class/interface/prototype/function
  *
- * @param {Class|Function} targetClass
- * - the class to be checked against
+ * @param {Class|Interface|Prototype|Function} target
+ * - the target class/interface/prototype/function to be checked against
  *
  * @param {Any} instance
  * - the target instance to check
  *
  * @returns {Boolean}
- * - true if target is an instance of class
+ * - true if instance is an instance of target, false otherwise
  */
-export const isOfClass = (targetClass, instance) =>
-  targetClass[Symbol.hasInstance](instance);
+export const isInstance = (target, instance) =>
+  target[Symbol.hasInstance](instance);
