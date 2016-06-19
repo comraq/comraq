@@ -1,4 +1,5 @@
 import comraq from "./../../src";
+import iterReduce from "./../../src/functional/iterables/iterable-reduce";
 
 import {
          numbersData,
@@ -12,7 +13,7 @@ import {
        } from "./../test-data";
 
 const {
-  getIterator,
+  getIterator, reverse,
   map, filter,
   reduce: reduceL, reduceRight: reduceR,
   reduce1: reduceL1, reduceRight1: reduceR1,
@@ -33,13 +34,18 @@ export default () => {
   describe("reverse:", () => {
     it("should return an iteratable which "
        + "will iterate in the reverse order", () =>  {
-      expect.fail(null, null, "test not yet implemented");
+      let testArray = array1.slice();
+      reverse(array1).should.deep.equal(testArray.reverse());
     });
   });
 
   describe("iterable-reduce:", () => {
     it("should return a function when iterable is not provided", () => {
-      expect.fail(null, null, "test not yet implemented");
+      iterReduce(() => {}, 0).should.be.a("function");
+    });
+
+    it("should reduce an iterable", () => {
+      iterReduce(add, -5, [ 1, 2, 3, 4, 5 ]).should.equal(10);
     });
   });
 
