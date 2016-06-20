@@ -49,13 +49,13 @@ const reduce =  currify((
       `Cannot get iterator of non-iterable ${iterable}!`
     );
 
-  else if (isTransformer(func))
-    return reduceT(func, acc, iterable, index, iterator);
-
   else if (!isFunction(func))
     throw new Error(
       `iterableReduce expected a reducing function, got ${func}!`
     );
+
+  else if (isTransformer(func))
+    return reduceT(func, acc, iterable, index, iterator);
 
   let item = iterator.next();
   if (item.done)
@@ -67,6 +67,18 @@ const reduce =  currify((
 
 export default reduce;
 
+/**
+ * @private @function reduceT
+ * - same as reduce but modified for reducing transducers
+ * - calls the transformer's complete function (1-arity) at the end of
+ *   iteration
+ * - also checks for early termination by calling deref on the accumulated
+ *   result if result is of Reduced monad
+ *
+ * @see reduce
+ * @link https://www.youtube.com/watch?v=6mTbuzafcII
+ * @link https://www.youtube.com/watch?v=4KqUvG8HPYo
+ */
 const reduceT = currify((
   func,
   acc,
@@ -75,8 +87,6 @@ const reduceT = currify((
   iterator
 ) => {
   let item = iterator.next();
-
-  console.log(`each iteration, acc: ${JSON.stringify(acc)}, item: ${JSON.stringify(item)}`);
 
   if (item.done)
     return complete(func, acc);

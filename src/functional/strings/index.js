@@ -12,7 +12,7 @@ import { currify } from "./../curry";
  * @returns {Number}
  * - the length of the target
  *
- * @throws Error
+ * @throws TypeError
  * - non-string, array, object or function
  */
 export const length = target => {
@@ -22,7 +22,7 @@ export const length = target => {
   else if (isObject(target))
     return target.keys().length;
 
-  throw new Error(`Cannot get length of ${target}!`);
+  throw new TypeError(`Cannot get length of ${target}!`);
 };
 
 /**

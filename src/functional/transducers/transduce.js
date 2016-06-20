@@ -1,6 +1,6 @@
 import { currify } from "./../curry";
 import { init, isTransformer } from "./Transformer";
-import reduce from "./../iterables/reduce";
+import { reduce } from "./../iterables";
 
 /**
  * @public @function transduce

@@ -3,7 +3,8 @@ import comraq from "./../../src";
 import { namesData, numbersData } from "./../test-data";
 
 const { composable, compose, pipe } = comraq.functional;
-const { map, filter, reduce1 } = comraq.functional.iterables;
+const { reduce1 } = comraq.functional.iterables;
+const { map, filter } = comraq.functional.transducers;
 
 export default () => {
   const incBy10 = numbers => numbers.map(arg => arg + 10);

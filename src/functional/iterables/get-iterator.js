@@ -10,12 +10,14 @@ import { isIterable } from "./../../utils/checks";
  * @return {Iterator}
  * - the iterator of the iterable
  *
- * @throws Error
+ * @throws TypeError
  * - if target is not/does not implement the iterator interface
  */
 export default target => {
+  // TODO: support other types of data structures such as objects by
+  //       creating custom iterators
   if (!isIterable(target))
-    throw new Error(
+    throw new TypeError(
       `Cannot get iterator of non-iterable ${target}!`
     );
 

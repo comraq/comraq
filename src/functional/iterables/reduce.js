@@ -5,8 +5,6 @@ import iterReduce from "./iterable-reduce";
 import getIterator from "./get-iterator";
 import reverseIterable from "./reverse";
 
-import { isTransformer } from "./../transducers/Transformer";
-
 /**
  * @public @function reduce
  * - reduce left against an iterable taking an reducer and an accumulator

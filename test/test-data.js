@@ -1,3 +1,9 @@
+import comraq from "./../src";
+const {
+  Transformer,
+  isTransformer
+} = comraq.functional.transducers;
+
 export const numbersData = [ 1, 2, 3, 10, 0, -3 ];
 
 export const namesData = [
@@ -24,3 +30,8 @@ export const multiply = (a, b) => a * b;
 export const getZero = () => 0;
 
 export const addAll = (...vals) => vals.reduce(add);
+
+export const stubTransformer = Transformer(() => {});
+
+export const isTransducer = target =>
+  isTransformer(target(stubTransformer));

@@ -19,8 +19,8 @@ export {
 export { default as transduce, transduce1 } from "./transduce";
 export { default as map } from "./map";
 export { default as filter } from "./filter";
-export { default as take } from "./take";
+export { default as take, takeWhile } from "./take";
+export { default as concat, concatMutable } from "./concat";
 export { partitionAll } from "./partition";
 
-// TODO
-export const into = () => {};
+// TODO: init, partitionBy and etc...

@@ -14,15 +14,14 @@ import {
 
 const {
   getIterator, reverse,
-  map, filter,
   reduce: reduceL, reduceRight: reduceR,
   reduce1: reduceL1, reduceRight1: reduceR1,
-  head, tail, init, last, take, takeWhile
+  head, tail, init, last
 } = comraq.functional.iterables;
 
-const { isNumber } = comraq.utils.checks;
 const { compose } = comraq.functional;
 const { slice } = comraq.functional.arrays;
+const { map, filter } = comraq.functional.transducers;
 
 export default () => {
   describe("getIterator:", () => {
@@ -46,107 +45,6 @@ export default () => {
 
     it("should reduce an iterable", () => {
       iterReduce(add, -5, [ 1, 2, 3, 4, 5 ]).should.equal(10);
-    });
-  });
-
-  describe("map:", () => {
-    it("should return a function when iterable not supplied", () => {
-      const result = map(inc10);
-
-      result.should.be.a("function");
-    });
-
-    it("should evaluate results when iterable is supplied", () => {
-      const result1 = map(inc10, numbersData);
-      const result2 = map(inc10)(numbersData);
-
-      result1.should.deep.equal(result2);
-    });
-
-    it("should throw error with non-function before last argument", () => {
-      expect(map.bind(null, undefined, undefined)).to.throw(/.*/);
-      expect(map.bind(null, "a string", numbersData)).to.throw(/.*/);
-      expect(map.bind(null, triple, "a string", numbersData)).to.throw(/.*/);
-    });
-
-    it("can infinitely compose", () => {
-      const B = map(compose(inc10, inc10, triple));
-      const C = compose(map(inc10), map(compose(triple, inc10, inc10)));
-      const E = map(compose(triple, inc10, inc10))(numbersData);
-
-      B(numbersData).should.deep.equal(numbersData
-        .map(e =>
-          e * 3 + 10 + 10
-        )
-      );
-      C(numbersData).should.deep.equal(numbersData
-        .map(e =>
-          (e + 10 + 10) * 3 + 10
-        )
-      );
-
-      E.should.deep.equal(numbersData
-        .map(e =>
-          (e + 10 + 10) * 3
-        )
-      );
-    });
-  });
-
-  describe("filter:", () => {
-    it("should return a function when iterable not supplied", () => {
-      const result = filter(even);
-
-      result.should.be.a("function");
-    });
-
-    it("should evaluate results when iterable is supplied", () => {
-      const result1 = filter(even, numbersData);
-      const result2 = filter(even)(numbersData);
-
-      result1.should.deep.equal(result2);
-    });
-
-    it("should throw error with non-function before last argument", () => {
-      expect(filter.bind(null, inc10, {})).to.throw(/.*/);
-      expect(filter.bind(null, "a string", numbersData)).to.throw(/.*/);
-      expect(filter.bind(null, triple, "a string", numbersData)).to.throw(/.*/);
-    });
-
-    it("can infinitely compose", () => {
-      const A = filter(compose(positive, triple));
-      const B = filter(compose(even, inc10, inc10, triple));
-      const D = compose(
-                  filter(compose(even, triple, inc10, inc10)), map(inc10)
-                );
-      const E = compose(
-                  filter(positive),
-                  filter(compose(even, inc10, triple, triple))
-                );
-
-      A(numbersData).should.deep.equal(numbersData
-        .filter(e =>
-          e * 3 > 0
-        )
-      );
-      B(numbersData).should.deep.equal(numbersData
-        .filter(e =>
-          (e * 3 + 10 + 10) % 2 === 0
-        )
-      );
-      D(numbersData).should.deep.equal(numbersData
-        .map(e =>
-          e + 10
-        )
-        .filter(e =>
-          ((e + 10 + 10) * 3) % 2 === 0
-        )
-      );
-      E(numbersData).should.deep.equal(numbersData
-        .filter(e =>
-          (e * 3 * 3 + 10) % 2 === 0 && e > 0
-        )
-      );
     });
   });
 
@@ -395,22 +293,6 @@ export default () => {
   describe("last:", () => {
     it("should return the last element of the iterable", () => {
       last(array1).should.equal(104);
-    });
-  });
-
-  describe("take:", () => {
-    it("should return a sub collection of iterable "
-       + "from the head specified by count", () => {
-      take(2)(array1).should.deep.equal(slice(0, 2)(array1));
-    });
-  });
-
-  describe("takeWhile:", () => {
-    it("should return a sub collection of iterable from the head until "
-       + "function passed as argument returns false", () => {
-      const notNumber = x => !isNumber(x);
-
-      takeWhile(notNumber)(array1).should.deep.equal(slice(0, 4)(array1));
     });
   });
 };

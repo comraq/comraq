@@ -13,7 +13,8 @@ const {
 } = comraq.functional;
 
 const { upper } = comraq.functional.strings;
-const { map, filter, reduce1 } = comraq.functional.iterables;
+const { reduce1 } = comraq.functional.iterables;
+const { map, filter } = comraq.functional.transducers;
 
 export default () => {
   describe("getProp:", () => {
