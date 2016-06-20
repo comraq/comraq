@@ -6,9 +6,10 @@ import {
 
 import { currify } from "./../curry";
 import { getIterator } from "./../iterables";
-import { concatMutable, empty } from "./../algebraic";
+import { empty } from "./../algebraic";
 import { length } from "./../strings";
 
+import { concatMutable } from "./concat";
 import { ensureUnreduced } from "./Reduced";
 import {
   step, complete, init,
@@ -54,12 +55,12 @@ export const partitionAll = currify((size, target) => {
       partition = (isUndefined(partition))? empty(acc): partition;
 
       if (count++ < size)
-        partition = concatMutable(partition, next);
+        partition = concatMutable(next, partition);
 
       else {
         const temp = partition;
         count = 1;
-        partition = concatMutable(empty(acc), next);
+        partition = concatMutable(next, empty(acc));
         return step(target, acc, temp, ...args);
       }   
 
@@ -101,20 +102,20 @@ const _partitionAll = (size, target) => {
   let item = iterator.next();
   while (!item.done) {
     if (count++ < size)
-      partition = concatMutable(partition, item.value);
+      partition = concatMutable(item.value, partition);
 
     else {
       const temp = partition;
       count = 1;
-      partition = concatMutable(empty(target), item.value);
-      target = concatMutable(result, temp);
+      partition = concatMutable(item.value, empty(target));
+      target = concatMutable(temp, result);
     }   
 
     item = iterator.next();
   }
 
   if (length(partition) > 0)
-    result = concatMutable(result, partition);
+    result = concatMutable(partition, result);
 
   return result;
 };

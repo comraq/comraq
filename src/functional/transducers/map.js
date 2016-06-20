@@ -1,8 +1,9 @@
 import { isFunction } from "./../../utils/checks";
 import { currify } from "./../curry";
-import { concatMutable, empty } from "./../algebraic";
+import { empty } from "./../algebraic";
 import { reduce } from "./../iterables";
 
+import { concatMutable } from "./concat";
 import {
   step, complete, init,
   default as Transformer,
@@ -18,7 +19,7 @@ import {
  * - the mapping function applied against each element in the iterable
  *
  * @param {Transformer|Iterable|Functor|Monoid} target
- * - the target iterable/functor
+ * - the transformer or target iterable/functor
  *
  * @returns {Transformer|Iterable}
  * - returns transformer if target is an instance with the transformer mixin
@@ -57,7 +58,7 @@ export default currify((func, target) => {
  * @see @function iterables/reduce
  */
 const _map = (func, target) => reduce(
-  (acc, next, index, target) => concatMutable(acc, func(next, index, target)),
+  (acc, next, index, target) => concatMutable(func(next, index, target), acc),
   empty(target),
   target
 );

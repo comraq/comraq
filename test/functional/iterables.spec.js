@@ -6,7 +6,6 @@ import {
          inc10,
          triple,
          even,
-         positive,
          add,
          subtract,
          array1
@@ -16,11 +15,10 @@ const {
   getIterator, reverse,
   reduce: reduceL, reduceRight: reduceR,
   reduce1: reduceL1, reduceRight1: reduceR1,
-  head, tail, init, last
+  head, last
 } = comraq.functional.iterables;
 
 const { compose } = comraq.functional;
-const { slice } = comraq.functional.arrays;
 const { map, filter } = comraq.functional.transducers;
 
 export default () => {
@@ -275,18 +273,6 @@ export default () => {
   describe("head:", () => {
     it("should return the first element of the iterable", () => {
       head(array1).should.be.true;
-    });
-  });
-
-  describe("tail:", () => {
-    it("should return all iterable elements except the first", () => {
-      tail(array1).should.deep.equal(slice(1, array1.length)(array1));
-    });
-  });
-
-  describe("init:", () => {
-    it("should return all iterable elements except the last", () => {
-      init(array1).should.deep.equal(slice(0, -1)(array1));
     });
   });
 

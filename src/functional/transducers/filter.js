@@ -1,8 +1,9 @@
 import { isFunction } from "./../../utils/checks";
 import { currify } from "./../curry";
-import { concatMutable, empty } from "./../algebraic";
+import { empty } from "./../algebraic";
 import { reduce } from "./../iterables";
 
+import { concatMutable } from "./concat";
 import {
   step, complete, init,
   default as Transformer,
@@ -59,7 +60,7 @@ export default currify((predicate, target) => {
  */
 const _filter = (predicate, target) => reduce(
   (acc, next, index, target) => (predicate(next, index, target))?
-    concatMutable(acc, next): acc,
+    concatMutable(next, acc): acc,
   empty(target),
   target
 );

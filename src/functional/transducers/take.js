@@ -1,9 +1,9 @@
 import { isNumber, isFunction, isIterable } from "./../../utils/checks";
 import { currify } from "./../curry";
 import { getIterator } from "./../iterables";
+import { empty } from "./../algebraic";
 
-import { concatMutable, empty } from "./../algebraic";
-
+import { concatMutable } from "./concat";
 import { ensureReduced } from "./Reduced";
 import {
   step, complete, init,
@@ -78,7 +78,7 @@ const _take = (num, target) => {
   let i = 0;
   let item = iterator.next();
   while (i++ < num && !item.done) {
-    result = concatMutable(result, item.value);
+    result = concatMutable(item.value, result);
     item = iterator.next();
   }
 
@@ -149,7 +149,7 @@ const _takeWhile = (predicate, target) => {
 
   let item = iterator.next();
   while (predicate(item.value) && !item.done) {
-    result = concatMutable(result, item.value);
+    result = concatMutable(item.value, result);
     item = iterator.next();
   }
 

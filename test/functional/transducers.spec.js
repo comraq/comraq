@@ -10,17 +10,17 @@ import {
 
 const {
   transduce,
-  map,
-  filter,
+  map, filter,
+  initial, tail,
   take, takeWhile,
   partitionAll,
   isTransformer,
-  concatMutable: concatMutableT
+  concatMutable
 } = comraq.functional.transducers;
 
 const { isNumber } = comraq.utils.checks;
 const { reduce } = comraq.functional.iterables;
-const { concatMutable, empty } = comraq.functional.algebraic;
+const { empty } = comraq.functional.algebraic;
 const { compose } = comraq.functional;
 const { length } = comraq.functional.strings;
 const { slice } = comraq.functional.arrays;
@@ -28,7 +28,7 @@ const { slice } = comraq.functional.arrays;
 export default () => {
   describe("transduce:", () => {
     it("should return a function without providing a collection", () => {
-      transduce(map(triple), concatMutableT).should.be.a("function");
+      transduce(map(triple), concatMutable).should.be.a("function");
     });
 
     it("should get results if a collection is provided", () => {
@@ -41,13 +41,17 @@ export default () => {
         map(triple)
       );
 
-      transduce(xform, concatMutableT, empty(coll), coll).should.deep.equal(
+      transduce(xform, concatMutable, empty(coll), coll).should.deep.equal(
         coll
           .map(inc5)
           .filter(even)
           .slice(0, 5)
           .map(triple)
         );
+    });
+
+    it("should work with other transducers", () => {
+      expect.fail(null, null, "test not yet implemented");
     });
   });
 
@@ -180,16 +184,16 @@ export default () => {
         array2
           .reduce((acc, next, i, coll) => {
             if (count++ < size)
-              part = concatMutable(part, next);
+              part = concatMutable(next, part);
 
             else {
-              acc = concatMutable(acc, part);
+              acc = concatMutable(part, acc);
               count = 1;
-              part = concatMutable(empty(coll), next);
+              part = concatMutable(next, empty(coll));
             }
 
             if (i === length(coll) - 1 && length(part) > 0)
-              acc = concatMutable(acc, part);
+              acc = concatMutable(part, acc);
 
             return acc;
           }, empty(coll))
@@ -230,12 +234,12 @@ export default () => {
 
       const res1 = transduce(
         takeWhile(notNumber),
-        concatMutableT,
+        concatMutable,
         empty(coll),
         coll
       );
       const res2 = reduce(
-        takeWhile(notNumber, concatMutableT),
+        takeWhile(notNumber, concatMutable),
         empty(coll),
         coll
       );
@@ -244,6 +248,51 @@ export default () => {
       res1.should.eql(res2);
       res2.should.eql(res3);
       res3.should.eql(res1);
+    });
+
+    it("should return a transducer if only predicate is passed", () => {
+      isTransducer(takeWhile(even)).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(takeWhile(even, stubTransformer)).should.be.true;
+    });
+  });
+
+  describe("tail:", () => {
+    it("should return all iterable elements except the first", () => {
+      let result = slice(1, array1.length)(array1);
+
+      tail(array1).should.eql(result);
+      reduce(tail(concatMutable), empty(array1), array1).should.eql(result);
+    });
+
+    it("should return a transducer if only predicate is passed", () => {
+      isTransducer(tail).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(tail(stubTransformer)).should.be.true;
+    });
+  });
+
+  describe("init:", () => {
+    it("should return all iterable elements except the last", () => {
+      let result = slice(0, -1)(array1);
+
+      initial(array1).should.eql(result);
+      reduce(initial(concatMutable), empty(array1), array1).should.eql(result);
+    });
+
+    it("should return a transducer if only predicate is passed", () => {
+      isTransducer(initial).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(initial(stubTransformer)).should.be.true;
     });
   });
 };

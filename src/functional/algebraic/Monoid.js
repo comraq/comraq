@@ -25,14 +25,17 @@ export const empty = monoid => {
 };
 
 /**
- * @public @function concat
+ * @private @function _concat
  * - concatenates a value into a semi-group
+ * - for public usage, see transducers/concat
+ *
+ * @see @function transducers/concat
+ *
+ * @param {Any|Semigroup} value
+ * - the target concatenated to sg
  *
  * @param {Any|Semigroup} sg
  * - the target being concatenated to
- *
- * @param {Any|Semigroup} value
- * - the target concatenated to sg1
  *
  * @returns {Any|Semigroup}
  * - the concatenated target
@@ -41,7 +44,7 @@ export const empty = monoid => {
  * - if sg is not a valid semigroup,
  *   (does not have the concat method)
  */
-export const concat = currify((sg, value) => {
+export const _concat = currify((value, sg) => {
   if (!isFunction(sg.concat))
     throw new TypeError(`Semigroup ${sg} does not have concat method!`);
 
@@ -49,16 +52,18 @@ export const concat = currify((sg, value) => {
 });
 
 /**
- * @public @function concatMutable
+ * @private @function _concatMutable
  * - mutable version of concat
- * 
+ * - for public usage, see transducers/concatMutable
+ *
  * @see @function concat
+ * @see @function transducers/concatMutable
  *
  * @throws TypeError
  * - if sg is not a valid semigroup,
  *   (does not have the concatMutable method)
  */
-export const concatMutable = currify((sg, value) => {
+export const _concatMutable = currify((value, sg) => {
   if (!isFunction(sg.concatMutable))
     throw new TypeError(`Semigroup ${sg} does not have concatMutable method!`);
 

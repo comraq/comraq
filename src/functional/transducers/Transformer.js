@@ -8,13 +8,10 @@ const transformerStep = Symbol.for("transformer-step");
 /**
  * @private @mixin _Transformer
  * - augments the original reducing function with the _Transformer mixin,
- *   adding complete and init functions while also referencing the 
- *   the original function as the step function
+ *   adding complete, init and step functions for transducers to call
  *
- * @param {Function} step
- * - the 2+ arity version of the reducing function
- *
- * @see @function step
+ * @param {Function} reducer
+ * - the original reducing function
  *
  * @param {Function} complete
  * - the 1 arity version of the reducing function
@@ -26,21 +23,26 @@ const transformerStep = Symbol.for("transformer-step");
  *
  * @see @function init
  *
+ * @param {Function} step
+ * - the 2+ arity version of the reducing function
+ *
+ * @see @function step
+ *
  * @return {Function}
  * - returns the original function after adding the mixin, 
  *   with step, complete and init functions
  */
-function _Transformer(step, complete, init) {
-  step[transformerStep] = step;
-  step[transformerCompletion] = complete;
-  step[transformerInit] = init;
-  return step;
+function _Transformer(reducer, complete, init, step) {
+  reducer[transformerStep] = step;
+  reducer[transformerCompletion] = complete;
+  reducer[transformerInit] = init;
+  return reducer;
 }
 
 /**
  * @public @function Transformer
  * - the public function that adds the _Transformer mixin for the a given
- *   step (reducing function)
+ *   reducing (step function)
  * - defaults for complete and init functions are provided if omitted
  *
  * @see @interface _Transformer
@@ -55,10 +57,11 @@ function _Transformer(step, complete, init) {
  * - an instance function augmented with the _Transformer mixin
  */
 export default (
-  step,
+  reducer,
   complete = identity,
-  init = () => step()
-) => _Transformer(step, complete, init);
+  init = reducer,
+  step = reducer
+) => _Transformer(reducer, complete, init, step);
 
 /**
  * @public @function step
