@@ -1,8 +1,13 @@
 import comraq from "./../../src";
 
-import { multiply, getZero, add } from "../test-data";
+import {
+  multiply,
+  getZero,
+  add,
+  arity1Add
+} from "../test-data";
 
-const { curry, currify } = comraq.functional;
+const { curry, currify, autoCurry } = comraq.functional;
 
 export default () => {
   describe("curry:", () => {
@@ -64,6 +69,40 @@ export default () => {
       currify(getZero).should.equal(0);
       currify(multiply)(13, 2).should.equal(26);
       currify(fiveArgs)(1, 2)(3, 4, 5).should.equal(15);
+    });
+  });
+
+  describe("autoCurry:", () => {
+    it("should return a function with not enough arguments passed", () => {
+      autoCurry(a => a).should.be.a("function");
+      autoCurry((a, b) => b)(123).should.be.a("function");
+    });
+
+    it("should evaluate results when enough arguments are passed", () => {
+      expect(autoCurry(() => {})).to.equal(undefined);
+      autoCurry(getZero).should.equal(0);
+      autoCurry(multiply)(13)(2).should.equal(26);
+    });
+
+    it("autoCurried functions can take variadic number of arguments", () => {
+      const fiveArgs = function(a, b, c, d, e) {
+        return Array.prototype.reduce.call(arguments, add);
+      };
+
+      autoCurry(getZero).should.equal(0);
+      autoCurry(multiply)(13, 2).should.equal(26);
+      autoCurry(fiveArgs)(1, 2)(3, 4, 5).should.equal(15);
+    });
+
+    it("should work with functions returning arity 1 functions", () => {
+      let addFiveVals = autoCurry(arity1Add);
+
+      addFiveVals.should.be.a("function");
+      addFiveVals(1)(2).should.be.a("function");
+      addFiveVals(1, 2).should.be.a("function");
+      addFiveVals(1, 2, 3, 4, 5).should.equal(15);
+      addFiveVals(1)(2)(3)(4)(5).should.equal(15);
+      addFiveVals(1, 2)(3, 4)(5).should.equal(15);
     });
   });
 };

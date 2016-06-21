@@ -26,4 +26,21 @@ export { partitionAll } from "./partition";
 export { default as tail } from "./tail";
 export { default as initial } from "./initial";
 
-// TODO: init, partitionBy and etc...
+/**
+ * TODO-list:
+ * - cat,
+ *   mapcat,
+ *   remove,
+ *   take-nth,
+ *   drop,
+ *   drop-while,
+ *   replace,
+ *   partition-by,
+ *   keep,
+ *   keep-indexed,
+ *   map-indexed,
+ *   distinct,
+ *   interpose,
+ *   dedupe,
+ *   random-sample
+ */

@@ -31,7 +31,29 @@ export const getZero = () => 0;
 
 export const addAll = (...vals) => vals.reduce(add);
 
-export const stubTransformer = Transformer(() => {});
+export const arity1Add = a => b => c => d => e => a + b + c + d + e;
+export const arity1SideEffect = a => {
+  console.log(`a: ${a}`);
 
+  return b => {
+    console.log(`b: ${b}`);
+
+    return c => {
+      console.log(`c: ${c}`);
+
+      return d => {
+        console.log(`d: ${d}`);
+
+        return e => {
+          console.log(`e: ${e}`);
+
+          return a + b + c + d + e;
+        };
+      };
+    };
+  };
+};
+
+export const stubTransformer = Transformer(() => {});
 export const isTransducer = target =>
   isTransformer(target(stubTransformer));

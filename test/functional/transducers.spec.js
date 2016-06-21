@@ -9,18 +9,18 @@ import {
        } from "./../test-data";
 
 const {
-  transduce,
+  transduce, transduce1,
   map, filter,
   initial, tail,
   take, takeWhile,
   partitionAll,
-  isTransformer,
+  isTransformer, Transformer,
   concatMutable
 } = comraq.functional.transducers;
 
 const { isNumber } = comraq.utils.checks;
 const { reduce } = comraq.functional.iterables;
-const { empty } = comraq.functional.algebraic;
+const { empty, identity } = comraq.functional.algebraic;
 const { compose } = comraq.functional;
 const { length } = comraq.functional.strings;
 const { slice } = comraq.functional.arrays;
@@ -47,6 +47,46 @@ export default () => {
           .filter(even)
           .slice(0, 5)
           .map(triple)
+        );
+    });
+
+    it("should work with other transducers", () => {
+      expect.fail(null, null, "test not yet implemented");
+    });
+  });
+
+  describe("transduce1:", () => {
+    const arrayConcatMutable = Transformer(
+      (value, array) => {
+        array.push(value);
+        return value;
+      },
+      identity,
+      () => [],
+      (acc, next) => {
+        acc.push(next);
+        return acc;
+      }
+    );
+
+    it("should return a function without providing a collection", () => {
+      transduce1(map(triple), arrayConcatMutable).should.be.a("function");
+    });
+
+    it("should get results if a collection is provided", () => {
+      let coll = array2;
+
+      let xform = compose(
+        map(inc5),
+        filter(even),
+        take(4)
+      );
+
+      transduce1(xform, arrayConcatMutable, coll).should.deep.equal(
+        coll
+          .map(inc5)
+          .filter(even)
+          .slice(0, 4)
         );
     });
 
@@ -93,18 +133,22 @@ export default () => {
       const C = compose(map(inc10), map(compose(triple, inc10, inc10)));
       const E = map(compose(triple, inc10, inc10))(numbersData);
 
-      B(numbersData).should.deep.equal(numbersData
+      reduce(
+        B(concatMutable),
+        empty(numbersData),
+        numbersData
+      ).should.eql(numbersData
         .map(e =>
           e * 3 + 10 + 10
         )
       );
-      C(numbersData).should.deep.equal(numbersData
+      C(numbersData).should.eql(numbersData
         .map(e =>
           (e + 10 + 10) * 3 + 10
         )
       );
 
-      E.should.deep.equal(numbersData
+      E.should.eql(numbersData
         .map(e =>
           (e + 10 + 10) * 3
         )
@@ -146,17 +190,21 @@ export default () => {
                   filter(compose(even, inc10, triple, triple))
                 );
 
-      A(numbersData).should.deep.equal(numbersData
+      A(numbersData).should.eql(numbersData
         .filter(e =>
           e * 3 > 0
         )
       );
-      B(numbersData).should.deep.equal(numbersData
+      reduce(
+        B(concatMutable),
+        empty(numbersData),
+        numbersData
+      ).should.eql(numbersData
         .filter(e =>
           (e * 3 + 10 + 10) % 2 === 0
         )
       );
-      D(numbersData).should.deep.equal(numbersData
+      D(numbersData).should.eql(numbersData
         .map(e =>
           e + 10
         )
@@ -164,7 +212,7 @@ export default () => {
           ((e + 10 + 10) * 3) % 2 === 0
         )
       );
-      E(numbersData).should.deep.equal(numbersData
+      E(numbersData).should.eql(numbersData
         .filter(e =>
           (e * 3 * 3 + 10) % 2 === 0 && e > 0
         )
@@ -175,13 +223,14 @@ export default () => {
   describe("partitionAll:", () => {
     it("should partition a collection into "
        + "an array of sub-collections (partitions)", () => {
-      let coll = array2;
-      let size = 3;
-      let count = 0;
-      let part = empty(coll);
-      
-      partitionAll(size, coll).should.eql(
-        array2
+      const coll = array2;
+      const size = 3;
+
+      let result = (() => {
+        let count = 0;
+        let part = empty(coll);
+
+        return coll
           .reduce((acc, next, i, coll) => {
             if (count++ < size)
               part = concatMutable(next, part);
@@ -196,8 +245,15 @@ export default () => {
               acc = concatMutable(part, acc);
 
             return acc;
-          }, empty(coll))
-      );
+          }, empty(coll), coll);
+      })();
+
+      partitionAll(size, coll).should.eql(result);
+      reduce(
+        partitionAll(size, concatMutable),
+        empty(coll),
+        coll
+      ).should.eql(result);
     });
 
     it("should return a transducer if only count number is passed", () => {
@@ -213,7 +269,10 @@ export default () => {
   describe("take:", () => {
     it("should return a sub collection of iterable "
        + "from the head specified by count", () => {
-      take(2)(array1).should.deep.equal(slice(0, 2)(array1));
+      let result = slice(0, 2, array1);
+
+      take(2)(array1).should.eql(result);
+      reduce(take(2)(concatMutable), empty(array1), array1).should.eql(result);
     });
 
     it("should return a transducer if only count number is passed", () => {

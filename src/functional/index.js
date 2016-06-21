@@ -9,5 +9,5 @@ export { strings, arrays, iterables, algebraic, transducers };
 export { default as composable } from "./composable";
 export { trace } from "./utils";
 export { getProp, withProp } from "./prop";
-export { default as curry, currify } from "./curry";
+export { default as curry, currify, autoCurry } from "./curry";
 export { compose, pipe } from "./composition";

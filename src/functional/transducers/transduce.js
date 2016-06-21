@@ -1,4 +1,4 @@
-import { currify } from "./../curry";
+import { autoCurry } from "./../curry";
 import { init, isTransformer } from "./Transformer";
 import { reduce } from "./../iterables";
 
@@ -27,13 +27,13 @@ import { reduce } from "./../iterables";
  * @throws TypeError
  * - if transformer does not implement the _Transformer interface
  */
-const transduce = currify((transducer, transformer, init, target) => {
+const transduce = autoCurry(transducer => transformer => init => target => {
   if (!isTransformer(transformer))
     throw new TypeError(
       `transduce cannot be applied with non-Transformer ${transformer}!`
     );
 
-  return reduce(applyTransform(transducer, transformer), init, target);
+  return reduce(_applyTransform(transducer, transformer), init, target);
 });
 
 export default transduce;
@@ -46,11 +46,12 @@ export default transduce;
  *
  * @see @function transduce
  */
-export const transduce1 = currify((transducer, transformer, target) =>
+export const transduce1 = autoCurry(transducer => transformer => target =>
   transduce(transducer, transformer, init(transformer), target));
 
 /**
- * @public @function applyTransform
+ * @private @function _applyTransform
+ * - to be shared/used with other internal functions only!
  * - supplies the transformer into the transducer, producing a transformer
  *
  * @param {Function} transducer
@@ -67,7 +68,7 @@ export const transduce1 = currify((transducer, transformer, target) =>
  * @throws TypeError
  * - if the result does not implement the _Transformer interface
  */
-export const applyTransform = (transducer, transformer) => {
+export const _applyTransform = (transducer, transformer) => {
   let result = transducer(transformer);
   if (!isTransformer(result))
     throw new TypeError (
