@@ -5,7 +5,7 @@ const comraq = { utils, functional };
 
 // Export entire library as comraq under the window object if loaded as
 // script in browser
-if (window)
+if (typeof window !== "undefined")
   window.comraq = comraq;
 
 export default comraq;
