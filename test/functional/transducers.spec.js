@@ -9,11 +9,11 @@ import {
        } from "./../test-data";
 
 const {
-  transduce, transduce1,
+  transduce, transduce1, into,
   map, filter,
   initial, tail,
   take, takeWhile,
-  partitionAll,
+  partitionAll, partitionBy,
   isTransformer, Transformer,
   concatMutable
 } = comraq.functional.transducers;
@@ -41,7 +41,7 @@ export default () => {
         map(triple)
       );
 
-      transduce(xform, concatMutable, empty(coll), coll).should.deep.equal(
+      transduce(xform, concatMutable, empty(coll), coll).should.eql(
         coll
           .map(inc5)
           .filter(even)
@@ -50,7 +50,7 @@ export default () => {
         );
     });
 
-    it("should work with other transducers", () => {
+    it("should work with all other transducers", () => {
       expect.fail(null, null, "test not yet implemented");
     });
   });
@@ -82,7 +82,7 @@ export default () => {
         take(4)
       );
 
-      transduce1(xform, arrayConcatMutable, coll).should.deep.equal(
+      transduce1(xform, arrayConcatMutable, coll).should.eql(
         coll
           .map(inc5)
           .filter(even)
@@ -90,18 +90,35 @@ export default () => {
         );
     });
 
-    it("should work with other transducers", () => {
+    it("should work with all other transducers", () => {
       expect.fail(null, null, "test not yet implemented");
     });
   });
 
   describe("into:", () => {
     it("should return a function without providing a collection", () => {
-      expect.fail(null, null, "test not yet implemented");
+      into([], map(triple)).should.be.a("function");
     });
 
     it("should get results if a collection is provided", () => {
-      expect.fail(comraq, null, "test not yet implemented");
+      let xform = compose(
+        map(inc5),
+        filter(even),
+        take(5),
+        map(triple)
+      );
+
+      into([], xform, numbersData).should.eql(
+        numbersData
+          .map(inc5)
+          .filter(even)
+          .slice(0, 5)
+          .map(triple)
+        );
+    });
+
+    it("should work with all other transducers", () => {
+      expect.fail(null, null, "test not yet implemented");
     });
   });
 
@@ -266,6 +283,52 @@ export default () => {
     });
   });
 
+  describe("partitionBy:", () => {
+    it("should partition a collection into "
+       + "an array of sub-collections (partitions)", () => {
+      const coll = numbersData;
+      const pred = even;
+
+      let result = (() => {
+        let value = undefined;
+        let part = empty(coll);
+
+        return coll
+          .reduce((acc, next, i, coll) => {
+            let nextVal = pred(next);
+            if (value === undefined || nextVal === value)
+              part = concatMutable(next, part);
+
+            else {
+              acc = concatMutable(part, acc);
+              part = concatMutable(next, empty(coll));
+            }
+
+            value = nextVal;
+            if (i === length(coll) - 1 && length(part) > 0)
+              acc = concatMutable(part, acc);
+
+            return acc;
+          }, empty(coll), coll);
+      })();
+
+      partitionBy(pred, coll).should.eql(result);
+      reduce(
+        partitionBy(pred, concatMutable),
+        empty(coll),
+        coll
+      ).should.eql(result);
+    });
+
+    it("should return a transducer if only count number is passed", () => {
+      isTransducer(partitionBy(even)).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(partitionBy(even, stubTransformer)).should.be.true;
+    });
+  });
   describe("take:", () => {
     it("should return a sub collection of iterable "
        + "from the head specified by count", () => {

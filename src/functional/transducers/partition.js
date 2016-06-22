@@ -1,11 +1,12 @@
 import {
   isNumber,
   isUndefined,
-  isIterable
+  isIterable,
+  isFunction
 } from "./../../utils/checks";
 
 import { currify } from "./../curry";
-import { getIterator } from "./../iterables";
+import { reduce, getIterator } from "./../iterables";
 import { empty } from "./../algebraic";
 import { length } from "./../strings";
 
@@ -39,7 +40,7 @@ import {
 export const partitionAll = currify((size, target) => {
   if (!isNumber(size))
     throw new TypeError(
-      `Cannot take elements with a non-number limit ${size}!`
+      `Cannot partitionAll with a non-number ${size}!`
     );
 
   else if (!isTransformer(target))
@@ -91,7 +92,7 @@ export const partitionAll = currify((size, target) => {
 const _partitionAll = (size, target) => {
   if (!isIterable(target))
     throw new TypeError(
-      `Cannot takeWhile elements from non-iterable ${target}!`
+      `Cannot partitionAll of non-iterable ${target}!`
     );
 
   let count = 0, partition = empty(target);
@@ -118,4 +119,113 @@ const _partitionAll = (size, target) => {
     result = concatMutable(partition, result);
 
   return result;
+};
+
+/**
+ * @public @function partitionBy
+ * - partitions an iterable into many smaller iterables divided by everytime
+ *   predicate returns a new value
+ * 
+ * @param {Function} predicate
+ * - the predicate function to check on each element in iterable
+ *
+ * @param {Transformer|Iterable} target
+ * - the target transformer or iterable
+ *
+ * @returns {Transformer|Iterable}
+ * - returns transformer if target is an instance with the transformer mixin
+ * - an iterable with partitions of elements divided by when predicate
+ *   function returns a different value, 
+ *
+ * @throws TypeError
+ * - predicate argument is not a function
+ */
+export const partitionBy = currify((predicate, target) => {
+  if (!isFunction(predicate))
+    throw new TypeError(
+      `Cannot partitionBy with non-function ${predicate}!`
+    );
+
+  else if (!isTransformer(target))
+    return _partitionBy(predicate, target);
+
+  // Partition is undefined for now as we currently have no access to the
+  // unit/void/empty instance of the accumulator until the step function of
+  // the transformer is actually called
+  let val = undefined, partition = undefined;
+
+  return Transformer(
+    (acc, next, ...args) => {
+      let nextVal = predicate(next);
+
+      if (isUndefined(partition)) {
+        partition = concatMutable(next, empty(acc));
+        val = nextVal;
+        return acc;
+      }
+
+      if (val === nextVal) {
+        partition = concatMutable(next, partition);
+
+      } else {
+        const temp = partition;
+        partition = concatMutable(next, empty(acc));
+        val = nextVal;
+        return step(target, acc, temp, ...args);
+      }
+
+      return acc;
+    },
+
+    acc => {
+      if (!isUndefined(partition) && length(partition) > 0)
+        acc = ensureUnreduced(step(target, acc, partition));
+
+      return complete(target, acc);
+    },
+
+    () => init(target)
+  );
+});
+
+/**
+ * @private @function _partitionBy
+ * - private version of partitionBy that immediately returns the iterable
+ *   result when the second argument is not a transformer mixin
+ *
+ * @see @function partitionBy
+ *
+ * @throws TypeError
+ * - target is not/does not implement the iterable interface
+ */
+const _partitionBy = (predicate, target) => {
+  if (!isIterable(target))
+    throw new TypeError(
+      `Cannot partitionAll of non-iterable ${target}!`
+    );
+
+  let val = undefined, partition = undefined;
+  return reduce((acc, next, i, coll) => {
+    let nextVal = predicate(next);
+    if (isUndefined(partition)) {
+      partition = concatMutable(next, empty(coll));
+      val = nextVal;
+      return acc;
+    }
+
+    if (val === nextVal)
+      partition = concatMutable(next, partition);
+
+    else {
+      const temp = partition;
+      partition = concatMutable(next, empty(coll));
+      acc = concatMutable(temp, acc);
+      val = nextVal;
+    }
+
+    if (i === length(coll) - 1 && !isUndefined(partition))
+      acc = concatMutable(partition, acc);
+
+    return acc;
+  }, empty(target), target);
 };
