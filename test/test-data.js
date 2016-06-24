@@ -29,7 +29,9 @@ export const subtract = (valA, valB) => valA - valB;
 export const multiply = (a, b) => a * b;
 export const getZero = () => 0;
 
+export const toArray = (...args) => args;
 export const addAll = (...vals) => vals.reduce(add);
+
 
 export const arity1Add = a => b => c => d => e => a + b + c + d + e;
 export const arity1SideEffect = a => {

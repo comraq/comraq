@@ -37,6 +37,48 @@ export default curry;
  *   those with default parameters will not have a useful length property,
  *   pass in fnLen to specify a custom function.length if preferred
  *
+ * @param {Boolean} right (optional)
+ * - the direction of curried arguments
+ * - if right === true:
+ *     - args will be curried from right to left for func
+ * - otherwise:
+ *     - args will be curried from left to right for func
+ *
+ * @param {Any} placeholder (optional)
+ * - optional dummy value that can be used as placeholders when partially
+ *   applying parameters in the middle of the function declaration
+ * - if omitted, all future arguments will be accepted as legitimate/valid
+ *   arguments to be passed to the curried function
+ * - @example:
+ *     const pl = "some placeholder value";
+ *     let init = currify((...args) => args, 5, false, pl);
+ *     let func;
+ *
+ *     func = init(pl, pl, pl, pl, "e"); // func( ___, ___, ___, ___, "e")
+ *
+ *     func = func(pl, "b", pl);         // func( ___, "b", ___, ___, "e")
+ *
+ *     func = func("a");                 // func( "a", "b", ___, ___, "e")
+ *
+ *     const result = func("c", "d");    // func( "a", "b", "c", "d", "e")
+ *       |
+ *       +-> function finally gets called, result = [ "a", "b", "c", "d", "e" ]
+ *
+ *
+ *     NOTE: func("c", "d", "f") ------> // func( "a", "b", "c", "d", "e", "f")
+ *       |
+ *       +-> function gets called with all excess arguments
+ *
+ *     NOTE: const many = func(pl, pl, pl, pl, pl, pl, "g") 
+ *       |
+ *       +-> // many === func( ___, ___, ___, ___, ___, "g")
+ *       |
+ *       +-> many("a", "b", "c", pl, "e")
+ *           |
+ *           +-> // func( "a", "b", "c", ___, "e", "g")
+ *           |
+ *           +-> not yet evaluated, still a function!
+ *
  * @return {Function}
  * - a curried function that will currify all arguments for func
  *   if not enough parameters are passed in
@@ -44,17 +86,72 @@ export default curry;
  * @throws Error
  * - non-function passed as first argument
  */
-export const currify = (func, fnLen = 0) => {
+export const currify = function currify(
+  func, 
+  fnLen = -1,
+  right = false,
+  placeholder = undefined
+) {
   if (!isFunction(func))
-    throw new Error(`Argument '${func}' of currify is not a function!`);
+    throw new Error(`Argument "${func}" of currify is not a function!`);
 
   if (fnLen <= 0)
     fnLen = func.length;
-
-  if (fnLen === 0)
-    return func();
   
-  return (...args) => currify(func.bind(this, ...args), fnLen - args.length);
+  if (arguments.length < 4)
+    return _currify(func, fnLen, right);
+
+  return _currifyPlaceholder(
+    func,
+    fnLen,
+    right,
+    placeholder,
+    Array(fnLen).fill(placeholder)
+  );
+};
+
+/**
+ * @private @function _currify
+ * - currify's internal helper recursive method
+ *
+ * @see @public @function currify
+ */
+const _currify = (func, fnLen, right, ...args) => {
+  if (fnLen <= args.length)
+    return func(...((right)? args.reverse(): args));
+
+  return (...newArgs) =>
+    _currify(func, fnLen, right, ...args, ...newArgs);
+};
+
+const _currifyPlaceholder = (func, fnLen, right, placeholder, args) => {
+  const pos = args.indexOf(placeholder);
+  if (pos === -1 || pos >= fnLen)
+    return func(...((right)? args.reverse(): args));
+
+  return (...newArgs) =>
+    _currifyPlaceholder(
+      func,
+      fnLen,
+      right,
+      placeholder,
+      _replacePlaceholders(placeholder, newArgs, args.slice())
+    );
+};
+
+const _replacePlaceholders = (match, newArray, baseArray) => {
+  let pos = -1;
+
+  newArray.forEach(e => {
+    pos = baseArray.indexOf(match, ++pos);
+
+    pos = (pos === -1)? baseArray.length: pos;
+
+    if (e !== match)
+      baseArray[pos] = e;
+  });
+
+  return baseArray;
 };
 
 /**

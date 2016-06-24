@@ -3,8 +3,9 @@ import comraq from "./../../src";
 import {
   multiply,
   getZero,
-  add,
-  arity1Add
+  add, inc5,
+  arity1Add,
+  toArray
 } from "../test-data";
 
 const { curry, currify, autoCurry } = comraq.functional;
@@ -69,6 +70,72 @@ export default () => {
       currify(getZero).should.equal(0);
       currify(multiply)(13, 2).should.equal(26);
       currify(fiveArgs)(1, 2)(3, 4, 5).should.equal(15);
+    });
+
+    it("can curry from right to left", () => {
+      const appendString = currify(
+        (target, toAppend) => target + toAppend,
+        2,
+        true
+      );
+      const map = currify((array, func) => array.map(func), 2, true);
+
+      const appendHash = appendString("#");
+      const addFive = map(inc5);
+
+      appendHash.should.be.a("function");
+      addFive.should.be.a("function");
+
+      const strResults = "comraq#";
+      const arrResults = [ 6, 7, 8 ];
+
+      appendHash("comraq").should.equal(strResults);
+      addFive([ 1, 2, 3 ]).should.eql(arrResults);
+
+      appendString("#", "comraq").should.equal(strResults);
+      map(inc5, [ 1, 2, 3 ]).should.eql(arrResults);
+    });
+
+    it("can curry with placeholders", () => {
+      const dummy = null;
+      const func = currify(toArray, 5, false, dummy);
+
+      const before = func("a", "b", dummy, dummy);
+      const after  = func(dummy, dummy, "c");
+      const mid    = func(dummy, dummy, "c", dummy);
+      const last   = func(dummy, dummy, dummy, dummy, "e");
+      const all    = func(dummy, dummy, dummy, dummy, dummy);
+
+      before.should.be.a("function");
+      after.should.be.a("function");
+      mid.should.be.a("function");
+      last.should.be.a("function");
+      all.should.be.a("function");
+
+      const result = [ "a", "b", "c", "d", "e" ];
+      before("c", "d", "e").should.eql(result);
+      after("a")("b", "d")("e").should.eql(result);
+      mid("a", "b", "d", "e").should.eql(result);
+      last("a")("b")("c")("d").should.eql(result);
+      all("a")("b")("c", "d", "e").should.eql(result);
+
+      let again = all(dummy, dummy, "c");
+      again.should.be.a("function");
+
+      again = again(dummy, dummy, "d");
+      again.should.be.a("function");
+
+      again = again("a", dummy, "e");
+      again.should.be.a("function");
+
+      again("b").should.eql(result);
+
+      again("b", "f").should.eql([ ...result, "f" ]);
+
+      let sparse = all(dummy, dummy, dummy, dummy, dummy, dummy, "g", "h");
+      sparse("a", "b", "c", "d").should.be.a("function");
+      sparse("a", "b", "c", dummy, "e").should.be.a("function");
+      sparse("a", "b", "c", "d", "e").should.eql([ ...result, "g", "h" ]);
     });
   });
 

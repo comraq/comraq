@@ -1,126 +1,32 @@
 import comraq from "./../../src";
+import contexts from "./transducers-context.spec.js";
 
 import {
-         inc5, inc10,
-         triple,
+         inc10, triple,
          even, positive,
          array2, array1, numbersData,
          stubTransformer, isTransducer
        } from "./../test-data";
 
 const {
-  transduce, transduce1, into,
+  transduce,
   map, filter,
   initial, tail,
   take, takeWhile,
   partitionAll, partitionBy,
-  isTransformer, Transformer,
+  isTransformer,
   concatMutable
 } = comraq.functional.transducers;
 
 const { isNumber } = comraq.utils.checks;
 const { reduce } = comraq.functional.iterables;
-const { empty, identity } = comraq.functional.algebraic;
+const { empty } = comraq.functional.algebraic;
 const { compose } = comraq.functional;
 const { length } = comraq.functional.strings;
 const { slice } = comraq.functional.arrays;
 
 export default () => {
-  describe("transduce:", () => {
-    it("should return a function without providing a collection", () => {
-      transduce(map(triple), concatMutable).should.be.a("function");
-    });
-
-    it("should get results if a collection is provided", () => {
-      let coll = array2;
-
-      let xform = compose(
-        map(inc5),
-        filter(even),
-        take(5),
-        map(triple)
-      );
-
-      transduce(xform, concatMutable, empty(coll), coll).should.eql(
-        coll
-          .map(inc5)
-          .filter(even)
-          .slice(0, 5)
-          .map(triple)
-        );
-    });
-
-    it("should work with all other transducers", () => {
-      expect.fail(null, null, "test not yet implemented");
-    });
-  });
-
-  describe("transduce1:", () => {
-    const arrayConcatMutable = Transformer(
-      (value, array) => {
-        array.push(value);
-        return value;
-      },
-      identity,
-      () => [],
-      (acc, next) => {
-        acc.push(next);
-        return acc;
-      }
-    );
-
-    it("should return a function without providing a collection", () => {
-      transduce1(map(triple), arrayConcatMutable).should.be.a("function");
-    });
-
-    it("should get results if a collection is provided", () => {
-      let coll = array2;
-
-      let xform = compose(
-        map(inc5),
-        filter(even),
-        take(4)
-      );
-
-      transduce1(xform, arrayConcatMutable, coll).should.eql(
-        coll
-          .map(inc5)
-          .filter(even)
-          .slice(0, 4)
-        );
-    });
-
-    it("should work with all other transducers", () => {
-      expect.fail(null, null, "test not yet implemented");
-    });
-  });
-
-  describe("into:", () => {
-    it("should return a function without providing a collection", () => {
-      into([], map(triple)).should.be.a("function");
-    });
-
-    it("should get results if a collection is provided", () => {
-      let xform = compose(
-        map(inc5),
-        filter(even),
-        take(5),
-        map(triple)
-      );
-
-      into([], xform, numbersData).should.eql(
-        numbersData
-          .map(inc5)
-          .filter(even)
-          .slice(0, 5)
-          .map(triple)
-        );
-    });
-
-    it("should work with all other transducers", () => {
-      expect.fail(null, null, "test not yet implemented");
-    });
-  });
+  describe("contexts:", contexts);
 
   describe("map:", () => {
     it("should return a transducer if only mapping function is passed", () => {
