@@ -124,6 +124,13 @@ const _currify = (func, fnLen, right, ...args) => {
     _currify(func, fnLen, right, ...args, ...newArgs);
 };
 
+/**
+ * @private @function _currifyPlaceholder
+ * - currify's internal helper method if placeholder is used
+ *
+ * @see @public @function currify
+ * @see @public @function currify @param {Any} placeholder
+ */
 const _currifyPlaceholder = (func, fnLen, right, placeholder, args) => {
   const pos = args.indexOf(placeholder);
   if (pos === -1 || pos >= fnLen)
@@ -139,6 +146,13 @@ const _currifyPlaceholder = (func, fnLen, right, placeholder, args) => {
     );
 };
 
+/**
+ * @private @function _replacePlaceholders
+ * - _currifyPlaceholder's helper method to replace any placeholders from
+ *   the currently collected arguments with new arguments
+ *
+ * @see @private @function _currifyPlaceholder
+ */
 const _replacePlaceholders = (match, newArray, baseArray) => {
   let pos = -1;
 
