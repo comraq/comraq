@@ -3,16 +3,16 @@ import contexts from "./transducers-context.spec.js";
 
 import {
          inc10, triple,
-         even, positive,
+         even, positive, getTrue, getFalse,
          array2, array1, numbersData,
          stubTransformer, isTransducer
        } from "./../test-data";
 
 const {
   transduce,
-  map, filter,
+  map, filter, remove, 
   initial, tail,
-  take, takeWhile,
+  take, takeWhile, takeNth, drop, dropWhile,
   partitionAll, partitionBy,
   isTransformer,
   concatMutable
@@ -21,7 +21,7 @@ const {
 const { isNumber } = comraq.utils.checks;
 const { reduce } = comraq.functional.iterables;
 const { empty } = comraq.functional.algebraic;
-const { compose } = comraq.functional;
+const { compose, placeholder: _ } = comraq.functional;
 const { length } = comraq.functional.strings;
 const { slice } = comraq.functional.arrays;
 
@@ -143,6 +143,70 @@ export default () => {
     });
   });
 
+  describe("remove:", () => {
+    it("should return a transducer if only mapping function is passed", () => {
+      isTransducer(remove(() => {})).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(remove(() => {}, stubTransformer)).should.be.true;
+    });
+
+    it("should evaluate results when iterable is supplied", () => {
+      const result1 = remove(even, numbersData);
+      const result2 = remove(even)(numbersData);
+
+      result1.should.deep.equal(result2);
+    });
+
+    it("should throw error with non-function before last argument", () => {
+      expect(remove.bind(null, inc10, {})).to.throw(/.*/);
+      expect(remove.bind(null, "a string", numbersData)).to.throw(/.*/);
+      expect(remove.bind(null, triple, "a string", numbersData)).to.throw(/.*/);
+    });
+
+    it("can infinitely compose", () => {
+      const A = remove(compose(positive, triple));
+      const B = remove(compose(even, inc10, inc10, triple));
+      const D = compose(
+                  remove(compose(even, triple, inc10, inc10)), map(inc10)
+                );
+      const E = compose(
+                  remove(positive),
+                  remove(compose(even, inc10, triple, triple))
+                );
+
+      A(numbersData).should.eql(numbersData
+        .filter(e =>
+          e * 3 <= 0
+        )
+      );
+      reduce(
+        B(concatMutable),
+        empty(numbersData),
+        numbersData
+      ).should.eql(numbersData
+        .filter(e =>
+          (e * 3 + 10 + 10) % 2 !== 0
+        )
+      );
+      D(numbersData).should.eql(numbersData
+        .map(e =>
+          e + 10
+        )
+        .filter(e =>
+          ((e + 10 + 10) * 3) % 2 !== 0
+        )
+      );
+      E(numbersData).should.eql(numbersData
+        .filter(e =>
+          (e * 3 * 3 + 10) % 2 !== 0 && e < 0
+        )
+      );
+    });
+  });
+
   describe("partitionAll:", () => {
     it("should partition a collection into "
        + "an array of sub-collections (partitions)", () => {
@@ -235,13 +299,30 @@ export default () => {
       isTransformer(partitionBy(even, stubTransformer)).should.be.true;
     });
   });
+
   describe("take:", () => {
     it("should return a sub collection of iterable "
        + "from the head specified by count", () => {
       let result = slice(0, 2, array1);
 
+      // Take some elements
       take(2)(array1).should.eql(result);
       reduce(take(2)(concatMutable), empty(array1), array1).should.eql(result);
+
+      // Take 0 elements -> should be empty
+      take(0)(array1).should.eql(empty(array1));
+      reduce(take(0)(concatMutable), empty(array1), array1)
+        .should.eql(empty(array1));
+
+      // Take all elements -> should be same as original
+      take(length(array1))(array1).should.eql(array1);
+      reduce(take(length(array1))(concatMutable), empty(array1), array1)
+        .should.eql(array1);
+
+      // Take more than array length -> should be same as original
+      take(length(array1) + 1)(array1).should.eql(array1);
+      reduce(take(length(array1) + 1)(concatMutable), empty(array1), array1)
+        .should.eql(array1);
     });
 
     it("should return a transducer if only count number is passed", () => {
@@ -276,6 +357,16 @@ export default () => {
       res1.should.eql(res2);
       res2.should.eql(res3);
       res3.should.eql(res1);
+
+      // TakeWhile true -> should be same as original
+      takeWhile(getTrue)(array1).should.eql(array1);
+      reduce(takeWhile(getTrue)(concatMutable), empty(array1), array1)
+        .should.eql(array1);
+
+      // TakeWhile false -> should be empty
+      takeWhile(getFalse)(array1).should.eql(empty(array1));
+      reduce(takeWhile(getFalse)(concatMutable), empty(array1), array1)
+        .should.eql(empty(array1));
     });
 
     it("should return a transducer if only predicate is passed", () => {
@@ -285,6 +376,141 @@ export default () => {
     it("should return a transformer if transformer "
        + "passed as second argument", () => {
       isTransformer(takeWhile(even, stubTransformer)).should.be.true;
+    });
+  });
+
+  describe("takeNth:", () => {
+    it("should return a sub collection of iterable consisting of only every"
+       + "-nth entry given a starting position", () => {
+      let arr = [ "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l" ];
+      let result_5_n1 = [ "e", "j" ];
+      let result_5_0 = [ "a", "f", "k" ];
+      let result_3_n2 = [ "b", "e", "h", "k" ];
+      let result_3_3 = [ "d", "g", "j" ];
+
+      const tN = takeNth(_, _, arr);
+      const tNT = takeNth(_, _, concatMutable);
+
+      // Take every 5th starting with 0th
+      tN(5, arr).should.eql(result_5_0);
+      reduce(tN(5)(concatMutable), empty(arr), arr).should.eql(result_5_0);
+
+      // Take every 5th starting with -1st
+      tN(5, -1).should.eql(result_5_n1);
+      reduce(tNT(5)(-1), empty(arr), arr)
+        .should.eql(result_5_n1);
+
+      // Take every 3rd starting with -2nd
+      tN(3, -2).should.eql(result_3_n2);
+      reduce(tNT(3)(-2), empty(arr), arr)
+        .should.eql(result_3_n2);
+
+      // Take every 3rd starting with -2nd
+      tN(3, 3).should.eql(result_3_3);
+      reduce(tNT(3)(3), empty(arr), arr)
+        .should.eql(result_3_3);
+
+      // Take every 100th elements -> should be empty
+      tN(100, -2).should.eql(empty(arr));
+      reduce(tNT(100, -2), empty(arr), arr)
+        .should.eql(empty(arr));
+
+      // Take every 1th elements -> should be same as original
+      tN(1)(arr).should.eql(arr);
+      reduce(tN(1)(concatMutable), empty(arr), arr)
+        .should.eql(arr);
+    });
+
+    it("should throw an error if 'n' is not a positive number", () => {
+      expect(takeNth.bind(null, 0, array1)).to.throw(/.*/);
+      expect(takeNth.bind(null, -1, concatMutable)).to.throw(/.*/);
+    });
+
+    it("should return a transducer if only count number is passed", () => {
+      isTransducer(take(0)).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(take(1, stubTransformer)).should.be.true;
+    });
+  });
+
+  describe("drop:", () => {
+    it("should return a sub collection of iterable "
+       + "without first number of entries specified by count", () => {
+      let result = slice(2, length(array1), array1);
+
+      // Drop some elements
+      drop(2)(array1).should.eql(result);
+      reduce(drop(2)(concatMutable), empty(array1), array1).should.eql(result);
+
+      // Drop 0 elements -> should be same as original
+      drop(0)(array1).should.eql(array1);
+      reduce(drop(0)(concatMutable), empty(array1), array1).should.eql(array1);
+
+      // Drop all elements -> should be empty
+      drop(length(array1))(array1).should.eql(empty(array1));
+      reduce(drop(length(array1))(concatMutable), empty(array1), array1)
+        .should.eql(empty(array1));
+
+      // Drop more than array length elements -> should be empty
+      drop(length(array1) + 1)(array1).should.eql(empty(array1));
+      reduce(drop(length(array1) + 1)(concatMutable), empty(array1), array1)
+        .should.eql(empty(array1));
+    });
+
+    it("should return a transducer if only count number is passed", () => {
+      isTransducer(drop(0)).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(drop(1, stubTransformer)).should.be.true;
+    });
+  });
+
+  describe("dropWhile:", () => {
+    it("should return a sub collection of iterable from the head until "
+       + "function passed as argument returns false", () => {
+      const coll = array1;
+      const notNumber = x => !isNumber(x);
+
+      const res1 = transduce(
+        dropWhile(notNumber),
+        concatMutable,
+        empty(coll),
+        coll
+      );
+      const res2 = reduce(
+        dropWhile(notNumber, concatMutable),
+        empty(coll),
+        coll
+      );
+      const res3 = dropWhile(notNumber, coll);
+
+      res1.should.eql(res2);
+      res2.should.eql(res3);
+      res3.should.eql(res1);
+
+      // DropWhile false -> should be same as original
+      dropWhile(getFalse)(array1).should.eql(array1);
+      reduce(dropWhile(getFalse)(concatMutable), empty(array1), array1)
+        .should.eql(array1);
+
+      // DropWhile true -> should be empty
+      dropWhile(getTrue)(array1).should.eql(empty(array1));
+      reduce(dropWhile(getTrue)(concatMutable), empty(array1), array1)
+        .should.eql(empty(array1));
+    });
+
+    it("should return a transducer if only predicate is passed", () => {
+      isTransducer(dropWhile(even)).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(dropWhile(even, stubTransformer)).should.be.true;
     });
   });
 

@@ -1,6 +1,14 @@
 import { isFunction } from "../utils/checks";
 
 /**
+ * @public @var {Symbol} placeholder
+ * - a placeholder symbol for filling in gaps when currying with currify
+ *
+ * @see @public @function currify
+ * /
+export const placeholder = Symbol.for("comraq/curry/placeholder");
+
+/**
  * @public @function curry
  * - curries a function with any number of arguments
  *
@@ -152,19 +160,31 @@ const _currifyPlaceholder = (func, fnLen, right, placeholder, args) => {
  *   the currently collected arguments with new arguments
  *
  * @see @private @function _currifyPlaceholder
+ *
+ * @param {Any} match
+ * - the target placeholder/dummy value to match
+ *
+ * @param {Array} newArray
+ * - the array of new arguments
+ *
+ * @param {Array} baseArray
+ * - the array of currently existing arguments
+ *
+ * @return {Array}
+ * - the baseArray with placeholders replaced from valid elements in the
+ *   newArray
  */
 const _replacePlaceholders = (match, newArray, baseArray) => {
   let pos = -1;
 
-  newArray.forEach(e => {
+  for (let e of newArray) {
     pos = baseArray.indexOf(match, ++pos);
 
     pos = (pos === -1)? baseArray.length: pos;
 
     if (e !== match)
       baseArray[pos] = e;
-  });
-
+  }
   return baseArray;
 };
 

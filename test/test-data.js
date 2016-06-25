@@ -32,6 +32,8 @@ export const getZero = () => 0;
 export const toArray = (...args) => args;
 export const addAll = (...vals) => vals.reduce(add);
 
+export const getTrue = () => true;
+export const getFalse = () => false;
 
 export const arity1Add = a => b => c => d => e => a + b + c + d + e;
 export const arity1SideEffect = a => {
