@@ -1,5 +1,7 @@
 import { isFunction } from "./../../utils/checks";
 
+import { currify, placeholder } from "./../curry";
+
 /**
  * @public @function join
  * - calls join on a monad if passed as first argument
@@ -17,7 +19,7 @@ import { isFunction } from "./../../utils/checks";
  * @throws Error
  * - when recieved a non-monad that does not have the method join
  */
-const join = (sep, monad) => {
+const join = currify((sep, monad) => {
   if (isFunction(sep.join)) {
     // Monad is passed in as the first argument!
     return sep.join();
@@ -29,6 +31,6 @@ const join = (sep, monad) => {
     throw new Error(`Monad ${monad} does not have method join!`);
 
   return monad.join(sep);
-};
+}, 1, false, placeholder);
 
 export default join;

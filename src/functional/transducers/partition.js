@@ -5,7 +5,7 @@ import {
   isFunction
 } from "./../../utils/checks";
 
-import { currify } from "./../curry";
+import { currify, placeholder } from "./../curry";
 import { reduce, getIterator } from "./../iterables";
 import { empty } from "./../algebraic";
 import { length } from "./../strings";
@@ -77,7 +77,7 @@ export const partitionAll = currify((size, target) => {
 
     () => init(target)
   );
-});
+}, 2, false, placeholder);
 
 /**
  * @private @function _partitionAll
@@ -125,6 +125,8 @@ const _partitionAll = (size, target) => {
  * @public @function partitionBy
  * - partitions an iterable into many smaller iterables divided by everytime
  *   predicate returns a new value
+ * - like other functions, this also passes the index and original iterable
+ *   to the predicate function as the second and third argument
  * 
  * @param {Function} predicate
  * - the predicate function to check on each element in iterable
@@ -156,7 +158,7 @@ export const partitionBy = currify((predicate, target) => {
 
   return Transformer(
     (acc, next, ...args) => {
-      let nextVal = predicate(next);
+      let nextVal = predicate(next, ...args);
 
       if (isUndefined(partition)) {
         partition = concatMutable(next, empty(acc));
@@ -186,7 +188,7 @@ export const partitionBy = currify((predicate, target) => {
 
     () => init(target)
   );
-});
+}, 2, false, placeholder);
 
 /**
  * @private @function _partitionBy
@@ -206,7 +208,7 @@ const _partitionBy = (predicate, target) => {
 
   let val = undefined, partition = undefined;
   return reduce((acc, next, i, coll) => {
-    let nextVal = predicate(next);
+    let nextVal = predicate(next, i, coll);
     if (isUndefined(partition)) {
       partition = concatMutable(next, empty(coll));
       val = nextVal;

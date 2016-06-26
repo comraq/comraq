@@ -1,5 +1,5 @@
 import { isFunction, isIterable } from "./../../utils/checks";
-import { currify } from "./../curry";
+import { currify, placeholder } from "./../curry";
 
 import iterReduce from "./iterable-reduce";
 import getIterator from "./get-iterator";
@@ -39,7 +39,7 @@ export default currify((func, acc, iterable) => {
     );
 
   return iterReduce(func, acc, iterable);
-});
+}, 3, false, placeholder);
 
 /**
  * @public @function reduce1
@@ -61,7 +61,7 @@ export const reduce1 = currify((func, iterable) => {
 
   const iterator = getIterator(iterable);
   return iterReduce(func, iterator.next().value, iterable, 1, iterator);
-});
+}, 2, false, placeholder);
 
 /**
  * @public @function reduceRight
@@ -82,7 +82,7 @@ export const reduceRight = currify((func, acc, iterable) => {
 
   iterable = reverseIterable(iterable);
   return iterReduce(func, acc, iterable);
-});
+}, 3, false, placeholder);
 
 /**
  * @public @function reduceRight1
@@ -106,4 +106,4 @@ export const reduceRight1 = currify((func, iterable) => {
   const iterator = getIterator(iterable);
 
   return iterReduce(func, iterator.next().value, iterable, 1, iterator);
-});
+}, 2, false, placeholder);

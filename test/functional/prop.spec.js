@@ -9,7 +9,7 @@ import {
 
 const {
   curry, composable, compose, pipe,
-  getProp, withProp
+  getProp, withProp, hasProp
 } = comraq.functional;
 
 const { upper } = comraq.functional.strings;
@@ -101,6 +101,19 @@ export default () => {
       );
 
       B(namesData).should.deep.equal([ "RANDOM", "RANDOM" ]);
+    });
+  });
+
+  describe("hasProp:", () => {
+    it("should return a function", () => {
+      hasProp("some-prop").should.be.a("function");
+      hasProp({}).should.be.a("function");
+    });
+
+    it("should return boolean if prop and target are passed", () => {
+      hasProp("asdf", { asdf: 23 }).should.be.true;
+      hasProp("asdf", false).should.be.false;
+      hasProp("asdf", new Map([ [ "asdf", null ] ])).should.be.true;
     });
   });
 };

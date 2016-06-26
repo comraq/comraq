@@ -1,16 +1,22 @@
-import { isString, isNumber, isUndefined, isNull } from "./../utils/checks";
+import {
+  isString,
+  isNumber,
+  isUndefined,
+  isNull,
+  isMap
+} from "./../utils/checks";
 
-import { currify } from "./curry";
+import { currify, placeholder } from "./curry";
 
 /**
  * @public @function getProp
  * - Gets the property of a target object
  *
- * @param {String|Number} prop
- * - the property used to access the object
+ * @param {Any} prop
+ * - the property to search for
  *
  * @param {Any} target
- * - the target object
+ * - the target object/map
  *
  * @return {Function|Any|Null}
  * - a curried function with prop preset if target is not passed in
@@ -18,19 +24,26 @@ import { currify } from "./curry";
  * - null otherwise
  *
  * @throws Error
- * - non-string or number passed as prop
+ * - non-string or number passed as prop if target is object
  */
 export const getProp = currify((prop, target) => {
+  if (isMap(target)) {
+    if (!target.has(prop))
+      return null;
+
+    return target.get(prop);
+  }
+
   if (!isString(prop) && !isNumber(prop))
     throw new Error(
       `First argument '${prop}' of getProp must be string or number!`
     );
 
-  if (isUndefined(target) || isNull(target) || (isUndefined(target[prop])))
+  if (!hasProp(prop, target))
     return null;
 
   return target[prop];
-});
+}, 2, false, placeholder);
 
 /**
  * @public @function withProp
@@ -67,4 +80,24 @@ export const withProp = currify((prop, value = null, target) => {
   }
 
   return Object.assign({}, target, temp);
-}, 3);
+}, 3, false, placeholder);
+
+/**
+ * @public @function hasProp
+ * - checks whether the target instance has a specified property
+ *
+ * @param {Any} prop
+ * - the property to search for
+ *
+ * @param {Any} target
+ * - the target object/map
+ *
+ * @return {Boolean}
+ * - true if target has prop directly (not inherited), false otherwise
+ */
+export const hasProp = currify((prop, target) => {
+  if (isMap(target))
+    return target.has(prop);
+
+  return target.hasOwnProperty(prop);
+}, 2, false, placeholder);

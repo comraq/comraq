@@ -1,5 +1,5 @@
 import { isNumber, isObject } from "./../../utils/checks";
-import { currify } from "./../curry";
+import { currify, placeholder } from "./../curry";
 
 /**
  * @public @function length
@@ -31,7 +31,12 @@ export const length = target => {
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat
  */
-export const repeat = currify((count, s) => s.repeat(count));
+export const repeat = currify(
+  (count, s) => s.repeat(count),
+  2,
+  false,
+  placeholder
+);
 
 /**
  * @public @function replace
@@ -40,7 +45,10 @@ export const repeat = currify((count, s) => s.repeat(count));
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
  */
 export const replace = currify(
-  (expr, replacement, s) => s.replace(expr, replacement)
+  (expr, replacement, s) => s.replace(expr, replacement),
+  3,
+  false,
+  placeholder
 );
 
 /**
@@ -49,7 +57,7 @@ export const replace = currify(
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split
  */
-export const split = currify((sep, s) => s.split(sep));
+export const split = currify((sep, s) => s.split(sep), 2, false, placeholder);
 
 /**
  * @public @function lower

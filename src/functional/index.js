@@ -8,6 +8,6 @@ export { strings, arrays, iterables, algebraic, transducers };
 
 export { default as composable } from "./composable";
 export { trace } from "./utils";
-export { getProp, withProp } from "./prop";
+export { getProp, withProp, hasProp } from "./prop";
 export { default as curry, currify, placeholder, autoCurry } from "./curry";
 export { compose, pipe } from "./composition";

@@ -1,5 +1,5 @@
 import { isFunction } from "./../../utils/checks";
-import { currify } from "./../curry";
+import { currify, placeholder } from "./../curry";
 import { empty } from "./../algebraic";
 import { reduce } from "./../iterables";
 
@@ -14,6 +14,9 @@ import {
  * @public @function map
  * - map a function against a functor, a Monoid
  *   or all elements of an iterable collection
+ * - in addition, this also passes the index, original iterable and the number
+ *   of times the predicate function to keep was called as the second and
+ *   third, and fourth argument
  *
  * @param {Function} func
  * - the mapping function applied against each element in the iterable
@@ -38,14 +41,16 @@ export default currify((func, target) => {
   if (!isTransformer(target))
     return _map(func, target);
 
+  let i = 0;
   return Transformer(
-    (acc, next, ...args) => step(target, acc, func(next), ...args),
+    (acc, next, ...args) =>
+      step(target, acc, func(next, ...args, i++), ...args),
 
     acc => complete(target, acc),
 
     () => init(target)
   );
-});
+}, 2, false, placeholder);
 
 /**
  * @private @function _map
@@ -57,8 +62,9 @@ export default currify((func, target) => {
  * @see @function map
  * @see @function iterables/reduce
  */
-const _map = (func, target) => reduce(
-  (acc, next, index, target) => concatMutable(func(next, index, target), acc),
+const _map = (func, target, i = 0) => reduce(
+  (acc, next, index, target) =>
+    concatMutable(func(next, index, target, i++), acc),
   empty(target),
   target
 );

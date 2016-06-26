@@ -19,11 +19,14 @@ export {
 export { default as into } from "./into";
 export { default as transduce, transduce1 } from "./transduce";
 export { default as map } from "./map";
-export { default as filter, remove } from "./filter";
+export { default as filter, remove, distinct, dedupe, keep } from "./filter";
+export { default as replace } from "./replace";
 export { default as take, takeWhile, takeNth } from "./take";
 export { default as drop, dropWhile } from "./drop";
 export { default as concat, concatMutable } from "./concat";
 export { partitionAll, partitionBy } from "./partition";
+export { default as random } from "./random";
+export { default as interpose } from "./interpose";
 
 export { default as tail } from "./tail";
 export { default as initial } from "./initial";
@@ -32,12 +35,4 @@ export { default as initial } from "./initial";
  * TODO-list:
  * - cat,
  *   mapcat,
- *   replace,
- *   keep,
- *   keep-indexed,
- *   map-indexed,
- *   distinct,
- *   interpose,
- *   dedupe,
- *   random-sample
  */

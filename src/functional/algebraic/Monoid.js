@@ -1,5 +1,5 @@
 import { isFunction } from "./../../utils/checks";
-import { currify } from "./../curry";
+import { currify, placeholder } from "./../curry";
 
 /**
  * @public @function empty
@@ -49,7 +49,7 @@ export const _concat = currify((value, sg) => {
     throw new TypeError(`Semigroup ${sg} does not have concat method!`);
 
   return sg.concat(value);
-});
+}, 2, false, placeholder);
 
 /**
  * @private @function _concatMutable
@@ -68,4 +68,4 @@ export const _concatMutable = currify((value, sg) => {
     throw new TypeError(`Semigroup ${sg} does not have concatMutable method!`);
 
   return sg.concatMutable(value);
-});
+}, 2, false, placeholder);

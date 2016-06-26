@@ -1,4 +1,4 @@
-import { autoCurry } from "./../curry";
+import { currify, placeholder } from "./../curry";
 import { init, isTransformer } from "./Transformer";
 import { reduce } from "./../iterables";
 
@@ -27,14 +27,14 @@ import { reduce } from "./../iterables";
  * @throws TypeError
  * - if transformer does not implement the _Transformer interface
  */
-const transduce = autoCurry(transducer => transformer => init => target => {
+const transduce = currify((transducer, transformer, init, target) => {
   if (!isTransformer(transformer))
     throw new TypeError(
       `transduce cannot be applied with non-Transformer ${transformer}!`
     );
 
   return reduce(_applyTransform(transducer, transformer), init, target);
-});
+}, 4, false, placeholder);
 
 export default transduce;
 
@@ -46,8 +46,13 @@ export default transduce;
  *
  * @see @function transduce
  */
-export const transduce1 = autoCurry(transducer => transformer => target =>
-  transduce(transducer, transformer, init(transformer), target));
+export const transduce1 = currify(
+  (transducer, transformer, target) =>
+    transduce(transducer, transformer, init(transformer), target),
+  3,
+  false,
+  placeholder
+);
 
 /**
  * @private @function _applyTransform

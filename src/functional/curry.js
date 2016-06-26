@@ -5,7 +5,7 @@ import { isFunction } from "../utils/checks";
  * - a placeholder symbol for filling in gaps when currying with currify
  *
  * @see @public @function currify
- * /
+ */
 export const placeholder = Symbol.for("comraq/curry/placeholder");
 
 /**

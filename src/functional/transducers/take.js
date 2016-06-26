@@ -89,6 +89,8 @@ const _take = (num, target) => {
  * @public @function takeWhile
  * - gets elements from the beginning of an iterable while the predicate
  *   holds true
+ * - like other functions, this also passes the index and original iterable
+ *   to the predicate function as the second and third argument
  * 
  * @param {Function} predicate
  * - the predicate function returning a Boolean value that is applied
@@ -116,7 +118,7 @@ export const takeWhile = currify((predicate, target) => {
 
   return Transformer(
     (acc, next, ...args) => {
-      if (predicate(next))
+      if (predicate(next, ...args))
         return step(target, acc, next, ...args);
 
       return ensureReduced(acc);
@@ -147,8 +149,8 @@ const _takeWhile = (predicate, target) => {
   const iterator = getIterator(target);
   let result = empty(target);
 
-  let item = iterator.next();
-  while (predicate(item.value) && !item.done) {
+  let item = iterator.next(), i = 0;
+  while (predicate(item.value, i++, target) && !item.done) {
     result = concatMutable(item.value, result);
     item = iterator.next();
   }

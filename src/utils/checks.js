@@ -1,3 +1,5 @@
+import { currify, placeholder } from "./../functional/curry";
+
 /**
  * @private @function is
  * - checking whether target is of type
@@ -135,6 +137,18 @@ export const isBoolean = target => is(target, "Boolean");
 export const isObject = target => is(target, "Object");
 
 /**
+ * @public @function isMap
+ * - checks for whether target is of type Map
+ *
+ * @param {Any} target
+ * - the target to check
+ *
+ * @returns {Boolean}
+ * - true if target is of type, false otherwise
+ */
+export const isMap = target => is(target, "Map");
+
+/**
  * @public @function isIterable
  * - checks for whether target is implements the Iterable interface
  *
@@ -160,5 +174,9 @@ export const isIterable = target => isFunction(target[Symbol.iterator]);
  * @returns {Boolean}
  * - true if instance is an instance of target, false otherwise
  */
-export const isInstance = (target, instance) =>
-  target[Symbol.hasInstance](instance);
+export const isInstance = currify(
+  (target, instance) => target[Symbol.hasInstance](instance),
+  2,
+  false,
+  placeholder
+);

@@ -1,5 +1,5 @@
 import { isNumber, isFunction, isIterable } from "./../../utils/checks";
-import { currify } from "./../curry";
+import { currify, placeholder } from "./../curry";
 import { getIterator } from "./../iterables";
 import { empty } from "./../algebraic";
 
@@ -52,7 +52,7 @@ export default currify((total, target) => {
 
     () => init(target)
   );
-});
+}, 2, false, placeholder);
 
 /**
  * @private @function _drop
@@ -89,7 +89,9 @@ const _drop = (num, target) => {
  * @public @function dropWhile
  * - drops elements from the beginning of an iterable while the predicate
  *   holds true and returns the remaining of the elements in the iterable
- * 
+ * - like other functions, this also passes the index and original iterable
+ *   to the predicate function as the second and third argument
+ *
  * @param {Function} predicate
  * - the predicate function returning a Boolean value that is applied
  *   against the elements within the iterable
@@ -117,7 +119,7 @@ export const dropWhile = currify((predicate, target) => {
   let dropped = false;
   return Transformer(
     (acc, next, ...args) => {
-      if (!dropped && predicate(next))
+      if (!dropped && predicate(next, ...args))
         return acc;
 
       dropped = true;
@@ -128,7 +130,7 @@ export const dropWhile = currify((predicate, target) => {
 
     () => init(target)
   );
-});
+}, 2, false, placeholder);
 
 /**
  * @private @function _dropWhile
@@ -149,8 +151,8 @@ const _dropWhile = (predicate, target) => {
   const iterator = getIterator(target);
   let result = empty(target);
 
-  let item = iterator.next();
-  while (predicate(item.value) && !item.done)
+  let item = iterator.next(), i = 0;
+  while (predicate(item.value, i++, target) && !item.done)
     item = iterator.next();
 
   while (!item.done) {

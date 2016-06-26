@@ -1,4 +1,4 @@
-import { currify } from "./../curry";
+import { currify, placeholder } from "./../curry";
 import { isIterable, isFunction } from "./../../utils/checks";
 
 import getIterator from "./get-iterator";
@@ -63,7 +63,7 @@ const reduce =  currify((
 
   acc = func(acc, item.value, index, iterable);
   return reduce(func, acc, iterable, index + 1, iterator);
-});
+}, 3, false, placeholder);
 
 export default reduce;
 
@@ -79,7 +79,7 @@ export default reduce;
  * @link https://www.youtube.com/watch?v=6mTbuzafcII
  * @link https://www.youtube.com/watch?v=4KqUvG8HPYo
  */
-const reduceT = currify((
+const reduceT = (
   func,
   acc,
   iterable,
@@ -91,9 +91,9 @@ const reduceT = currify((
   if (item.done)
     return complete(func, acc);
 
-  acc = step(func, acc, item.value, index, iterator);
+  acc = step(func, acc, item.value, index, iterable);
   if (isReduced(acc))
     return deref(acc);
 
   return reduceT(func, acc, iterable, index + 1, iterator);
-});
+};

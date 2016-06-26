@@ -10,17 +10,17 @@ import {
 
 const {
   transduce,
-  map, filter, remove, 
+  map, filter, remove, replace, distinct, dedupe, random, keep,
   initial, tail,
   take, takeWhile, takeNth, drop, dropWhile,
-  partitionAll, partitionBy,
+  partitionAll, partitionBy, interpose,
   isTransformer,
-  concatMutable
+  concatMutable, concat
 } = comraq.functional.transducers;
 
 const { isNumber } = comraq.utils.checks;
 const { reduce } = comraq.functional.iterables;
-const { empty } = comraq.functional.algebraic;
+const { empty, identity } = comraq.functional.algebraic;
 const { compose, placeholder: _ } = comraq.functional;
 const { length } = comraq.functional.strings;
 const { slice } = comraq.functional.arrays;
@@ -76,6 +76,16 @@ export default () => {
           (e + 10 + 10) * 3
         )
       );
+    });
+
+    it("should call mapping function with index and original iterable", () => {
+      // keep passes index and original collection to the predicate function
+      const index = (e, i, coll, c) =>
+        (isNumber(i) && coll === array1 && isNumber(c))? e: null;
+
+      map(index)(array1).should.eql(array1);
+      reduce(map(index, concatMutable), empty(array1), array1)
+        .should.be.eql(array1);
     });
   });
 
@@ -297,6 +307,193 @@ export default () => {
     it("should return a transformer if transformer "
        + "passed as second argument", () => {
       isTransformer(partitionBy(even, stubTransformer)).should.be.true;
+    });
+  });
+
+  describe("distinct:", () => {
+    it("should return an iterable with removing all second+ occurences of any "
+      + "element, making it a set", () => {
+      const arr = [ true, false, true, true, false, null, null, 1, 1, "true" ];
+      const result = [ true, false, null, 1, "true" ];
+
+      distinct(arr).should.eql(result);
+      reduce(distinct(concatMutable), empty(arr), arr).should.eql(result);
+
+      const arr2 = result;
+
+      // Already a set (distinct), no entries removed
+      distinct(arr2).should.eql(result);
+      reduce(distinct(concatMutable), empty(arr), arr).should.eql(result);
+    });
+
+    it("should return a transducer if only count number is passed", () => {
+      isTransducer(distinct).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(distinct(stubTransformer)).should.be.true;
+    });
+  });
+
+  describe("dedupe:", () => {
+    it("should return an iterable with removing all consecutive duplicate "
+      + "occurences of any element", () => {
+      const arr = [ true, false, true, true, false, null, null, 1, 1, "true" ];
+      const result = [ true, false, true, false, null, 1, "true" ];
+
+      dedupe(arr).should.eql(result);
+      reduce(dedupe(concatMutable), empty(arr), arr).should.eql(result);
+
+      const arr2 = result;
+
+      // Already a set (distinct), no entries removed
+      dedupe(arr2).should.eql(result);
+      reduce(dedupe(concatMutable), empty(arr), arr).should.eql(result);
+    });
+
+    it("should return a transducer if only count number is passed", () => {
+      isTransducer(dedupe).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(dedupe(stubTransformer)).should.be.true;
+    });
+  });
+
+  describe("replace:", () => {
+    it("should return an iterable whose collections have "
+       + "all elements found as keys in the argument map replaced by "
+       + "the values in the map", () => {
+      const mapObj = new Map([
+        [ true, "true replaced" ], 
+        [ false, "false replaced" ],
+        [ "asdfg", "asdfg replaced" ],
+        [ 104, "104 replaced" ]
+      ]);
+
+      const result = [
+        mapObj.get(true),
+        mapObj.get(false),
+        null,
+        mapObj.get("asdfg"),
+        mapObj.get(104)
+      ];
+
+      // Replace some elements
+      replace(mapObj)(array1).should.eql(result);
+      reduce(replace(mapObj)(concatMutable), empty(array1), array1)
+        .should.eql(result);
+
+      // Replace 0 elements -> should be same as original
+      replace({})(array1).should.eql(array1);
+      reduce(replace({})(concatMutable), empty(array1), array1)
+        .should.eql(array1);
+
+      const mapObj2 = new Map();
+      mapObj2.set(null, "null replaced");
+
+      const arr2 = [ null ];
+      const result2 = [ mapObj2.get(null) ];
+
+      // Replace all entries
+      replace(mapObj2)(arr2).should.eql(result2);
+      reduce(replace(mapObj2)(concatMutable), empty(arr2), arr2)
+        .should.eql(result2);
+    });
+
+    it("should return a transducer if only count number is passed", () => {
+      isTransducer(replace({})).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(replace({}, stubTransformer)).should.be.true;
+    });
+  });
+
+  describe("interpose:", () => {
+    it("should return an iterable with entry inserted between every element "
+       + "in the original iterable", () => {
+      const arr = [ true, false, "true", "false" ];
+      const result = [ true, null, false, null, "true", null, "false" ];
+
+      interpose(null)(arr).should.eql(result);
+      reduce(interpose(null, concatMutable), empty(arr), arr)
+        .should.eql(result);
+    });
+
+    it("should return a transducer if only count number is passed", () => {
+      isTransducer(interpose(0)).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(interpose({})(stubTransformer)).should.be.true;
+    });
+  });
+
+  describe("random:", () => {
+    it("should return an iterable with elements remain "
+       + "based on probability given", () => {
+      random(0)(array1).should.be.a("array");
+      reduce(random(1, concatMutable), empty(array1), array1)
+        .should.be.a("array");
+    });
+
+    it("should return a transducer if only count number is passed", () => {
+      isTransducer(random(0.1)).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(random(1)(stubTransformer)).should.be.true;
+    });
+
+    it("should throw error if probability is "
+       + "less than 0 or greater than 1", () => {
+      expect(random.bind(null, -2, [])).to.throw(/.*/);
+      expect(random.bind(null, 100, concatMutable)).to.throw(/.*/);
+    });
+  });
+
+  describe("keep:", () => {
+    it("should return an iterable with elements remain when iterable "
+       + "does not evaluate to null or undefined", () => {
+      const arr = concat(undefined, array1);
+      const result = array1.filter(
+        e => (e === undefined || e === null)? null: true
+      );
+
+      keep(identity)(arr).should.eql(result);
+      reduce(keep(identity, concatMutable), empty(arr), arr)
+        .should.be.eql(result);
+
+    });
+
+    it("should call predicate with index and original iterable", () => {
+      // keep passes index and original collection to the predicate function
+      const index = (e, i, coll, c) =>
+        (isNumber(i) && coll === array1 && isNumber(c))? true: null;
+
+      keep(index)(array1).should.eql(array1);
+      reduce(keep(index, concatMutable), empty(array1), array1)
+        .should.be.eql(array1);
+    });
+
+    it("should return a transducer if only count number is passed", () => {
+      isTransducer(keep(() => {})).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(keep(() => {})(stubTransformer)).should.be.true;
+    });
+
+    it("should throw error if predicate is not a function", () => {
+      expect(keep.bind(null, null, array1)).to.throw(/.*/);
+      expect(keep.bind(null, 100, concatMutable)).to.throw(/.*/);
     });
   });
 
