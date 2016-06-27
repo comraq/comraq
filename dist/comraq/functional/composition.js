@@ -39,7 +39,7 @@ var getResult = function getResult(reducerIterator, spread) {
   }
 
   return reducerIterator.call(args, function (result, func) {
-    if (!(0, _checks.isFunction)(func)) throw new Error("Composition functions cannot take non-function " + "as intermediate arguments!");
+    if (!(0, _checks.isFunction)(func) && !(0, _checks.isGeneratorFunction)(func)) throw new Error("Composition functions cannot take non-function " + "as intermediate arguments!");
 
     /**
      * All user function params captured/bundled in array
@@ -77,7 +77,7 @@ var compose = exports.compose = function compose() {
 
   var target = args[args.length - 1];
 
-  if (!(0, _checks.isFunction)(target)) {
+  if (!(0, _checks.isFunction)(target) && !(0, _checks.isGeneratorFunction)(target)) {
     if (args.length <= 1) throw new Error("Functions must be supplied before function arguments!");
 
     return getResult.apply(undefined, [Array.prototype.reduceRight, false].concat(args));
@@ -120,7 +120,7 @@ var pipe = exports.pipe = function pipe() {
 
   var target = args[0];
 
-  if (!(0, _checks.isFunction)(target)) {
+  if (!(0, _checks.isFunction)(target) && !(0, _checks.isGeneratorFunction)(target)) {
     if (args.length <= 1) return target;else return getResult.apply(undefined, [Array.prototype.reduce, false].concat(args));
   }
 

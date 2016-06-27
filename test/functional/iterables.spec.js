@@ -8,7 +8,7 @@ import {
          even,
          add,
          subtract,
-         array1
+         array1, genArray2
        } from "./../test-data";
 
 const {
@@ -43,6 +43,14 @@ export default () => {
 
     it("should reduce an iterable", () => {
       iterReduce(add, -5, [ 1, 2, 3, 4, 5 ]).should.equal(10);
+    });
+
+    it("should reduce a generator", () => {
+      let sum = 0;
+      for (const e of genArray2())
+        sum += e;
+
+      iterReduce(add, 0, genArray2()).should.equal(sum);
     });
   });
 

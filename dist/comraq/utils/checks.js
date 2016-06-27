@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.isInstance = exports.isIterable = exports.isMap = exports.isObject = exports.isBoolean = exports.isUndefined = exports.isNull = exports.isJson = exports.isDate = exports.isNumber = exports.isString = exports.isArray = exports.isFunction = undefined;
+exports.isInstance = exports.isIterable = exports.isGeneratorFunction = exports.isGeneratorObject = exports.isSet = exports.isMap = exports.isObject = exports.isBoolean = exports.isUndefined = exports.isNull = exports.isJson = exports.isDate = exports.isNumber = exports.isString = exports.isArray = exports.isFunction = undefined;
 
 var _curry = require("./../functional/curry");
 
@@ -176,6 +176,50 @@ var isObject = exports.isObject = function isObject(target) {
  */
 var isMap = exports.isMap = function isMap(target) {
   return is(target, "Map");
+};
+
+/**
+ * @public @function isSet
+ * - checks for whether target is of type Set
+ *
+ * @param {Any} target
+ * - the target to check
+ *
+ * @returns {Boolean}
+ * - true if target is of type, false otherwise
+ */
+var isSet = exports.isSet = function isSet(target) {
+  return is(target, "Set");
+};
+
+/**
+ * @public @function isGeneratorObject
+ * - checks for whether target is of type GeneratorObject
+ * - ie: the object returned by a generator function
+ *
+ * @param {Any} target
+ * - the target to check
+ *
+ * @returns {Boolean}
+ * - true if target is of type, false otherwise
+ */
+var isGeneratorObject = exports.isGeneratorObject = function isGeneratorObject(target) {
+  return is(target, "Generator");
+};
+
+/**
+ * @public @function isGeneratorFunction
+ * - checks for whether target is of type GeneratorFunction
+ * - ie: functions declared with -> function* () {}
+ *
+ * @param {Any} target
+ * - the target to check
+ *
+ * @returns {Boolean}
+ * - true if target is of type, false otherwise
+ */
+var isGeneratorFunction = exports.isGeneratorFunction = function isGeneratorFunction(target) {
+  return is(target, "GeneratorFunction");
 };
 
 /**

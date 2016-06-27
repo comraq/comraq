@@ -48,7 +48,6 @@ export default () => {
     it("should throw error with non-function before last argument", () => {
       expect(map.bind(null, undefined, undefined)).to.throw(/.*/);
       expect(map.bind(null, "a string", numbersData)).to.throw(/.*/);
-      expect(map.bind(null, triple, "a string", numbersData)).to.throw(/.*/);
     });
 
     it("can infinitely compose", () => {
@@ -109,7 +108,6 @@ export default () => {
     it("should throw error with non-function before last argument", () => {
       expect(filter.bind(null, inc10, {})).to.throw(/.*/);
       expect(filter.bind(null, "a string", numbersData)).to.throw(/.*/);
-      expect(filter.bind(null, triple, "a string", numbersData)).to.throw(/.*/);
     });
 
     it("can infinitely compose", () => {
@@ -173,7 +171,6 @@ export default () => {
     it("should throw error with non-function before last argument", () => {
       expect(remove.bind(null, inc10, {})).to.throw(/.*/);
       expect(remove.bind(null, "a string", numbersData)).to.throw(/.*/);
-      expect(remove.bind(null, triple, "a string", numbersData)).to.throw(/.*/);
     });
 
     it("can infinitely compose", () => {

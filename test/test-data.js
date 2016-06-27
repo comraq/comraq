@@ -16,6 +16,11 @@ export const namesData = [
 export const array1 = [ true, false, null, "asdfg", 104 ];
 export const array2 = [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 ];
 
+export const genArray2 = function* genArray2() {
+  for (let e of array2)
+    yield e;
+};
+
 export const inc5 = value => value + 5;
 export const inc10 = value => value + 10;
 export const triple = value => value * 3;

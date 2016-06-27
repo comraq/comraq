@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports._concatMutable = exports._concat = exports.empty = undefined;
 
-var _checks = require("./../../utils/checks");
+var _utils = require("./../../utils");
 
 var _curry = require("./../curry");
 
@@ -24,9 +24,17 @@ var _curry = require("./../curry");
  *   (does not have the empty method)
  */
 var empty = exports.empty = function empty(monoid) {
-  if (!(0, _checks.isFunction)(monoid.empty)) throw new TypeError("Cannot get empty/unit value of " + monoid + " without the empty method!");
+  switch (_utils.types.toString(monoid)) {
+    case _utils.types.tString:
+      return "";
 
-  return monoid.empty();
+    case _utils.types.tObject:
+      return {};
+
+    default:
+      // types.tArrays
+      return [];
+  }
 };
 
 /**
@@ -50,9 +58,17 @@ var empty = exports.empty = function empty(monoid) {
  *   (does not have the concat method)
  */
 var _concat = exports._concat = (0, _curry.currify)(function (value, sg) {
-  if (!(0, _checks.isFunction)(sg.concat)) throw new TypeError("Semigroup " + sg + " does not have concat method!");
+  switch (_utils.types.toString(sg)) {
+    case _utils.types.tString:
+      return sg + value;
 
-  return sg.concat(value);
+    case _utils.types.tObject:
+      return Object.assign({}, sg, value);
+
+    default:
+      // types.tArrays
+      return sg.concat(value);
+  }
 }, 2, false, _curry.placeholder);
 
 /**
@@ -68,7 +84,16 @@ var _concat = exports._concat = (0, _curry.currify)(function (value, sg) {
  *   (does not have the concatMutable method)
  */
 var _concatMutable = exports._concatMutable = (0, _curry.currify)(function (value, sg) {
-  if (!(0, _checks.isFunction)(sg.concatMutable)) throw new TypeError("Semigroup " + sg + " does not have concatMutable method!");
+  switch (_utils.types.toString(sg)) {
+    case _utils.types.tString:
+      return sg + value;
 
-  return sg.concatMutable(value);
+    case _utils.types.tObject:
+      return Object.assign(sg, value);
+
+    default:
+      // types.tArrays
+      sg.push(value);
+      return sg;
+  }
 }, 2, false, _curry.placeholder);

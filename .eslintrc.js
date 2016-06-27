@@ -33,7 +33,8 @@ module.exports = {
           "let": 2,
           "const": 3
         }
-      }
+      },
+      { "SwitchCase": 1 }
     ],
     "linebreak-style": [
       "error",

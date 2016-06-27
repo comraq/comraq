@@ -1,4 +1,4 @@
-import { isFunction } from "./../../utils/checks";
+import { types } from "./../../utils";
 import { currify, placeholder } from "./../curry";
 
 /**
@@ -16,12 +16,17 @@ import { currify, placeholder } from "./../curry";
  *   (does not have the empty method)
  */
 export const empty = monoid => {
-  if (!isFunction(monoid.empty))
-    throw new TypeError(
-      `Cannot get empty/unit value of ${monoid} without the empty method!`
-    );
+  switch(types.toString(monoid)) {
+    case types.tString:
+      return "";
 
-  return monoid.empty();
+    case types.tObject:
+      return {};
+
+    default:
+      // types.tArrays
+      return [];
+  }
 };
 
 /**
@@ -45,10 +50,17 @@ export const empty = monoid => {
  *   (does not have the concat method)
  */
 export const _concat = currify((value, sg) => {
-  if (!isFunction(sg.concat))
-    throw new TypeError(`Semigroup ${sg} does not have concat method!`);
+  switch(types.toString(sg)) {
+    case types.tString:
+      return sg + value;
 
-  return sg.concat(value);
+    case types.tObject:
+      return Object.assign({}, sg, value);
+
+    default:
+      // types.tArrays
+      return sg.concat(value);
+  }
 }, 2, false, placeholder);
 
 /**
@@ -64,8 +76,16 @@ export const _concat = currify((value, sg) => {
  *   (does not have the concatMutable method)
  */
 export const _concatMutable = currify((value, sg) => {
-  if (!isFunction(sg.concatMutable))
-    throw new TypeError(`Semigroup ${sg} does not have concatMutable method!`);
+  switch(types.toString(sg)) {
+    case types.tString:
+      return sg + value;
 
-  return sg.concatMutable(value);
+    case types.tObject:
+      return Object.assign(sg, value);
+
+    default:
+      // types.tArrays
+      sg.push(value);
+      return sg;
+  }
 }, 2, false, placeholder);

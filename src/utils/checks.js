@@ -149,6 +149,44 @@ export const isObject = target => is(target, "Object");
 export const isMap = target => is(target, "Map");
 
 /**
+ * @public @function isSet
+ * - checks for whether target is of type Set
+ *
+ * @param {Any} target
+ * - the target to check
+ *
+ * @returns {Boolean}
+ * - true if target is of type, false otherwise
+ */
+export const isSet = target => is(target, "Set");
+
+/**
+ * @public @function isGeneratorObject
+ * - checks for whether target is of type GeneratorObject
+ * - ie: the object returned by a generator function
+ *
+ * @param {Any} target
+ * - the target to check
+ *
+ * @returns {Boolean}
+ * - true if target is of type, false otherwise
+ */
+export const isGeneratorObject = target => is(target, "Generator");
+
+/**
+ * @public @function isGeneratorFunction
+ * - checks for whether target is of type GeneratorFunction
+ * - ie: functions declared with -> function* () {}
+ *
+ * @param {Any} target
+ * - the target to check
+ *
+ * @returns {Boolean}
+ * - true if target is of type, false otherwise
+ */
+export const isGeneratorFunction = target => is(target, "GeneratorFunction");
+
+/**
  * @public @function isIterable
  * - checks for whether target is implements the Iterable interface
  *

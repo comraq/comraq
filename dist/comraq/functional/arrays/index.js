@@ -14,15 +14,3 @@ Object.defineProperty(exports, "slice", {
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * @implements Monoid
- * - adds the empty and concatMutable methods for arrays
- */
-Array.prototype.empty = function () {
-  return [];
-};
-Array.prototype.concatMutable = function (next) {
-  this.push(next);
-  return this;
-};
