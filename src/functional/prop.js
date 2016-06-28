@@ -1,10 +1,14 @@
 import {
-  isString,
   isNumber,
   isUndefined,
   isNull,
-  isMap
+  isMap,
+  isString,
+  isPrimitive
 } from "./../utils/checks";
+
+import { types } from "./../utils";
+const { toString, sNumber, sString, sMap, sSet, sArray } = types;
 
 import { currify, placeholder } from "./curry";
 
@@ -27,22 +31,17 @@ import { currify, placeholder } from "./curry";
  * - non-string or number passed as prop if target is object
  */
 export const getProp = currify((prop, target) => {
-  if (isMap(target)) {
-    if (!target.has(prop))
-      return null;
-
-    return target.get(prop);
-  }
-
-  if (!isString(prop) && !isNumber(prop))
-    throw new Error(
-      `First argument '${prop}' of getProp must be string or number!`
-    );
-
   if (!hasProp(prop, target))
     return null;
 
-  return target[prop];
+  switch (toString(target)) {
+    case sMap:
+    case sSet:
+      return target.get(prop);
+
+    default:
+      return target[prop];
+  }
 }, 2, false, placeholder);
 
 /**
@@ -66,20 +65,28 @@ export const getProp = currify((prop, target) => {
  * @throws Error
  * - non-string or number passed as prop
  */
-export const withProp = currify((prop, value = null, target) => {
-  if (!isString(prop) && !isNumber(prop))
+export const withProp = currify((prop, value, target, mutate = false) => {
+  let sPropType = toString(prop);
+  if (sPropType !== sString && sPropType !== sNumber)
     throw new Error(
       `First argument '${prop}' of getProp must be string or number!`
     );
 
-  let temp = {};
-  if (!isUndefined(target) && !isNull(target)) {
-    target = (isString(target))? {}: target;
-
-    temp[prop] = value;
+  if (isPrimitive(target)) {
+    let temp = target
+    target = {
+      valueOf: () => temp
+    };
   }
 
-  return Object.assign({}, target, temp);
+  let toMerge = {};
+  toMerge[prop] = value;
+
+  if (!mutate)
+    return Object.assign({}, target, toMerge);
+
+  return Object.assign(target, toMerge);
+
 }, 3, false, placeholder);
 
 /**
@@ -92,12 +99,24 @@ export const withProp = currify((prop, value = null, target) => {
  * @param {Any} target
  * - the target object/map
  *
+ * @param {Boolean} inherited (optional)
+ * - flag to indicate whether to check for inherited properties, defaults to
+ *   false
+ *
  * @return {Boolean}
- * - true if target has prop directly (not inherited), false otherwise
+ * - true if target has prop, if inherited is true, then inherited
+ *   properties are also checked, false otherwise
  */
-export const hasProp = currify((prop, target) => {
-  if (isMap(target))
-    return target.has(prop);
+export const hasProp = currify((prop, target, inherited = false) => {
+  if (inherited && (prop in target))
+    return true;
 
-  return target.hasOwnProperty(prop);
+  switch (toString(target)) {
+    case sMap:
+    case sSet:
+      return target.has(prop);
+
+    default:
+      return target.hasOwnProperty(prop);
+  }
 }, 2, false, placeholder);

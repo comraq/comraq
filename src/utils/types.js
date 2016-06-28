@@ -5,20 +5,20 @@
  *
  * @see @public @function toString
  */
-export const tString              = "[object String]";
-export const tNumber              = "[object Number]";
-export const tArray               = "[object Array]";
-export const tObject              = "[object Object]";
-export const tFunction            = "[object Function]";
-export const tNull                = "[object Null]";
-export const tUndefined           = "[object Undefined]";
-export const tBoolean             = "[object Boolean]";
-export const tDate                = "[object Date]";
-export const tJson                = "[object JSON]";
-export const tMap                 = "[object Map]";
-export const tSet                 = "[object Set]";
-export const tGeneratorObject     = "[object Generator]";
-export const tGeneratorFunction   = "[object GeneratorFunction]";
+export const sString              = "[object String]";
+export const sNumber              = "[object Number]";
+export const sArray               = "[object Array]";
+export const sObject              = "[object Object]";
+export const sFunction            = "[object Function]";
+export const sNull                = "[object Null]";
+export const sUndefined           = "[object Undefined]";
+export const sBoolean             = "[object Boolean]";
+export const sDate                = "[object Date]";
+export const sJson                = "[object JSON]";
+export const sMap                 = "[object Map]";
+export const sSet                 = "[object Set]";
+export const sGeneratorObject     = "[object Generator]";
+export const sGeneratorFunction   = "[object GeneratorFunction]";
 
 /**
  * @public @function toString
@@ -27,3 +27,17 @@ export const tGeneratorFunction   = "[object GeneratorFunction]";
  * @link http://tobyho.com/2011/01/28/checking-types-in-javascript/
  */
 export const toString = target => Object.prototype.toString.call(target);
+
+/**
+ * @public @const
+ * - primitive types to match when using 'typeof'
+ *
+ * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
+ */
+export const pString               = "string";
+export const pUndefined            = "undefined";
+export const pObject               = "object";
+export const pBoolean              = "boolean";
+export const pNumber               = "number";
+export const pSymbol               = "symbol";
+export const pFunction             = "function";

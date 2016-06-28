@@ -9,7 +9,7 @@ import {
 
 const {
   curry, composable, compose, pipe,
-  getProp, withProp, hasProp
+  getProp, withProp, hasProp, placeholder: _
 } = comraq.functional;
 
 const { upper } = comraq.functional.strings;
@@ -21,14 +21,6 @@ export default () => {
     it("should return a function", () => {
       getProp("some-prop").should.be.a("function");
       getProp(123).should.be.a("function");
-    });
-
-    it("should throw error when prop is not string or number", () => {
-      expect(getProp.bind(null, undefined, true)).to.throw(/.*/);
-      expect(getProp.bind(null, [], 1234)).to.throw(/.*/);
-      expect(getProp.bind(null, {}, "a string")).to.throw(/.*/);
-      expect(getProp.bind(null, null, "a string")).to.throw(/.*/);
-      expect(getProp.bind(null, true, "a string")).to.throw(/.*/);
     });
 
     it("should get value if prop and target are passed", () => {
@@ -47,7 +39,7 @@ export default () => {
       const C = compose(triple, getProp("id"), getProp(0));
       const D = compose(reduce1(add), A);
     
-      A(namesData).should.deep.equal([ "ADAM", "COMRAQ", "YIN" ]);
+      A(namesData).should.eql([ "ADAM", "COMRAQ", "YIN" ]);
       B.should.equal(namesData[0]["id"] * 3);
       C(namesData).should.equal(namesData[0]["id"] * 3);
       D(namesData).should.equal("ADAMCOMRAQYIN");
@@ -72,13 +64,15 @@ export default () => {
       const temp = { a: true };
 
       const A = withProp("asdf", { asdf: 23 }, temp);
-      A.should.deep.equal({ a: true, asdf: { asdf: 23 } });
+      A.should.eql({ a: true, asdf: { asdf: 23 } });
 
       const B = withProp(1, [ true, "string-asdf" ], 123);
-      B.should.deep.equal({ "1": [ true, "string-asdf" ]});
+      assert.equal(123, B);
+      B.should.have.deep.property("1.[0]", true);
+      B.should.have.deep.property("1.[1]", "string-asdf");
 
       const C = withProp("jkl", undefined, []);
-      C.should.deep.equal({ "jkl": null });
+      C.should.have.property("jkl", undefined);
     });
 
     it("should return a copy of target object", () => {
@@ -88,9 +82,33 @@ export default () => {
       A.should.not.equal(temp);
     });
 
+    it("should mutate original object if mutate flag is set", () => {
+      const mWithProp = withProp(_, _, _, true);
+
+      const orig = {};
+
+      const result = mWithProp("abc", undefined, orig);
+      result.should.eql(orig);
+      result.should.have.ownProperty("abc");
+      expect(result.abc).to.be.undefined;
+    });
+
+    it("should not coerce numbers into strings when setting properties "
+       + "on arrays", () => {
+      const mWithProp = withProp(_, _, _, true);
+
+      const orig = [];
+
+      const result = mWithProp(9, null, orig);
+      result.should.eql(orig);
+
+      expect(result[9]).to.be.null;
+      expect(result['2']).to.be.undefined;
+    });
+
     it("can be used in composition with other functions", () => {
       const A = pipe(namesData, filter(compose(positive, withProp("id", -1))));
-      A.should.deep.equal([]);
+      A.should.eql([]);
 
       const lengthLT = composable((len, e) => e.length < len);
       let lenLT5 = curry(lengthLT, 5);
@@ -100,7 +118,7 @@ export default () => {
         filter(compose(lenLT5, getProp("name")))
       );
 
-      B(namesData).should.deep.equal([ "RANDOM", "RANDOM" ]);
+      B(namesData).should.eql([ "RANDOM", "RANDOM" ]);
     });
   });
 

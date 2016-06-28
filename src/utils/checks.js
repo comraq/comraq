@@ -199,6 +199,28 @@ export const isGeneratorFunction = target => is(target, "GeneratorFunction");
 export const isIterable = target => isFunction(target[Symbol.iterator]);
 
 /**
+ * @public @function isPrimitive
+ * - tests whether a value is primitive
+ *
+ * @param {Any} target
+ * - the target to test
+ *
+ * @returns {Boolean}
+ * - true if target is a primitve value, false otherwise
+ *
+ * @example
+ * - isPrimitive(123)        // false
+ * - isPrimitive("asdf")     // true
+ * - isPrimitive({})         // true
+ * - isPrimitive(Array)      // true
+ * - isPrimitive(null)       // false
+ * - isPrimitive(undefined)  // false
+ *
+ * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isPrototypeOf
+ */
+export const isPrimitive = target => !Object.prototype.isPrototypeOf(target);
+
+/**
  * @public @function isInstance
  * - checks for whether target is an instance of a
  *   class/interface/prototype/function
@@ -211,6 +233,8 @@ export const isIterable = target => isFunction(target[Symbol.iterator]);
  *
  * @returns {Boolean}
  * - true if instance is an instance of target, false otherwise
+ *
+ * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof
  */
 export const isInstance = currify(
   (target, instance) => target[Symbol.hasInstance](instance),

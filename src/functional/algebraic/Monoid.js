@@ -17,14 +17,14 @@ import { currify, placeholder } from "./../curry";
  */
 export const empty = monoid => {
   switch(types.toString(monoid)) {
-    case types.tString:
+    case types.sString:
       return "";
 
-    case types.tObject:
+    case types.sObject:
       return {};
 
     default:
-      // types.tArrays
+      // types.sArrays
       return [];
   }
 };
@@ -51,14 +51,14 @@ export const empty = monoid => {
  */
 export const _concat = currify((value, sg) => {
   switch(types.toString(sg)) {
-    case types.tString:
+    case types.sString:
       return sg + value;
 
-    case types.tObject:
+    case types.sObject:
       return Object.assign({}, sg, value);
 
     default:
-      // types.tArrays
+      // types.sArrays
       return sg.concat(value);
   }
 }, 2, false, placeholder);
@@ -77,14 +77,14 @@ export const _concat = currify((value, sg) => {
  */
 export const _concatMutable = currify((value, sg) => {
   switch(types.toString(sg)) {
-    case types.tString:
+    case types.sString:
       return sg + value;
 
-    case types.tObject:
+    case types.sObject:
       return Object.assign(sg, value);
 
     default:
-      // types.tArrays
+      // types.sArrays
       sg.push(value);
       return sg;
   }
