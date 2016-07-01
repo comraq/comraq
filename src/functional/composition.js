@@ -1,4 +1,5 @@
-import { isFunction, isGeneratorFunction, isArray } from "./../utils/checks";
+import { isArray } from "./../utils/checks";
+import { pFunction } from "./../utils/types";
 
 /**
  * @private @function getResult
@@ -26,7 +27,7 @@ import { isFunction, isGeneratorFunction, isArray } from "./../utils/checks";
  */
 const getResult = (reducerIterator, spread, ...args) => {
   return reducerIterator.call(args, (result, func) => {
-    if (!isFunction(func) && !isGeneratorFunction(func))
+    if (typeof func !== pFunction)
       throw new Error("Composition functions cannot take non-function "
         + "as intermediate arguments!");
 
@@ -67,7 +68,7 @@ const getResult = (reducerIterator, spread, ...args) => {
 export const compose = (...args) => {
   const target = args[args.length - 1];
 
-  if (!isFunction(target) && !isGeneratorFunction(target)) {
+  if (typeof target !== pFunction) {
     if (args.length <= 1)
       throw new Error("Functions must be supplied before function arguments!");
 
@@ -103,7 +104,7 @@ export const compose = (...args) => {
 export const pipe = (...args) => {
   const target = args[0];
 
-  if (!isFunction(target) && !isGeneratorFunction(target)) {
+  if (typeof target !== pFunction) {
     if (args.length <= 1)
       return target;
 

@@ -1,9 +1,5 @@
-import {
-  isNull,
-  isUndefined,
-  isFunction,
-  isIterable
-} from "./../../utils/checks";
+import { isFunction, isIterable } from "./../../utils/checks";
+import { types } from "./../../utils";
 import { currify, placeholder } from "./../curry";
 import { empty } from "./../algebraic";
 import { reduce, getIterator } from "./../iterables";
@@ -294,7 +290,8 @@ export const keep = currify((predicate, target) => {
     (acc, next, ...args) => {
       let result = predicate(next, ...args, i++);
 
-      return (isNull(result) || isUndefined(result))?
+      let type = types.toString(result);
+      return (type === types.sNull || type === types.sUndefined)?
         acc: step(target, acc, next, ...args);
     },
 
@@ -318,7 +315,8 @@ const _keep = (predicate, target, i = 0) => reduce(
   (acc, next, index, target) => {
     let result = predicate(next, index, target, i++);
 
-    return (isNull(result) || isUndefined(result))?
+    let type = types.toString(result);
+    return (type === types.sNull || type === types.sUndefined)?
       acc: concatMutable(next, acc);
   },
   empty(target),
