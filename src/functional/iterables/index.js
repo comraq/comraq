@@ -5,7 +5,7 @@ export {
   reduceRight1
 } from "./reduce";
 
-export { default as reverse } from "./reverse";
+export { default as toArray, reverse } from "./to-array";
 export { default as getIterator } from "./get-iterator";
 
 //TODO: migrate tail and init to transducers, possibly head and last as

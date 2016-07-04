@@ -13,7 +13,7 @@ const {
 } = comraq.functional;
 
 const { upper } = comraq.functional.strings;
-const { reduce1 } = comraq.functional.iterables;
+const { toArray, reduce1 } = comraq.functional.iterables;
 const { map, filter } = comraq.functional.transducers;
 
 export default () => {
@@ -31,6 +31,7 @@ export default () => {
 
     it("can be used in composition with other functions", () => {
       const A = compose(
+        toArray,
         map(compose(upper, getProp("name"))),
         filter(compose(positive, getProp("id")))
       );
@@ -103,17 +104,22 @@ export default () => {
       result.should.eql(orig);
 
       expect(result[9]).to.be.null;
-      expect(result['2']).to.be.undefined;
+      expect(result["2"]).to.be.undefined;
     });
 
     it("can be used in composition with other functions", () => {
-      const A = pipe(namesData, filter(compose(positive, withProp("id", -1))));
+      const A = pipe(
+        namesData,
+        filter(compose(positive, withProp("id", -1))),
+        toArray
+      );
       A.should.eql([]);
 
       const lengthLT = composable((len, e) => e.length < len);
       let lenLT5 = curry(lengthLT, 5);
 
       const B = compose(
+        toArray,
         map(compose(upper, getProp(2), withProp(2, "random"))),
         filter(compose(lenLT5, getProp("name")))
       );

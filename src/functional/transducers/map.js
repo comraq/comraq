@@ -1,9 +1,7 @@
 import { isFunction } from "./../../utils/checks";
 import { currify, placeholder } from "./../curry";
-import { empty } from "./../algebraic";
-import { reduce } from "./../iterables";
+import { getIterator } from "./../iterables";
 
-import { concatMutable } from "./concat";
 import {
   step, complete, init,
   default as Transformer,
@@ -24,9 +22,9 @@ import {
  * @param {Transformer|Iterable|Functor|Monoid} target
  * - the transformer or target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with all elements
+ * - returns a lazy generator which will yield all elements
  *   applied with the mapping functon
  *
  * @throws TypeError
@@ -39,7 +37,7 @@ export default currify((func, target) => {
     );
 
   if (!isTransformer(target))
-    return _map(func, target);
+    return (function* () { yield* _mapGen(func, target); })();
 
   let i = 0;
   return Transformer(
@@ -53,18 +51,21 @@ export default currify((func, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _map
- * - private version of map that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
- * - uses the iterables's reduce to carry out the mapping function across
- *   all elements in the iterable
+ * @private @function _mapGen
+ * - private verson of map returning a generator
  *
- * @see @function map
- * @see @function iterables/reduce
+ * @see @function @map
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence after
+ *   applying the mapping function
  */
-const _map = (func, target, i = 0) => reduce(
-  (acc, next, index, target) =>
-    concatMutable(func(next, index, target, i++), acc),
-  empty(target),
-  target
-);
+function* _mapGen(func, target, i = 0) {
+  const iterator = getIterator(target);
+  let item = iterator.next();
+  for (let index = 0; !item.done; ++index) {
+    let result = yield func(item.value, index, target, i++);
+    item = iterator.next(result);
+  }
+
+  return;
+}

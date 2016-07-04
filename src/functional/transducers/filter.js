@@ -24,13 +24,15 @@ import {
  * @param {Transformer|Iterable|Monoid} target
  * - the target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
  * - returns a new iterable with all elements filtered and left out those
  *   that returned false when applied with the predicate function
+ * - returns a lazy generator which will yield all elements from original
+ *   sequence that returns true when applied with the predicate functon
  *
  * @throws TypeError
- * - predicate function func is not a function
+ * - predicate function is not a function
  */
 export default currify((predicate, target) => {
   if (!isFunction(predicate))
@@ -39,7 +41,7 @@ export default currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return _filter(predicate, target);
+    return (function* () { yield* _filterGen(predicate, target); })();
 
   return Transformer(
     (acc, next, ...args) => (predicate(next, ...args))?
@@ -52,21 +54,29 @@ export default currify((predicate, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _filter
- * - private version of filter that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
- * - uses the iterables's reduce to carry out the filtering across
- *   all elements in the iterable
+ * @private @function _filterGen
+ * - private version of filter returning a generator
  *
- * @see @function filter
- * @see @function iterables/reduce
+ * @see @function @filter
+ * @returns {Generator}
+ * - a generator that will lazily yield only the values in the sequence that
+ *   returns true for the predicate filter
  */
-const _filter = (predicate, target) => reduce(
-  (acc, next, index, target) => (predicate(next, index, target))?
-    concatMutable(next, acc): acc,
-  empty(target),
-  target
-);
+function* _filterGen(predicate, target) {
+  const iterator = getIterator(target);
+  let item = iterator.next(), result;
+  for (let index = 0; !item.done; ++index) {
+    if (predicate(item.value, index, target))
+      result = yield item.value;
+
+    else
+      result = undefined;
+
+    item = iterator.next(result);
+  }
+
+  return;
+}
 
 /**
  * @public @function remove

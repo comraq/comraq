@@ -19,7 +19,7 @@ const {
 } = comraq.functional.transducers;
 
 const { isNumber } = comraq.utils.checks;
-const { reduce } = comraq.functional.iterables;
+const { reduce, toArray } = comraq.functional.iterables;
 const { empty, identity } = comraq.functional.algebraic;
 const { compose, placeholder: _ } = comraq.functional;
 const { length } = comraq.functional.strings;
@@ -39,8 +39,8 @@ export default () => {
     });
 
     it("should evaluate results when iterable is supplied", () => {
-      const result1 = map(inc10, numbersData);
-      const result2 = map(inc10)(numbersData);
+      const [ ...result1 ] = map(inc10, numbersData);
+      const [ ...result2 ] = map(inc10)(numbersData);
 
       result1.should.deep.equal(result2);
     });
@@ -52,8 +52,12 @@ export default () => {
 
     it("can infinitely compose", () => {
       const B = map(compose(inc10, inc10, triple));
-      const C = compose(map(inc10), map(compose(triple, inc10, inc10)));
-      const E = map(compose(triple, inc10, inc10))(numbersData);
+      const C = compose(
+        toArray,
+        map(inc10),
+        map(compose(triple, inc10, inc10))
+      );
+      const [ ...E ] = map(compose(triple, inc10, inc10))(numbersData);
 
       reduce(
         B(concatMutable),
@@ -82,7 +86,7 @@ export default () => {
       const index = (e, i, coll, c) =>
         (isNumber(i) && coll === array1 && isNumber(c))? e: null;
 
-      map(index)(array1).should.eql(array1);
+      toArray(map(index)(array1)).should.eql(array1);
       reduce(map(index, concatMutable), empty(array1), array1)
         .should.be.eql(array1);
     });
@@ -99,14 +103,14 @@ export default () => {
     });
 
     it("should evaluate results when iterable is supplied", () => {
-      const result1 = filter(even, numbersData);
-      const result2 = filter(even)(numbersData);
+      const [ ...result1 ] = filter(even, numbersData);
+      const [ ...result2 ] = filter(even)(numbersData);
 
       result1.should.deep.equal(result2);
     });
 
     it("should throw error with non-function before last argument", () => {
-      expect(filter.bind(null, inc10, {})).to.throw(/.*/);
+      expect(filter.bind(null, null, {})).to.throw(/.*/);
       expect(filter.bind(null, "a string", numbersData)).to.throw(/.*/);
     });
 
@@ -121,7 +125,7 @@ export default () => {
                   filter(compose(even, inc10, triple, triple))
                 );
 
-      A(numbersData).should.eql(numbersData
+      toArray(A(numbersData)).should.eql(numbersData
         .filter(e =>
           e * 3 > 0
         )
@@ -135,7 +139,7 @@ export default () => {
           (e * 3 + 10 + 10) % 2 === 0
         )
       );
-      D(numbersData).should.eql(numbersData
+      toArray(D(numbersData)).should.eql(numbersData
         .map(e =>
           e + 10
         )
@@ -143,7 +147,7 @@ export default () => {
           ((e + 10 + 10) * 3) % 2 === 0
         )
       );
-      E(numbersData).should.eql(numbersData
+      toArray(E(numbersData)).should.eql(numbersData
         .filter(e =>
           (e * 3 * 3 + 10) % 2 === 0 && e > 0
         )
