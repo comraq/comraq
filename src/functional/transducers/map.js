@@ -1,4 +1,4 @@
-import { isFunction } from "./../../utils/checks";
+import { isFunction, isIterable } from "./../../utils/checks";
 import { currify, placeholder } from "./../curry";
 import { getIterator } from "./../iterables";
 
@@ -55,11 +55,18 @@ export default currify((func, target) => {
  * - private verson of map returning a generator
  *
  * @see @function @map
+ *
  * @returns {Generator}
  * - a generator that will lazily yield all values in the sequence after
  *   applying the mapping function
+ *
+ * @throws TypeError
+ * - target is not/does not implement the iterable interface
  */
 function* _mapGen(func, target, i = 0) {
+  if (!isIterable(target))
+    throw new Error(`Cannot map over non-iterable ${target}!`);
+
   const iterator = getIterator(target);
   let item = iterator.next();
   for (let index = 0; !item.done; ++index) {

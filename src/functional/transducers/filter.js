@@ -58,11 +58,15 @@ export default currify((predicate, target) => {
  * - private version of filter returning a generator
  *
  * @see @function @filter
+ *
  * @returns {Generator}
  * - a generator that will lazily yield only the values in the sequence that
  *   returns true for the predicate filter
  */
 function* _filterGen(predicate, target) {
+  if (!isIterable(target))
+    throw new Error(`Cannot filter over non-iterable ${target}!`);
+
   const iterator = getIterator(target);
   let item = iterator.next(), result;
   for (let index = 0; !item.done; ++index) {
@@ -106,7 +110,7 @@ export const remove = currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return _remove(predicate, target);
+    return (function* () { yield* _removeGen(predicate, target); })();
 
   return Transformer(
     (acc, next, ...args) => (predicate(next, ...args))?
@@ -119,21 +123,36 @@ export const remove = currify((predicate, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _remove
- * - private version of remove that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
- * - uses the iterables's reduce to carry out the removing across
- *   all elements in the iterable
+ * @private @function _removeGen
+ * - private verson of remove returning a generator
  *
- * @see @function remove
- * @see @function iterables/reduce
+ * @see @function @remove
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence that
+ *   returns false when evaluated with the predicate
+ *
+ * @throws TypeError
+ * - target is not/does not implement the iterable interface
  */
-const _remove = (predicate, target) => reduce(
-  (acc, next, index, target) => (predicate(next, index, target))?
-    acc: concatMutable(next, acc),
-  empty(target),
-  target
-);
+function* _removeGen(predicate, target) {
+  if (!isIterable(target))
+    throw new Error(`Cannot remove from non-iterable ${target}!`);
+
+  const iterator = getIterator(target);
+  let item = iterator.next(), result;
+  for (let index = 0; !item.done; ++index) {
+    if (predicate(item.value, index, target))
+      result = undefined;
+
+    else
+      result = yield item.value;
+
+    item = iterator.next(result);
+  }
+
+  return;
+}
 
 /**
  * @public @function distinct

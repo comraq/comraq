@@ -166,14 +166,14 @@ export default () => {
     });
 
     it("should evaluate results when iterable is supplied", () => {
-      const result1 = remove(even, numbersData);
-      const result2 = remove(even)(numbersData);
+      const [ ...result1 ] = remove(even, numbersData);
+      const [ ...result2 ] = remove(even)(numbersData);
 
       result1.should.deep.equal(result2);
     });
 
     it("should throw error with non-function before last argument", () => {
-      expect(remove.bind(null, inc10, {})).to.throw(/.*/);
+      expect(remove.bind(null, undefined, {})).to.throw(/.*/);
       expect(remove.bind(null, "a string", numbersData)).to.throw(/.*/);
     });
 
@@ -181,14 +181,16 @@ export default () => {
       const A = remove(compose(positive, triple));
       const B = remove(compose(even, inc10, inc10, triple));
       const D = compose(
-                  remove(compose(even, triple, inc10, inc10)), map(inc10)
-                );
+        toArray,
+        remove(compose(even, triple, inc10, inc10)), map(inc10)
+      );
       const E = compose(
-                  remove(positive),
-                  remove(compose(even, inc10, triple, triple))
-                );
+        toArray,
+        remove(positive),
+        remove(compose(even, inc10, triple, triple))
+      );
 
-      A(numbersData).should.eql(numbersData
+      toArray(A(numbersData)).should.eql(numbersData
         .filter(e =>
           e * 3 <= 0
         )
@@ -716,7 +718,7 @@ export default () => {
     it("should return all iterable elements except the first", () => {
       let result = slice(1, array1.length)(array1);
 
-      tail(array1).should.eql(result);
+      toArray(tail(array1)).should.eql(result);
       reduce(tail(concatMutable), empty(array1), array1).should.eql(result);
     });
 
@@ -734,7 +736,7 @@ export default () => {
     it("should return all iterable elements except the last", () => {
       let result = slice(0, -1)(array1);
 
-      initial(array1).should.eql(result);
+      toArray(initial(array1)).should.eql(result);
       reduce(initial(concatMutable), empty(array1), array1).should.eql(result);
     });
 

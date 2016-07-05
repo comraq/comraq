@@ -1,10 +1,7 @@
-import { isArray, isIterable, isUndefined } from "./../../utils/checks";
+import { isIterable, isUndefined } from "./../../utils/checks";
 import { getIterator } from "./../iterables";
 import { length } from "./../strings";
-import { empty } from "./../algebraic";
-import { slice } from "./../arrays";
 
-import { concatMutable } from "./concat";
 import {
   step, complete, init,
   default as Transformer,
@@ -18,14 +15,14 @@ import {
  * @param {Transformer|Iterable} target
  * - the transformer or target iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - an iterable with all but the last element of the iterable
- * - empty iterable if empty target iterable is empty
+ * - a generator yielding all but the last element of the iterable sequence
+ * - empty generator if target iterable is empty
  */
 export default target => {
   if (!isTransformer(target))
-    return _initial(target);
+    return (function* () { yield* _initialGen(target); })();
 
   let stored = undefined;
   return Transformer(
@@ -46,32 +43,30 @@ export default target => {
 };
 
 /**
- * @private @function _inital
- * - private version of initial that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _initialGen
+ * - private version of tail returning a generator
  *
  * @see @function initial
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-const _initial = target => {
+function* _initialGen(target) {
   if (!isIterable(target))
     throw new Error(`Cannot get init elements of non-iterable ${target}!`);
 
-  else if (isArray(target))
-    return (length(target) > 1)? slice(0, -1, target): empty(target);
-
   const iterator = getIterator(target);
-  const acc = empty(target);
-
   let curr = iterator.next();
   let next = iterator.next();
+
   while (!next.done) {
-    concatMutable(curr.value, acc);
+    // TODO: Must peek ahead to not yield last element in sequence
+    //       However, as a result, the return value of yield is sent
+    //       to the one element after original corresponding generation
+    let result = yield curr.value;
     curr = next;
-    next = iterator.next();
+    next = iterator.next(result);
   }
 
-  return acc;
-};
+  return;
+}
