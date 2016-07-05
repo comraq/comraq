@@ -1,9 +1,7 @@
 import { isNumber, isFunction, isIterable } from "./../../utils/checks";
 import { currify, placeholder } from "./../curry";
 import { getIterator } from "./../iterables";
-import { empty } from "./../algebraic";
 
-import { concatMutable } from "./concat";
 import { ensureReduced } from "./Reduced";
 import {
   step, complete, init,
@@ -22,9 +20,9 @@ import {
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - an iterable with the first 'total' number of elements from the target
+ * - a generator yielding the first 'total' number of elements from the target
  *   iterable or all elements if total number of elements <= 'number'
  *
  * @throws TypeError
@@ -37,7 +35,9 @@ export default currify((total, target) => {
     );
 
   else if (!isTransformer(target))
-    return _take(total, target);
+    return (function* (total, target) {
+      yield* _takeGen(total, target);
+    })(total, target);
 
   let count = 0;
 
@@ -59,31 +59,33 @@ export default currify((total, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _take
- * - private version of take that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _takeGen
+ * - private version of take returning a generator
  *
  * @see @function take
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield the first num values from the
+ *   iterable sequence
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-const _take = (num, target) => {
+function* _takeGen(num, target) {
   if (!isIterable(target))
     throw new TypeError(`Cannot take elements from non-iterable ${target}!`);
 
   const iterator = getIterator(target);
-  let result = empty(target);
 
   let i = 0;
   let item = iterator.next();
   while (i++ < num && !item.done) {
-    result = concatMutable(item.value, result);
-    item = iterator.next();
+    let result = yield item.value;
+    item = iterator.next(result);
   }
 
-  return result;
-};
+  return;
+}
 
 /**
  * @public @function takeWhile
@@ -99,10 +101,10 @@ const _take = (num, target) => {
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - if target is an iterable, returns an iterable from the beginning of the
- *   iteration sequence while predicate holds true
+ * - a generator yielding values from the beginning of the iteration sequence
+ *   while predicate holds true
  *
  * @throws TypeError
  * - predicate is not a function
@@ -114,7 +116,9 @@ export const takeWhile = currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return _takeWhile(predicate, target);
+    return (function* (predicate, target) {
+      yield* _takeWhileGen(predicate, target);
+    })(predicate, target);
 
   return Transformer(
     (acc, next, ...args) => {
@@ -131,32 +135,34 @@ export const takeWhile = currify((predicate, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _takeWhile
- * - private version of takeWhile that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _takeWhileGen
+ * - private version of takeWhile returning a generator
  *
  * @see @function takeWhile
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield values from the beginning of the
+ *   sequence until predicate returns false when applied with value
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-const _takeWhile = (predicate, target) => {
+function* _takeWhileGen(predicate, target) {
   if (!isIterable(target))
     throw new TypeError(
       `Cannot takeWhile elements from non-iterable ${target}!`
     );
 
   const iterator = getIterator(target);
-  let result = empty(target);
-
   let item = iterator.next(), i = 0;
+
   while (predicate(item.value, i++, target) && !item.done) {
-    result = concatMutable(item.value, result);
-    item = iterator.next();
+    let result = yield item.value;
+    item = iterator.next(result);
   }
 
-  return result;
-};
+  return;
+}
 
 /**
  * @public @function takeNth
@@ -200,10 +206,10 @@ const _takeWhile = (predicate, target) => {
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - if target is an iterable, returns an iterable with only every nth
- *   element starting from index start (start defaults to 0)
+ * - a generator yielding only every nth element starting from index start
+ *   (start defaults to 0)
  */
 export const takeNth = currify(function(n, start, target) {
   if (isIterable(start) || isTransformer(start))
@@ -244,7 +250,9 @@ const _takeNth = (n, start, target) => {
     start %= n;
 
   if (!isTransformer(target))
-    return __takeNth(n, start, target);
+    return (function* (n, start, target) {
+      yield* __takeNthGen(n, start, target);
+    })(n, start, target);
 
   let current = -1, i = 0, started = (start < 0)? true: false;
   return Transformer(
@@ -274,42 +282,50 @@ const _takeNth = (n, start, target) => {
 };
 
 /**
- * @private @function __takeNth
- * - private version of _takeNth that immediately returns the iterable
- *   result when the iterable is passed instead of a transformer mixin
+ * @private @function __takeNthGen
+ * - private version of _takeNth returning a generator
  *
  * @see @function _takeNth
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield only every nth values in the
+ *   original iterable sequence
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-const __takeNth = (n, start, target) => {
+function* __takeNthGen(n, start, target) {
   if (!isIterable(target))
     throw new TypeError(
       `Cannot takeNth elements from non-iterable ${target}!`
     );
 
   const iterator = getIterator(target);
-  let result = empty(target);
 
   let current = -1, i = 0, started = (start < 0)? true: false;
   let item = iterator.next();
+
+  let result;
   while (!item.done) {
     if (!started) {
       if (i++ === start) {
         started = true;
         current = start;
-        result = concatMutable(item.value, result);
+        result = yield item.value;
       }
 
     } else {
       if (++current - n === start) {
         current = start;
-        result = concatMutable(item.value, result);
-      }
+        result = yield item.value;
+
+      } else
+        result = undefined;
+
     }
-    item = iterator.next();
+
+    item = iterator.next(result);
   }
 
-  return result;
-};
+  return;
+}

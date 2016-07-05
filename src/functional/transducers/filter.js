@@ -1,10 +1,8 @@
 import { isFunction, isIterable } from "./../../utils/checks";
 import { types } from "./../../utils";
 import { currify, placeholder } from "./../curry";
-import { empty } from "./../algebraic";
-import { reduce, getIterator } from "./../iterables";
+import { getIterator } from "./../iterables";
 
-import { concatMutable } from "./concat";
 import {
   step, complete, init,
   default as Transformer,
@@ -41,7 +39,9 @@ export default currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return (function* () { yield* _filterGen(predicate, target); })();
+    return (function* (predicate, target) {
+      yield* _filterGen(predicate, target);
+    })(predicate, target);
 
   return Transformer(
     (acc, next, ...args) => (predicate(next, ...args))?
@@ -60,8 +60,11 @@ export default currify((predicate, target) => {
  * @see @function @filter
  *
  * @returns {Generator}
- * - a generator that will lazily yield only the values in the sequence that
+ * - a generator that will lazily yield only values in the sequence that
  *   returns true for the predicate filter
+ *
+ * @throws TypeError
+ * - target is not/does not implement the iterable interface
  */
 function* _filterGen(predicate, target) {
   if (!isIterable(target))
@@ -110,7 +113,9 @@ export const remove = currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return (function* () { yield* _removeGen(predicate, target); })();
+    return (function* (predicate, target) {
+      yield* _removeGen(predicate, target);
+    })(predicate, target);
 
   return Transformer(
     (acc, next, ...args) => (predicate(next, ...args))?
@@ -161,14 +166,15 @@ function* _removeGen(predicate, target) {
  * @param {Transformer|Iterable|Monoid} target
  * - the target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with all elements filtered to only occur once,
- *   preserving the order of elements by its first occurence
+ * - returns a generator yielding all elements from iterable sequence filtered
+ *   to only occur once, preserving the order of elements by its first
+ *   occurence
  */
 export const distinct = target => {
   if (!isTransformer(target))
-    return _distinct(target);
+    return (function* (target) { yield* _distinctGen(target); })(target);
 
   const set = new Set();
   return Transformer(
@@ -187,35 +193,40 @@ export const distinct = target => {
 };
 
 /**
- * @private @function _distinct
- * - private version of distinct that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _distinctGen
+ * - private version of distinct returning a generator
  *
  * @see @function distinct
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence omitting
+ *   any duplicates
  *
  * @throws TypeError
  * - target is not an iterable
  */
-const _distinct = target => {
+function* _distinctGen(target) {
   if (!isIterable(target))
     throw new Error(`Cannot get distinct elements of non-iterable ${target}!`);
 
   const set = new Set();
-  let result = empty(target);
+  let result;
 
   const iterator = getIterator(target);
   let item = iterator.next();
   while (!item.done) {
     if (!set.has(item.value)) {
-      result = concatMutable(item.value, result);
+      result = yield item.value;
       set.add(item.value);
-    }
 
-    item = iterator.next();
+    } else
+      result = undefined;
+
+    item = iterator.next(result);
   }
 
-  return result;
-};
+  return;
+}
 
 /**
  * @public @function dedupe
@@ -225,14 +236,14 @@ const _distinct = target => {
  * @param {Transformer|Iterable|Monoid} target
  * - the target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with all elements having consecutive duplicates
- *   removed to occur only once
+ * - returns a generator yielding all elements from iterable sequence having
+ *   consecutive duplicates removed to occur only once
  */
 export const dedupe = target => {
   if (!isTransformer(target))
-    return _dedupe(target);
+    return (function* (target) { yield* _dedupeGen(target); })(target);
 
   let prev = {};
   return Transformer(
@@ -251,35 +262,40 @@ export const dedupe = target => {
 };
 
 /**
- * @private @function _dedupe
- * - private version of depdupe that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _dedupeGen
+ * - private version of depdupe returning a generator
  *
  * @see @function dedupe
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence omitting
+ *   any consecutive duplicates
  *
  * @throws TypeError
  * - target is not an iterable
  */
-const _dedupe = target => {
+function* _dedupeGen(target) {
   if (!isIterable(target))
     throw new Error(`Cannot deduplicate elements of non-iterable ${target}!`);
 
-  let result = empty(target);
+  let result;
   let prev = {};
 
   const iterator = getIterator(target);
   let item = iterator.next();
   while (!item.done) {
     if (item.value !== prev) {
-      result = concatMutable(item.value, result);
+      result = yield item.value;
       prev = item.value;
-    }
 
-    item = iterator.next();
+    } else
+      result = undefined;
+
+    item = iterator.next(result);
   }
 
-  return result;
-};
+  return;
+}
 
 /**
  * @public @function keep
@@ -297,10 +313,11 @@ const _dedupe = target => {
  * @param {Transformer|Iterable|Monoid} target
  * - the target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with all elements filtered and left out those
- *   that returned null or undefined when applied with the predicate function
+ * - returns a generator yielding all elements from iterable sequence and leave
+ *   out those that returned null or undefined when applied with the
+ *   predicate function
  *
  * @throws TypeError
  * - predicate function func is not a function
@@ -312,7 +329,9 @@ export const keep = currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return _keep(predicate, target);
+    return (function* (predicate, target) {
+      yield* _keepGen(predicate, target);
+    })(predicate, target);
 
   let i = 0;
   return Transformer(
@@ -331,23 +350,38 @@ export const keep = currify((predicate, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _keep
- * - private version of keep that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
- * - uses the iterables's reduce to carry out the filtering across
- *   all elements in the iterable
+ * @private @function _keepGen
+ * - private version of keep returning a generator
  *
  * @see @function keep
- * @see @function iterables/reduce
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence that
+ *   returns a non-null or non-undefined value when applied with predicate
+ *
+ * @throws TypeError
+ * - target is not an iterable
  */
-const _keep = (predicate, target, i = 0) => reduce(
-  (acc, next, index, target) => {
-    let result = predicate(next, index, target, i++);
+function* _keepGen(predicate, target, i = 0) {
+  if (!isIterable(target))
+    throw new Error(`Cannot keep elements of non-iterable ${target}!`);
 
-    let type = types.toString(result);
-    return (type === types.sNull || type === types.sUndefined)?
-      acc: concatMutable(next, acc);
-  },
-  empty(target),
-  target
-);
+  let result;
+
+  const iterator = getIterator(target);
+  let item = iterator.next();
+  for (let index = 0; !item.done; ++i) {
+    let value = predicate(item.value, index, target, i++);
+
+    let vType = types.toString(value);
+    if (vType === types.sNull || vType === types.sUndefined)
+      result = undefined;
+
+    else
+      result = yield item.value;
+
+    item = iterator.next(result);
+  }
+
+  return;
+}

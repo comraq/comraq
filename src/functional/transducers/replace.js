@@ -1,10 +1,8 @@
-import { isObject, isMap } from "./../../utils/checks";
+import { isIterable, isObject, isMap } from "./../../utils/checks";
 import { currify, placeholder } from "./../curry";
 import { getProp, hasProp } from "./../prop";
-import { empty } from "./../algebraic";
-import { reduce } from "./../iterables";
+import { getIterator } from "./../iterables";
 
-import { concatMutable } from "./concat";
 import {
   step, complete, init,
   default as Transformer,
@@ -22,9 +20,9 @@ import {
  * @param {Transformer|Iterable|Functor|Monoid} target
  * - the transformer or target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with elements matching keys in map replaced by
+ * - returns a generator yielding elements matching keys in map replaced by
  *   the corresponding values
  *
  * @throws TypeError
@@ -37,7 +35,9 @@ export default currify((map, target) => {
     );
 
   if (!isTransformer(target))
-    return _replace(map, target);
+    return (function* (map, target) {
+      yield* _replaceGen(map, target);
+    })(map, target);
 
   return Transformer(
     (acc, next, ...args) => step(
@@ -54,18 +54,37 @@ export default currify((map, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _replace
- * - private version of replace that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
- * - uses the iterables's reduce to iterate and replace elements in iterable
- *   if found
+ * @private @function _replaceGen
+ * - private version of replace returning a generator
  *
  * @see @function replace
- * @see @function iterables/reduce
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all elements in the sequence while
+ *   replacing those found in map with the values from map if element is
+ *   found as a key
+ *
+ * @throws TypeError
+ * - target is not an iterable
  */
-const _replace = (map, target) => reduce(
-  (acc, next) =>
-    concatMutable((hasProp(next, map))? getProp(next, map): next, acc),
-  empty(target),
-  target
-);
+function* _replaceGen(map, target) {
+  if (!isIterable(target))
+    throw new Error(`Cannot keep elements of non-iterable ${target}!`);
+
+  let result;
+
+  const iterator = getIterator(target);
+  let item = iterator.next();
+
+  while (!item.done) {
+    if (hasProp(item.value, map))
+      result = yield getProp(item.value, map);
+
+    else
+      result = yield item.value;
+
+    item = iterator.next(result);
+  }
+
+  return;
+}

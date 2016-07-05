@@ -248,7 +248,7 @@ export default () => {
           }, empty(coll), coll);
       })();
 
-      partitionAll(size, coll).should.eql(result);
+      toArray(partitionAll(size, coll)).should.eql(result);
       reduce(
         partitionAll(size, concatMutable),
         empty(coll),
@@ -295,7 +295,7 @@ export default () => {
           }, empty(coll), coll);
       })();
 
-      partitionBy(pred, coll).should.eql(result);
+      toArray(partitionBy(pred, coll)).should.eql(result);
       reduce(
         partitionBy(pred, concatMutable),
         empty(coll),
@@ -319,13 +319,13 @@ export default () => {
       const arr = [ true, false, true, true, false, null, null, 1, 1, "true" ];
       const result = [ true, false, null, 1, "true" ];
 
-      distinct(arr).should.eql(result);
+      toArray(distinct(arr)).should.eql(result);
       reduce(distinct(concatMutable), empty(arr), arr).should.eql(result);
 
       const arr2 = result;
 
       // Already a set (distinct), no entries removed
-      distinct(arr2).should.eql(result);
+      toArray(distinct(arr2)).should.eql(result);
       reduce(distinct(concatMutable), empty(arr), arr).should.eql(result);
     });
 
@@ -345,13 +345,13 @@ export default () => {
       const arr = [ true, false, true, true, false, null, null, 1, 1, "true" ];
       const result = [ true, false, true, false, null, 1, "true" ];
 
-      dedupe(arr).should.eql(result);
+      toArray(dedupe(arr)).should.eql(result);
       reduce(dedupe(concatMutable), empty(arr), arr).should.eql(result);
 
       const arr2 = result;
 
       // Already a set (distinct), no entries removed
-      dedupe(arr2).should.eql(result);
+      toArray(dedupe(arr2)).should.eql(result);
       reduce(dedupe(concatMutable), empty(arr), arr).should.eql(result);
     });
 
@@ -385,12 +385,12 @@ export default () => {
       ];
 
       // Replace some elements
-      replace(mapObj)(array1).should.eql(result);
+      toArray(replace(mapObj)(array1)).should.eql(result);
       reduce(replace(mapObj)(concatMutable), empty(array1), array1)
         .should.eql(result);
 
       // Replace 0 elements -> should be same as original
-      replace({})(array1).should.eql(array1);
+      toArray(replace({})(array1)).should.eql(array1);
       reduce(replace({})(concatMutable), empty(array1), array1)
         .should.eql(array1);
 
@@ -401,7 +401,7 @@ export default () => {
       const result2 = [ mapObj2.get(null) ];
 
       // Replace all entries
-      replace(mapObj2)(arr2).should.eql(result2);
+      toArray(replace(mapObj2)(arr2)).should.eql(result2);
       reduce(replace(mapObj2)(concatMutable), empty(arr2), arr2)
         .should.eql(result2);
     });
@@ -422,7 +422,7 @@ export default () => {
       const arr = [ true, false, "true", "false" ];
       const result = [ true, null, false, null, "true", null, "false" ];
 
-      interpose(null)(arr).should.eql(result);
+      toArray(interpose(null)(arr)).should.eql(result);
       reduce(interpose(null, concatMutable), empty(arr), arr)
         .should.eql(result);
     });
@@ -440,7 +440,7 @@ export default () => {
   describe("random:", () => {
     it("should return an iterable with elements remain "
        + "based on probability given", () => {
-      random(0)(array1).should.be.a("array");
+      toArray(random(0)(array1)).should.be.a("array");
       reduce(random(1, concatMutable), empty(array1), array1)
         .should.be.a("array");
     });
@@ -469,7 +469,7 @@ export default () => {
         e => (e === undefined || e === null)? null: true
       );
 
-      keep(identity)(arr).should.eql(result);
+      toArray(keep(identity)(arr)).should.eql(result);
       reduce(keep(identity, concatMutable), empty(arr), arr)
         .should.be.eql(result);
 
@@ -480,7 +480,7 @@ export default () => {
       const index = (e, i, coll, c) =>
         (isNumber(i) && coll === array1 && isNumber(c))? true: null;
 
-      keep(index)(array1).should.eql(array1);
+      toArray(keep(index)(array1)).should.eql(array1);
       reduce(keep(index, concatMutable), empty(array1), array1)
         .should.be.eql(array1);
     });
@@ -506,21 +506,21 @@ export default () => {
       let result = slice(0, 2, array1);
 
       // Take some elements
-      take(2)(array1).should.eql(result);
+      toArray(take(2)(array1)).should.eql(result);
       reduce(take(2)(concatMutable), empty(array1), array1).should.eql(result);
 
       // Take 0 elements -> should be empty
-      take(0)(array1).should.eql(empty(array1));
+      toArray(take(0)(array1)).should.eql(empty(array1));
       reduce(take(0)(concatMutable), empty(array1), array1)
         .should.eql(empty(array1));
 
       // Take all elements -> should be same as original
-      take(length(array1))(array1).should.eql(array1);
+      toArray(take(length(array1))(array1)).should.eql(array1);
       reduce(take(length(array1))(concatMutable), empty(array1), array1)
         .should.eql(array1);
 
       // Take more than array length -> should be same as original
-      take(length(array1) + 1)(array1).should.eql(array1);
+      toArray(take(length(array1) + 1)(array1)).should.eql(array1);
       reduce(take(length(array1) + 1)(concatMutable), empty(array1), array1)
         .should.eql(array1);
     });
@@ -552,19 +552,19 @@ export default () => {
         empty(coll),
         coll
       );
-      const res3 = takeWhile(notNumber, coll);
+      const [ ...res3 ] = takeWhile(notNumber, coll);
 
       res1.should.eql(res2);
       res2.should.eql(res3);
       res3.should.eql(res1);
 
       // TakeWhile true -> should be same as original
-      takeWhile(getTrue)(array1).should.eql(array1);
+      toArray(takeWhile(getTrue)(array1)).should.eql(array1);
       reduce(takeWhile(getTrue)(concatMutable), empty(array1), array1)
         .should.eql(array1);
 
       // TakeWhile false -> should be empty
-      takeWhile(getFalse)(array1).should.eql(empty(array1));
+      toArray(takeWhile(getFalse)(array1)).should.eql(empty(array1));
       reduce(takeWhile(getFalse)(concatMutable), empty(array1), array1)
         .should.eql(empty(array1));
     });
@@ -592,31 +592,31 @@ export default () => {
       const tNT = takeNth(_, _, concatMutable);
 
       // Take every 5th starting with 0th
-      tN(5, arr).should.eql(result_5_0);
+      toArray(tN(5, arr)).should.eql(result_5_0);
       reduce(tN(5)(concatMutable), empty(arr), arr).should.eql(result_5_0);
 
       // Take every 5th starting with -1st
-      tN(5, -1).should.eql(result_5_n1);
+      toArray(tN(5, -1)).should.eql(result_5_n1);
       reduce(tNT(5)(-1), empty(arr), arr)
         .should.eql(result_5_n1);
 
       // Take every 3rd starting with -2nd
-      tN(3, -2).should.eql(result_3_n2);
+      toArray(tN(3, -2)).should.eql(result_3_n2);
       reduce(tNT(3)(-2), empty(arr), arr)
         .should.eql(result_3_n2);
 
       // Take every 3rd starting with -2nd
-      tN(3, 3).should.eql(result_3_3);
+      toArray(tN(3, 3)).should.eql(result_3_3);
       reduce(tNT(3)(3), empty(arr), arr)
         .should.eql(result_3_3);
 
       // Take every 100th elements -> should be empty
-      tN(100, -2).should.eql(empty(arr));
+      toArray(tN(100, -2)).should.eql(empty(arr));
       reduce(tNT(100, -2), empty(arr), arr)
         .should.eql(empty(arr));
 
       // Take every 1th elements -> should be same as original
-      tN(1)(arr).should.eql(arr);
+      toArray(tN(1)(arr)).should.eql(arr);
       reduce(tN(1)(concatMutable), empty(arr), arr)
         .should.eql(arr);
     });
@@ -642,20 +642,20 @@ export default () => {
       let result = slice(2, length(array1), array1);
 
       // Drop some elements
-      drop(2)(array1).should.eql(result);
+      toArray(drop(2)(array1)).should.eql(result);
       reduce(drop(2)(concatMutable), empty(array1), array1).should.eql(result);
 
       // Drop 0 elements -> should be same as original
-      drop(0)(array1).should.eql(array1);
+      toArray(drop(0)(array1)).should.eql(array1);
       reduce(drop(0)(concatMutable), empty(array1), array1).should.eql(array1);
 
       // Drop all elements -> should be empty
-      drop(length(array1))(array1).should.eql(empty(array1));
+      toArray(drop(length(array1))(array1)).should.eql(empty(array1));
       reduce(drop(length(array1))(concatMutable), empty(array1), array1)
         .should.eql(empty(array1));
 
       // Drop more than array length elements -> should be empty
-      drop(length(array1) + 1)(array1).should.eql(empty(array1));
+      toArray(drop(length(array1) + 1)(array1)).should.eql(empty(array1));
       reduce(drop(length(array1) + 1)(concatMutable), empty(array1), array1)
         .should.eql(empty(array1));
     });
@@ -687,19 +687,19 @@ export default () => {
         empty(coll),
         coll
       );
-      const res3 = dropWhile(notNumber, coll);
+      const [ ...res3 ] = dropWhile(notNumber, coll);
 
       res1.should.eql(res2);
       res2.should.eql(res3);
       res3.should.eql(res1);
 
       // DropWhile false -> should be same as original
-      dropWhile(getFalse)(array1).should.eql(array1);
+      toArray(dropWhile(getFalse)(array1)).should.eql(array1);
       reduce(dropWhile(getFalse)(concatMutable), empty(array1), array1)
         .should.eql(array1);
 
       // DropWhile true -> should be empty
-      dropWhile(getTrue)(array1).should.eql(empty(array1));
+      toArray(dropWhile(getTrue)(array1)).should.eql(empty(array1));
       reduce(dropWhile(getTrue)(concatMutable), empty(array1), array1)
         .should.eql(empty(array1));
     });

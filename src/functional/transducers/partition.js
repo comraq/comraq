@@ -6,7 +6,7 @@ import {
 } from "./../../utils/checks";
 
 import { currify, placeholder } from "./../curry";
-import { reduce, getIterator } from "./../iterables";
+import { getIterator } from "./../iterables";
 import { empty } from "./../algebraic";
 import { length } from "./../strings";
 
@@ -28,9 +28,9 @@ import {
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - an iterable with partitions each of 'size' number of iterables,
+ * - a generator yielding partitions each of 'size' number of iterables,
  *   last partition may be smaller than 'size' if target iterable's total
  *   number of elements is not divisible by size
  *
@@ -44,7 +44,9 @@ export const partitionAll = currify((size, target) => {
     );
 
   else if (!isTransformer(target))
-    return _partitionAll(size, target);
+    return (function* (size, target) {
+      yield* _partitionAllGen(size, target);
+    })(size, target);
 
   // Partition is undefined for now as we currently have no access to the
   // unit/void/empty instance of the accumulator until the step function of
@@ -80,16 +82,19 @@ export const partitionAll = currify((size, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _partitionAll
- * - private version of partitionAll that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _partitionAllGen
+ * - private version of partitionAll returning a generator
  *
  * @see @function partitionAll
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence in
+ *   partitions specified by size
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-const _partitionAll = (size, target) => {
+function* _partitionAllGen(size, target) {
   if (!isIterable(target))
     throw new TypeError(
       `Cannot partitionAll of non-iterable ${target}!`
@@ -98,7 +103,7 @@ const _partitionAll = (size, target) => {
   let count = 0, partition = empty(target);
 
   const iterator = getIterator(target);
-  let result = empty(target);
+  let result;
 
   let item = iterator.next();
   while (!item.done) {
@@ -106,20 +111,19 @@ const _partitionAll = (size, target) => {
       partition = concatMutable(item.value, partition);
 
     else {
-      const temp = partition;
+      result = yield partition;
       count = 1;
       partition = concatMutable(item.value, empty(target));
-      target = concatMutable(temp, result);
-    }   
+    }
 
-    item = iterator.next();
+    item = iterator.next(result);
   }
 
   if (length(partition) > 0)
-    result = concatMutable(partition, result);
+    yield partition;
 
-  return result;
-};
+  return;
+}
 
 /**
  * @public @function partitionBy
@@ -134,9 +138,9 @@ const _partitionAll = (size, target) => {
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - an iterable with partitions of elements divided by when predicate
+ * - generator yielding partitions of elements divided by when predicate
  *   function returns a different value, 
  *
  * @throws TypeError
@@ -149,7 +153,9 @@ export const partitionBy = currify((predicate, target) => {
     );
 
   else if (!isTransformer(target))
-    return _partitionBy(predicate, target);
+    return (function* (predicate, target) {
+      yield* _partitionByGen(predicate, target);
+    })(predicate, target);
 
   // Partition is undefined for now as we currently have no access to the
   // unit/void/empty instance of the accumulator until the step function of
@@ -191,43 +197,50 @@ export const partitionBy = currify((predicate, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _partitionBy
- * - private version of partitionBy that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _partitionByGen
+ * - private version of partitionBy returning a generator
  *
  * @see @function partitionBy
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence separated
+ *   into partitions every time predicate function returns a different value
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-const _partitionBy = (predicate, target) => {
+function* _partitionByGen(predicate, target) {
   if (!isIterable(target))
     throw new TypeError(
       `Cannot partitionAll of non-iterable ${target}!`
     );
 
-  let val = undefined, partition = undefined;
-  return reduce((acc, next, i, coll) => {
-    let nextVal = predicate(next, i, coll);
-    if (isUndefined(partition)) {
-      partition = concatMutable(next, empty(coll));
-      val = nextVal;
-      return acc;
-    }
+  const iterator = getIterator(target);
+  let item = iterator.next();
 
-    if (val === nextVal)
-      partition = concatMutable(next, partition);
+  let val, partition, result;
+
+  for (let index = 0; !item.done; ++index) {
+    let nextVal = predicate(item.value, index, target);
+
+    if (index === 0) {
+      partition = concatMutable(item.value, empty(target));
+      val = nextVal;
+
+    } else if (val === nextVal)
+      partition = concatMutable(item.value, partition);
 
     else {
-      const temp = partition;
-      partition = concatMutable(next, empty(coll));
-      acc = concatMutable(temp, acc);
+      result = yield partition;
+      partition = concatMutable(item.value, empty(target));
       val = nextVal;
     }
 
-    if (i === length(coll) - 1 && !isUndefined(partition))
-      acc = concatMutable(partition, acc);
+    item = iterator.next(result);
+  }
 
-    return acc;
-  }, empty(target), target);
-};
+  if (!isUndefined(partition))
+    yield partition;
+
+  return;
+}

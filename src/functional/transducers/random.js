@@ -1,9 +1,7 @@
 import { isNumber, isIterable } from "./../../utils/checks";
 import { currify, placeholder } from "./../curry";
-import { empty } from "./../algebraic";
 import { getIterator } from "./../iterables";
 
-import { concatMutable } from "./concat";
 import {
   step, complete, init,
   default as Transformer,
@@ -37,7 +35,10 @@ export default currify((prob, target) => {
     );
 
   if (!isTransformer(target))
-    return _random(prob, target);
+    return (function* (prob, target) {
+      yield* _randomGen(prob, target);
+    })(prob, target);
+    //return _random(prob, target);
 
   return Transformer(
     (acc, next, ...args) =>
@@ -50,24 +51,35 @@ export default currify((prob, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _random
- * - private version of random that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _randomGen
+ * - private version of random returning a generator
  *
  * @see @function random
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield values from iterable sequence with a
+ *   probability of prob
  *
  * @throws TypeError
  * - target is not an iterable
  */
-const _random = (prob, target) => {
+function* _randomGen(prob, target) {
   if (!isIterable(target))
     throw new Error(`Cannot get random elements from non-iterable ${target}!`);
 
-  let result = empty(target);
-
   const iterator = getIterator(target);
-  for (let item = iterator.next(); !item.done; item = iterator.next())
-    result = (Math.random() < prob)? concatMutable(item.value, result): result;
+  let item = iterator.next();
 
-  return result;
-};
+  let result;
+  while (!item.done) {
+    if (Math.random() < prob)
+      result = yield item.value;
+
+    else
+      result = undefined;
+
+    item = iterator.next(result);
+  }
+
+  return;
+}

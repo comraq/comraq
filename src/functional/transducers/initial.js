@@ -22,7 +22,7 @@ import {
  */
 export default target => {
   if (!isTransformer(target))
-    return (function* () { yield* _initialGen(target); })();
+    return (function* (target) { yield* _initialGen(target); })(target);
 
   let stored = undefined;
   return Transformer(

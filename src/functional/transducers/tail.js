@@ -21,7 +21,7 @@ import {
  */
 export default target => {
   if (!isTransformer(target))
-    return (function* () { yield* _tailGen(target); })();
+    return (function* (target) { yield* _tailGen(target); })(target);
 
   let first = true;
   return Transformer(

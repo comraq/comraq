@@ -1,9 +1,7 @@
 import { isNumber, isFunction, isIterable } from "./../../utils/checks";
 import { currify, placeholder } from "./../curry";
 import { getIterator } from "./../iterables";
-import { empty } from "./../algebraic";
 
-import { concatMutable } from "./concat";
 import {
   step, complete, init,
   isTransformer, 
@@ -21,10 +19,11 @@ import {
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - an iterable without the first 'total' number of elements from the target
- *   iterable or all elements if total number of elements <= 'number'
+ * - a generator yielding elements without the first 'total' number of elements
+ *   from the target iterable or all elements if total number of elements <=
+ *   'number'
  *
  * @throws TypeError
  * - total number to take is not a number
@@ -36,7 +35,9 @@ export default currify((total, target) => {
     );
 
   else if (!isTransformer(target))
-    return _drop(total, target);
+    return (function* (total, target) {
+      yield* _dropGen(total, target);
+    })(total, target);
 
   let count = 0;
 
@@ -55,21 +56,23 @@ export default currify((total, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _drop
- * - private version of drop that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _dropGen
+ * - private version of drop returning a generator
  *
  * @see @function drop
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values from iterable sequence
+ *   after omitting the first 'num' number of elements
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-const _drop = (num, target) => {
+function* _dropGen(num, target) {
   if (!isIterable(target))
     throw new TypeError(`Cannot drop elements from non-iterable ${target}!`);
 
   const iterator = getIterator(target);
-  let result = empty(target);
 
   let i = 0;
   let item = iterator.next();
@@ -78,12 +81,12 @@ const _drop = (num, target) => {
     item = iterator.next();
 
   while (!item.done) {
-    result = concatMutable(item.value, result);
-    item = iterator.next();
+    let result = yield item.value;
+    item = iterator.next(result);
   }
 
-  return result;
-};
+  return;
+}
 
 /**
  * @public @function dropWhile
@@ -99,9 +102,9 @@ const _drop = (num, target) => {
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - if target is an iterable, returns an iterable without the beginning
+ * - a generator yielding elements without the beginning
  *   iteration sequence while predicate holds true
  *
  * @throws TypeError
@@ -114,7 +117,9 @@ export const dropWhile = currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return _dropWhile(predicate, target);
+    return (function* (predicate, target) {
+      yield* _dropWhileGen(predicate, target);
+    })(predicate, target);
 
   let dropped = false;
   return Transformer(
@@ -133,32 +138,34 @@ export const dropWhile = currify((predicate, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _dropWhile
- * - private version of dropWhile that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _dropWhileGen
+ * - private version of dropWhile returning a generator
  *
  * @see @function dropWhile
  *
+ * @returns {Generator}
+ * - a generator that will lazily yield only values from iterable sequence
+ *   after predicate evaluates to false
+ 
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-const _dropWhile = (predicate, target) => {
+function* _dropWhileGen(predicate, target) {
   if (!isIterable(target))
     throw new TypeError(
       `Cannot dropWhile elements from non-iterable ${target}!`
     );
 
   const iterator = getIterator(target);
-  let result = empty(target);
 
   let item = iterator.next(), i = 0;
   while (predicate(item.value, i++, target) && !item.done)
     item = iterator.next();
 
   while (!item.done) {
-    result = concatMutable(item.value, result);
-    item = iterator.next();
+    let result = yield item.value;
+    item = iterator.next(result);
   }
 
-  return result;
-};
+  return;
+}

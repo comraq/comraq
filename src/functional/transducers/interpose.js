@@ -1,9 +1,7 @@
 import { isIterable } from "./../../utils/checks";
 import { currify, placeholder } from "./../curry";
-import { empty } from "./../algebraic";
 import { getIterator } from "./../iterables";
 
-import { concatMutable } from "./concat";
 import { isReduced } from "./Reduced";
 import {
   step, complete, init,
@@ -22,14 +20,17 @@ import {
  * @param {Transformer|Iterable} target
  * - the transformer or target iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with entry inserted between each element from the
- *   original collection
+ * - returns a generator yielding avlues with entry inserted between each
+ *   element from the original collection
  */
 export default currify((entry, target) => {
   if (!isTransformer(target))
-    return _interpose(entry, target);
+    return (function* (entry, target) {
+      yield* _interposeGen(entry, target);
+    })(entry, target);
+    //return _interpose(entry, target);
 
   let started = false;
   return Transformer(
@@ -53,29 +54,39 @@ export default currify((entry, target) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _interpose
- * - private version of interpose that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _interposeGen
+ * - private version of interpose returning a generator
  *
  * @see @function interpose
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence that
+ *   while also yielding entry in between each consecutive element from
+ *   original sequence
  *
  * @throws TypeError
  * - target is not an iterable
  */
-const _interpose = (entry, target) => {
+function* _interposeGen (entry, target) {
   if (!isIterable(target))
     throw new Error(`Cannot interpose elements for non-iterable ${target}!`);
 
-  let result = empty(target);
+  let result;
 
   const iterator = getIterator(target);
   let item = iterator.next();
 
   if (!item.done) {
-    result = concatMutable(item.value, result);
-    for (item = iterator.next(); !item.done; item = iterator.next())
-      result = concatMutable(item.value, concatMutable(entry, result));
+    result = yield item.value;
+    item = iterator.next(result);
+
+    while (!item.done) {
+      yield entry;
+      result = yield item.value;
+
+      item = iterator.next(result);
+    }
   }
 
-  return result;
-};
+  return;
+}
