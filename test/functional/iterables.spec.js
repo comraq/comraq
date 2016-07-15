@@ -105,6 +105,8 @@ export default () => {
           a + b
         , 0)
       );
+
+      reduceR(add, "asdf")([]).should.equal("asdf");
     });
   });
 
@@ -124,6 +126,7 @@ export default () => {
     it("should throw error with non-function before last argument", () => {
       expect(reduceL1.bind(null, add, null)).to.throw(/.*/);
       expect(reduceL1.bind(null, "a string", numbersData)).to.throw(/.*/);
+      expect(reduceL1.bind(null, add, [])).to.throw(/.*/);
     });
 
     it("should reduce iterable results to single value", () => {
@@ -159,6 +162,8 @@ export default () => {
           a + b
         )
       );
+
+      reduceL1(add)([{}]).should.eql({});
     });
   });
 
@@ -216,6 +221,8 @@ export default () => {
         , 3)
       );
       D(numbersData).should.equal(reduceL(add, -3, numbersData));
+
+      reduceR(add, 0)([]).should.equal(0);
     });
   });
 
@@ -236,6 +243,7 @@ export default () => {
     it("should throw error with non-function before last argument", () => {
       expect(reduceR1.bind(null, add, null)).to.throw(/.*/);
       expect(reduceR1.bind(null, "a string", numbersData)).to.throw(/.*/);
+      expect(reduceR1.bind(null, add, [])).to.throw(/.*/);
     });
 
     it("should reduce iterable results to single value", () => {
@@ -275,6 +283,8 @@ export default () => {
       );
       D(numbersData).should.equal(reduceL1(add, numbersData));
       E(numbersData).should.not.equal(reduceL1(subtract, numbersData));
+
+      reduceR1(add)([1]).should.equal(1);
     });
   });
 

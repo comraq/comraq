@@ -3,7 +3,7 @@ import { currify, placeholder } from "./../curry";
 
 import iterReduce from "./iterable-reduce";
 import getIterator from "./get-iterator";
-import reverseIterable from "./reverse";
+import { identity } from "./../algebraic";
 
 /**
  * @public @function reduce
@@ -47,6 +47,9 @@ export default currify((func, acc, iterable) => {
  *   first element in the iteration as the accumulator
  *
  * @see @function reduce
+ *
+ * @throws TypeError
+ * - iterable is empty
  */
 export const reduce1 = currify((func, iterable) => {
   if (!isFunction(func))
@@ -60,7 +63,13 @@ export const reduce1 = currify((func, iterable) => {
     );
 
   const iterator = getIterator(iterable);
-  return iterReduce(func, iterator.next().value, iterable, 1, iterator);
+  const first = iterator.next();
+  if (first.done)
+    throw new TypeError(
+      "Cannot reduce1 aganist empty iterables!"
+    );
+
+  return iterReduce(func, first.value, iterable, 1, iterator);
 }, 2, false, placeholder);
 
 /**
@@ -80,15 +89,17 @@ export const reduceRight = currify((func, acc, iterable) => {
       "reduceRight cannot be applied on a non-iterable!"
     );
 
-  iterable = reverseIterable(iterable);
-  return iterReduce(func, acc, iterable);
+  const f = (g, val, index, source) => a => g(func(a, val, index, source));
+  return iterReduce(f, identity, iterable)(acc);
 }, 3, false, placeholder);
 
 /**
  * @public @function reduceRight1
+ * - reduceRight version of reduce1
  * - same as reduceRight except without needing an accumulator by passing the
  *   first element in the iteration as the accumulator
  *
+ * @see @function reduce1
  * @see @function reduceRight
  */
 export const reduceRight1 = currify((func, iterable) => {
@@ -102,8 +113,33 @@ export const reduceRight1 = currify((func, iterable) => {
       "reduceRight1 cannot be applied on a non-iterable!"
     );
 
-  iterable = reverseIterable(iterable);
-  const iterator = getIterator(iterable);
+  let last = { done: true, value: undefined };
+  const proxy = function* proxy() {
+    let iterator = getIterator(iterable);
 
-  return iterReduce(func, iterator.next().value, iterable, 1, iterator);
+    let item = iterator.next();
+    if (item.done) {
+      yield item.value;
+      return;
+    }
+
+    let prev = iterator.next();
+    while (!prev.done) {
+      yield item.value;
+      item = prev;
+      prev = iterator.next();
+    }
+    last = item;
+
+    return;
+  };
+
+  const f = (g, val, index, source) => a => g(func(a, val, index, source));
+  const res = iterReduce(f, identity, iterable, 0, proxy());
+  if (last.done)
+    throw new TypeError(
+      "Cannot reduceRight1 aganist empty iterables!"
+    );
+
+  return res(last.value);
 }, 2, false, placeholder);
