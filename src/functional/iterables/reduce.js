@@ -73,6 +73,24 @@ export const reduce1 = currify((func, iterable) => {
 }, 2, false, placeholder);
 
 /**
+ * @private @function _reduceR
+ * - private helper method for implementing reduceRight and reduceRight1
+ *   via reduce
+ *
+ * @param {Function} reducer
+ * - the reducer function to be called during each iteration of reduce
+ *
+ * @returns {Any}
+ * - a wrapper function passed to reduce that returns a function taking in
+ *   the actual accumulator
+ * - a chain series of partially applied wrapper functions are generated
+ *   during reduce, at the end of which all gets called, executing the
+ *   reducer in the "reverse" order
+ */
+const _reduceR = reducer => (prevFunc, val, index, source) => acc =>
+  prevFunc(reducer(acc, val, index, source));
+
+/**
  * @public @function reduceRight
  * - same as reduce except traversing the iterable in the reverse order
  *
@@ -89,7 +107,7 @@ export const reduceRight = currify((func, acc, iterable) => {
       "reduceRight cannot be applied on a non-iterable!"
     );
 
-  const f = (g, val, index, source) => a => g(func(a, val, index, source));
+  const f = _reduceR(func);
   return iterReduce(f, identity, iterable)(acc);
 }, 3, false, placeholder);
 
@@ -114,7 +132,7 @@ export const reduceRight1 = currify((func, iterable) => {
     );
 
   let last = { done: true, value: undefined };
-  const proxy = function* proxy() {
+  const proxy = function* proxy(iterable) {
     let iterator = getIterator(iterable);
 
     let item = iterator.next();
@@ -134,8 +152,8 @@ export const reduceRight1 = currify((func, iterable) => {
     return;
   };
 
-  const f = (g, val, index, source) => a => g(func(a, val, index, source));
-  const res = iterReduce(f, identity, iterable, 0, proxy());
+  const f = _reduceR(func);
+  const res = iterReduce(f, identity, iterable, 0, proxy(iterable));
   if (last.done)
     throw new TypeError(
       "Cannot reduceRight1 aganist empty iterables!"
