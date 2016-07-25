@@ -27,12 +27,12 @@ export { default as concat, concatMutable } from "./concat";
 export { partitionAll, partitionBy } from "./partition";
 export { default as random } from "./random";
 export { default as interpose } from "./interpose";
+export { default as identity } from "./identity";
 
 export { default as tail } from "./tail";
 export { default as initial } from "./initial";
 
 /**
  * TODO-list:
- * - cat,
- *   mapcat,
+ * - mapcat/flatmap
  */

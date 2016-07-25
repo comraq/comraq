@@ -11,17 +11,17 @@ const {
   transduce, transduce1, into,
   map, filter,
   take,
-  Transformer,
-  concatMutable
+  Transformer
 } = comraq.functional.transducers;
 
+const { pushMutable } = comraq.functional.arrays;
 const { compose } = comraq.functional;
 const { empty, identity } = comraq.functional.algebraic;
 
 export default () => {
   describe("transduce:", () => {
     it("should return a function without providing a collection", () => {
-      transduce(map(triple), concatMutable).should.be.a("function");
+      transduce(map(triple), pushMutable).should.be.a("function");
     });
 
     it("should get results if a collection is provided", () => {
@@ -34,7 +34,7 @@ export default () => {
         map(triple)
       );
 
-      transduce(xform, concatMutable, empty(coll), coll).should.eql(
+      transduce(xform, pushMutable, empty(coll), coll).should.eql(
         coll
           .map(inc5)
           .filter(even)

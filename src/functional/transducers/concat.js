@@ -1,8 +1,7 @@
 import Transformer from "./Transformer";
+import { isReduced, default as Reduced } from "./Transformer";
 import { _concat, _concatMutable } from "./../algebraic/Monoid";
 import { identity } from "./../algebraic";
-
-// TODO: needs work, currently simple placeholders for tests
 
 /**
  * @public @function concat
@@ -10,7 +9,7 @@ import { identity } from "./../algebraic";
  *   for the transformer step version of the function
  *
  * @returns {Transfomer}
- * - concat augmented with the Transformer mixin
+ * - _concat augmented with the Transformer mixin
  *
  * @see @function algebraic/concat
  * @see @mixin Transformer
@@ -39,3 +38,17 @@ export const concatMutable = Transformer(
   _concatMutable,
   (acc, next) => _concatMutable(next, acc)
 );
+
+/**
+ * @private @function _preserveReduced
+ * - internal function to check and re-wrap target if it's is already
+ *   Reduced
+ *
+ * @param {Any} target
+ * - the target to check
+ *
+ * @return {Any}
+ * - the target param but double wrapped if already Reduced
+ */
+const _preserveReduced = target =>
+  (isReduced(target))? Reduced(target): target;

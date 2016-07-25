@@ -9,8 +9,8 @@ import { currify, placeholder } from "./../curry";
 import { getIterator } from "./../iterables";
 import { empty } from "./../algebraic";
 import { length } from "./../strings";
+import { pushMutable } from "./../arrays";
 
-import { concatMutable } from "./concat";
 import { ensureUnreduced } from "./Reduced";
 import {
   step, complete, init,
@@ -58,12 +58,12 @@ export const partitionAll = currify((size, target) => {
       partition = (isUndefined(partition))? empty(acc): partition;
 
       if (count++ < size)
-        partition = concatMutable(next, partition);
+        partition = pushMutable(next, partition);
 
       else {
         const temp = partition;
         count = 1;
-        partition = concatMutable(next, empty(acc));
+        partition = pushMutable(next, empty(acc));
         return step(target, acc, temp, ...args);
       }   
 
@@ -108,12 +108,12 @@ function* _partitionAllGen(size, target) {
   let item = iterator.next();
   while (!item.done) {
     if (count++ < size)
-      partition = concatMutable(item.value, partition);
+      partition = pushMutable(item.value, partition);
 
     else {
       result = yield partition;
       count = 1;
-      partition = concatMutable(item.value, empty(target));
+      partition = pushMutable(item.value, empty(target));
     }
 
     item = iterator.next(result);
@@ -167,17 +167,17 @@ export const partitionBy = currify((predicate, target) => {
       let nextVal = predicate(next, ...args);
 
       if (isUndefined(partition)) {
-        partition = concatMutable(next, empty(acc));
+        partition = pushMutable(next, empty(acc));
         val = nextVal;
         return acc;
       }
 
       if (val === nextVal) {
-        partition = concatMutable(next, partition);
+        partition = pushMutable(next, partition);
 
       } else {
         const temp = partition;
-        partition = concatMutable(next, empty(acc));
+        partition = pushMutable(next, empty(acc));
         val = nextVal;
         return step(target, acc, temp, ...args);
       }
@@ -224,15 +224,15 @@ function* _partitionByGen(predicate, target) {
     let nextVal = predicate(item.value, index, target);
 
     if (index === 0) {
-      partition = concatMutable(item.value, empty(target));
+      partition = pushMutable(item.value, empty(target));
       val = nextVal;
 
     } else if (val === nextVal)
-      partition = concatMutable(item.value, partition);
+      partition = pushMutable(item.value, partition);
 
     else {
       result = yield partition;
-      partition = concatMutable(item.value, empty(target));
+      partition = pushMutable(item.value, empty(target));
       val = nextVal;
     }
 

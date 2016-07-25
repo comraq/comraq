@@ -9,7 +9,7 @@ import {
        } from "./../test-data";
 
 const {
-  transduce,
+  transduce, identity: idT,
   map, filter, remove, replace, distinct, dedupe, random, keep,
   initial, tail,
   take, takeWhile, takeNth, drop, dropWhile,
@@ -23,10 +23,94 @@ const { reduce, toArray } = comraq.functional.iterables;
 const { empty, identity } = comraq.functional.algebraic;
 const { compose, placeholder: _ } = comraq.functional;
 const { length } = comraq.functional.strings;
-const { slice } = comraq.functional.arrays;
+const { slice, push, pushMutable } = comraq.functional.arrays;
 
 export default () => {
   describe("contexts:", contexts);
+
+  describe("identity:", () => {
+    it("should be a transducer", () => {
+      isTransducer(idT).should.be.true;
+    });
+
+    it("should return a transformer if a transformer is supplied", () => {
+      isTransformer(idT(stubTransformer)).should.be.true;
+    });
+
+    it("should throw error if non-transformer is supplied", () => {
+      expect(idT.bind(null, () => {})).to.throw(/.*/);
+    });
+
+    it("should transduce/reduce to original target", () => {
+      reduce(
+        idT(pushMutable),
+        empty(numbersData),
+        numbersData
+      ).should.eql(numbersData);
+    });
+  });
+
+  describe("concat:", () => {
+    it("should be a transformer", () => isTransformer(concat).should.be.true);
+
+    it("should concatenate 2 arrays", () => {
+      concat(numbersData, array2).should.eql(
+        array2.concat(numbersData)
+      );
+    });
+
+    it("should not mutate original array", () => {
+      concat([], array2).should.not.equal(array2);
+
+      let newLength = array2.length + 1;
+      concat([ 2 ], array2).length.should.equal(newLength);
+    });
+
+    it("should throw error if source and "
+       + "target semi-groups are not of the same type", () => {
+      expect(concat.bind(null, "asdf", [])).to.throw(/.*/);
+      expect(concat.bind(null, [], {})).to.throw(/.*/);
+    });
+
+    it("should flatten nested arrays by 1 level", () => {
+      let testArray = [ [5], [true], [false, null, ["asdf", {}] ] ];
+
+      let result = reduce(idT(concat), [], testArray);
+      result.should.have.lengthOf(5);
+      result.should.eql([ 5, true, false, null, ["asdf", {}] ]);
+    });
+  });
+
+  describe("concatMutable:", () => {
+    it("should be a transformer", () =>
+      isTransformer(concatMutable).should.be.true);
+
+    it("should concatenate 2 arrays", () => {
+      let result = [ ...array2, ...numbersData ];
+      concatMutable(numbersData, array2).should.eql(result);
+    });
+
+    it("should mutate original array", () => {
+      concatMutable([], array2).should.equal(array2);
+
+      let newLength = array2.length + 1;
+      concatMutable([ 2 ], array2).length.should.equal(newLength);
+    });
+
+    it("should throw error if source and "
+       + "target semi-groups are not of the same type", () => {
+      expect(concatMutable.bind(null, "asdf", [])).to.throw(/.*/);
+      expect(concatMutable.bind(null, [], {})).to.throw(/.*/);
+    });
+
+    it("should flatten nested arrays by 1 level", () => {
+      let testArray = [ [5], [true], [false, null, ["asdf", {}] ] ];
+
+      let result = reduce(idT(concatMutable), [], testArray);
+      result.should.have.lengthOf(5);
+      result.should.eql([ 5, true, false, null, ["asdf", {}] ]);
+    });
+  });
 
   describe("map:", () => {
     it("should return a transducer if only mapping function is passed", () => {
@@ -60,7 +144,7 @@ export default () => {
       const [ ...E ] = map(compose(triple, inc10, inc10))(numbersData);
 
       reduce(
-        B(concatMutable),
+        B(pushMutable),
         empty(numbersData),
         numbersData
       ).should.eql(numbersData
@@ -87,7 +171,7 @@ export default () => {
         (isNumber(i) && coll === array1 && isNumber(c))? e: null;
 
       toArray(map(index)(array1)).should.eql(array1);
-      reduce(map(index, concatMutable), empty(array1), array1)
+      reduce(map(index, pushMutable), empty(array1), array1)
         .should.be.eql(array1);
     });
   });
@@ -131,7 +215,7 @@ export default () => {
         )
       );
       reduce(
-        B(concatMutable),
+        B(pushMutable),
         empty(numbersData),
         numbersData
       ).should.eql(numbersData
@@ -196,7 +280,7 @@ export default () => {
         )
       );
       reduce(
-        B(concatMutable),
+        B(pushMutable),
         empty(numbersData),
         numbersData
       ).should.eql(numbersData
@@ -233,16 +317,16 @@ export default () => {
         return coll
           .reduce((acc, next, i, coll) => {
             if (count++ < size)
-              part = concatMutable(next, part);
+              part = pushMutable(next, part);
 
             else {
-              acc = concatMutable(part, acc);
+              acc = pushMutable(part, acc);
               count = 1;
-              part = concatMutable(next, empty(coll));
+              part = pushMutable(next, empty(coll));
             }
 
             if (i === length(coll) - 1 && length(part) > 0)
-              acc = concatMutable(part, acc);
+              acc = pushMutable(part, acc);
 
             return acc;
           }, empty(coll), coll);
@@ -250,7 +334,7 @@ export default () => {
 
       toArray(partitionAll(size, coll)).should.eql(result);
       reduce(
-        partitionAll(size, concatMutable),
+        partitionAll(size, pushMutable),
         empty(coll),
         coll
       ).should.eql(result);
@@ -280,16 +364,16 @@ export default () => {
           .reduce((acc, next, i, coll) => {
             let nextVal = pred(next);
             if (value === undefined || nextVal === value)
-              part = concatMutable(next, part);
+              part = pushMutable(next, part);
 
             else {
-              acc = concatMutable(part, acc);
-              part = concatMutable(next, empty(coll));
+              acc = pushMutable(part, acc);
+              part = pushMutable(next, empty(coll));
             }
 
             value = nextVal;
             if (i === length(coll) - 1 && length(part) > 0)
-              acc = concatMutable(part, acc);
+              acc = pushMutable(part, acc);
 
             return acc;
           }, empty(coll), coll);
@@ -297,7 +381,7 @@ export default () => {
 
       toArray(partitionBy(pred, coll)).should.eql(result);
       reduce(
-        partitionBy(pred, concatMutable),
+        partitionBy(pred, pushMutable),
         empty(coll),
         coll
       ).should.eql(result);
@@ -320,13 +404,13 @@ export default () => {
       const result = [ true, false, null, 1, "true" ];
 
       toArray(distinct(arr)).should.eql(result);
-      reduce(distinct(concatMutable), empty(arr), arr).should.eql(result);
+      reduce(distinct(pushMutable), empty(arr), arr).should.eql(result);
 
       const arr2 = result;
 
       // Already a set (distinct), no entries removed
       toArray(distinct(arr2)).should.eql(result);
-      reduce(distinct(concatMutable), empty(arr), arr).should.eql(result);
+      reduce(distinct(pushMutable), empty(arr), arr).should.eql(result);
     });
 
     it("should return a transducer if only count number is passed", () => {
@@ -346,13 +430,13 @@ export default () => {
       const result = [ true, false, true, false, null, 1, "true" ];
 
       toArray(dedupe(arr)).should.eql(result);
-      reduce(dedupe(concatMutable), empty(arr), arr).should.eql(result);
+      reduce(dedupe(pushMutable), empty(arr), arr).should.eql(result);
 
       const arr2 = result;
 
       // Already a set (distinct), no entries removed
       toArray(dedupe(arr2)).should.eql(result);
-      reduce(dedupe(concatMutable), empty(arr), arr).should.eql(result);
+      reduce(dedupe(pushMutable), empty(arr), arr).should.eql(result);
     });
 
     it("should return a transducer if only count number is passed", () => {
@@ -386,12 +470,12 @@ export default () => {
 
       // Replace some elements
       toArray(replace(mapObj)(array1)).should.eql(result);
-      reduce(replace(mapObj)(concatMutable), empty(array1), array1)
+      reduce(replace(mapObj)(pushMutable), empty(array1), array1)
         .should.eql(result);
 
       // Replace 0 elements -> should be same as original
       toArray(replace({})(array1)).should.eql(array1);
-      reduce(replace({})(concatMutable), empty(array1), array1)
+      reduce(replace({})(pushMutable), empty(array1), array1)
         .should.eql(array1);
 
       const mapObj2 = new Map();
@@ -402,7 +486,7 @@ export default () => {
 
       // Replace all entries
       toArray(replace(mapObj2)(arr2)).should.eql(result2);
-      reduce(replace(mapObj2)(concatMutable), empty(arr2), arr2)
+      reduce(replace(mapObj2)(pushMutable), empty(arr2), arr2)
         .should.eql(result2);
     });
 
@@ -423,7 +507,7 @@ export default () => {
       const result = [ true, null, false, null, "true", null, "false" ];
 
       toArray(interpose(null)(arr)).should.eql(result);
-      reduce(interpose(null, concatMutable), empty(arr), arr)
+      reduce(interpose(null, pushMutable), empty(arr), arr)
         .should.eql(result);
     });
 
@@ -441,7 +525,7 @@ export default () => {
     it("should return an iterable with elements remain "
        + "based on probability given", () => {
       toArray(random(0)(array1)).should.be.a("array");
-      reduce(random(1, concatMutable), empty(array1), array1)
+      reduce(random(1, pushMutable), empty(array1), array1)
         .should.be.a("array");
     });
 
@@ -457,20 +541,20 @@ export default () => {
     it("should throw error if probability is "
        + "less than 0 or greater than 1", () => {
       expect(random.bind(null, -2, [])).to.throw(/.*/);
-      expect(random.bind(null, 100, concatMutable)).to.throw(/.*/);
+      expect(random.bind(null, 100, pushMutable)).to.throw(/.*/);
     });
   });
 
   describe("keep:", () => {
     it("should return an iterable with elements remain when iterable "
        + "does not evaluate to null or undefined", () => {
-      const arr = concat(undefined, array1);
+      const arr = push(undefined, array1);
       const result = array1.filter(
         e => (e === undefined || e === null)? null: true
       );
 
       toArray(keep(identity)(arr)).should.eql(result);
-      reduce(keep(identity, concatMutable), empty(arr), arr)
+      reduce(keep(identity, pushMutable), empty(arr), arr)
         .should.be.eql(result);
 
     });
@@ -481,7 +565,7 @@ export default () => {
         (isNumber(i) && coll === array1 && isNumber(c))? true: null;
 
       toArray(keep(index)(array1)).should.eql(array1);
-      reduce(keep(index, concatMutable), empty(array1), array1)
+      reduce(keep(index, pushMutable), empty(array1), array1)
         .should.be.eql(array1);
     });
 
@@ -496,7 +580,7 @@ export default () => {
 
     it("should throw error if predicate is not a function", () => {
       expect(keep.bind(null, null, array1)).to.throw(/.*/);
-      expect(keep.bind(null, 100, concatMutable)).to.throw(/.*/);
+      expect(keep.bind(null, 100, pushMutable)).to.throw(/.*/);
     });
   });
 
@@ -507,21 +591,21 @@ export default () => {
 
       // Take some elements
       toArray(take(2)(array1)).should.eql(result);
-      reduce(take(2)(concatMutable), empty(array1), array1).should.eql(result);
+      reduce(take(2)(pushMutable), empty(array1), array1).should.eql(result);
 
       // Take 0 elements -> should be empty
       toArray(take(0)(array1)).should.eql(empty(array1));
-      reduce(take(0)(concatMutable), empty(array1), array1)
+      reduce(take(0)(pushMutable), empty(array1), array1)
         .should.eql(empty(array1));
 
       // Take all elements -> should be same as original
       toArray(take(length(array1))(array1)).should.eql(array1);
-      reduce(take(length(array1))(concatMutable), empty(array1), array1)
+      reduce(take(length(array1))(pushMutable), empty(array1), array1)
         .should.eql(array1);
 
       // Take more than array length -> should be same as original
       toArray(take(length(array1) + 1)(array1)).should.eql(array1);
-      reduce(take(length(array1) + 1)(concatMutable), empty(array1), array1)
+      reduce(take(length(array1) + 1)(pushMutable), empty(array1), array1)
         .should.eql(array1);
     });
 
@@ -543,12 +627,12 @@ export default () => {
 
       const res1 = transduce(
         takeWhile(notNumber),
-        concatMutable,
+        pushMutable,
         empty(coll),
         coll
       );
       const res2 = reduce(
-        takeWhile(notNumber, concatMutable),
+        takeWhile(notNumber, pushMutable),
         empty(coll),
         coll
       );
@@ -560,12 +644,12 @@ export default () => {
 
       // TakeWhile true -> should be same as original
       toArray(takeWhile(getTrue)(array1)).should.eql(array1);
-      reduce(takeWhile(getTrue)(concatMutable), empty(array1), array1)
+      reduce(takeWhile(getTrue)(pushMutable), empty(array1), array1)
         .should.eql(array1);
 
       // TakeWhile false -> should be empty
       toArray(takeWhile(getFalse)(array1)).should.eql(empty(array1));
-      reduce(takeWhile(getFalse)(concatMutable), empty(array1), array1)
+      reduce(takeWhile(getFalse)(pushMutable), empty(array1), array1)
         .should.eql(empty(array1));
     });
 
@@ -589,11 +673,11 @@ export default () => {
       let result_3_3 = [ "d", "g", "j" ];
 
       const tN = takeNth(_, _, arr);
-      const tNT = takeNth(_, _, concatMutable);
+      const tNT = takeNth(_, _, pushMutable);
 
       // Take every 5th starting with 0th
       toArray(tN(5, arr)).should.eql(result_5_0);
-      reduce(tN(5)(concatMutable), empty(arr), arr).should.eql(result_5_0);
+      reduce(tN(5)(pushMutable), empty(arr), arr).should.eql(result_5_0);
 
       // Take every 5th starting with -1st
       toArray(tN(5, -1)).should.eql(result_5_n1);
@@ -617,13 +701,13 @@ export default () => {
 
       // Take every 1th elements -> should be same as original
       toArray(tN(1)(arr)).should.eql(arr);
-      reduce(tN(1)(concatMutable), empty(arr), arr)
+      reduce(tN(1)(pushMutable), empty(arr), arr)
         .should.eql(arr);
     });
 
     it("should throw an error if 'n' is not a positive number", () => {
       expect(takeNth.bind(null, 0, array1)).to.throw(/.*/);
-      expect(takeNth.bind(null, -1, concatMutable)).to.throw(/.*/);
+      expect(takeNth.bind(null, -1, pushMutable)).to.throw(/.*/);
     });
 
     it("should return a transducer if only count number is passed", () => {
@@ -643,20 +727,20 @@ export default () => {
 
       // Drop some elements
       toArray(drop(2)(array1)).should.eql(result);
-      reduce(drop(2)(concatMutable), empty(array1), array1).should.eql(result);
+      reduce(drop(2)(pushMutable), empty(array1), array1).should.eql(result);
 
       // Drop 0 elements -> should be same as original
       toArray(drop(0)(array1)).should.eql(array1);
-      reduce(drop(0)(concatMutable), empty(array1), array1).should.eql(array1);
+      reduce(drop(0)(pushMutable), empty(array1), array1).should.eql(array1);
 
       // Drop all elements -> should be empty
       toArray(drop(length(array1))(array1)).should.eql(empty(array1));
-      reduce(drop(length(array1))(concatMutable), empty(array1), array1)
+      reduce(drop(length(array1))(pushMutable), empty(array1), array1)
         .should.eql(empty(array1));
 
       // Drop more than array length elements -> should be empty
       toArray(drop(length(array1) + 1)(array1)).should.eql(empty(array1));
-      reduce(drop(length(array1) + 1)(concatMutable), empty(array1), array1)
+      reduce(drop(length(array1) + 1)(pushMutable), empty(array1), array1)
         .should.eql(empty(array1));
     });
 
@@ -678,12 +762,12 @@ export default () => {
 
       const res1 = transduce(
         dropWhile(notNumber),
-        concatMutable,
+        pushMutable,
         empty(coll),
         coll
       );
       const res2 = reduce(
-        dropWhile(notNumber, concatMutable),
+        dropWhile(notNumber, pushMutable),
         empty(coll),
         coll
       );
@@ -695,12 +779,12 @@ export default () => {
 
       // DropWhile false -> should be same as original
       toArray(dropWhile(getFalse)(array1)).should.eql(array1);
-      reduce(dropWhile(getFalse)(concatMutable), empty(array1), array1)
+      reduce(dropWhile(getFalse)(pushMutable), empty(array1), array1)
         .should.eql(array1);
 
       // DropWhile true -> should be empty
       toArray(dropWhile(getTrue)(array1)).should.eql(empty(array1));
-      reduce(dropWhile(getTrue)(concatMutable), empty(array1), array1)
+      reduce(dropWhile(getTrue)(pushMutable), empty(array1), array1)
         .should.eql(empty(array1));
     });
 
@@ -719,7 +803,7 @@ export default () => {
       let result = slice(1, array1.length)(array1);
 
       toArray(tail(array1)).should.eql(result);
-      reduce(tail(concatMutable), empty(array1), array1).should.eql(result);
+      reduce(tail(pushMutable), empty(array1), array1).should.eql(result);
     });
 
     it("should return a transducer if only predicate is passed", () => {
@@ -737,7 +821,7 @@ export default () => {
       let result = slice(0, -1)(array1);
 
       toArray(initial(array1)).should.eql(result);
-      reduce(initial(concatMutable), empty(array1), array1).should.eql(result);
+      reduce(initial(pushMutable), empty(array1), array1).should.eql(result);
     });
 
     it("should return a transducer if only predicate is passed", () => {
