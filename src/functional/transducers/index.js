@@ -32,9 +32,3 @@ export { default as identity } from "./identity";
 export { default as tail } from "./tail";
 export { default as initial } from "./initial";
 export { default as flatmap } from "./flatmap";
-
-/**
- * TODO-list:
- * - mapcat/flatmap
- */
-
