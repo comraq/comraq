@@ -65,7 +65,7 @@ export default currify((func, target) => {
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-function* _mapGen(func, target, i = 0) {
+export function* _mapGen(func, target, i = 0) {
   if (!isIterable(target))
     throw new Error(`Cannot map over non-iterable ${target}!`);
 

@@ -15,7 +15,7 @@ const {
   take, takeWhile, takeNth, drop, dropWhile,
   partitionAll, partitionBy, interpose,
   isTransformer,
-  concatMutable, concat
+  cat, flatmap
 } = comraq.functional.transducers;
 
 const { isNumber } = comraq.utils.checks;
@@ -50,65 +50,41 @@ export default () => {
     });
   });
 
-  describe("concat:", () => {
-    it("should be a transformer", () => isTransformer(concat).should.be.true);
-
-    it("should concatenate 2 arrays", () => {
-      concat(numbersData, array2).should.eql(
-        array2.concat(numbersData)
-      );
+  describe("cat:", () => {
+    it("should be a transducer", () => {
+      isTransducer(cat).should.be.true;
     });
 
-    it("should not mutate original array", () => {
-      concat([], array2).should.not.equal(array2);
-
-      let newLength = array2.length + 1;
-      concat([ 2 ], array2).length.should.equal(newLength);
+    it("should return a transformer if a transformer is supplied", () => {
+      isTransformer(cat(stubTransformer)).should.be.true;
     });
 
-    it("should throw error if source and "
-       + "target semi-groups are not of the same type", () => {
-      expect(concat.bind(null, "asdf", [])).to.throw(/.*/);
-      expect(concat.bind(null, [], {})).to.throw(/.*/);
+    it("should throw error if argument is not transformer", () => {
+      expect(cat.bind(null, "asdf", [])).to.throw(/.*/);
+      expect(cat.bind(null, [], {})).to.throw(/.*/);
     });
 
     it("should flatten nested arrays by 1 level", () => {
-      let testArray = [ [5], [true], [false, null, ["asdf", {}] ] ];
+      let testArray = [ [5], [true], [ false, null, ["asdf", {}] ] ];
 
-      let result = reduce(idT(concat), [], testArray);
+      let result = reduce(cat(pushMutable), [], testArray);
       result.should.have.lengthOf(5);
       result.should.eql([ 5, true, false, null, ["asdf", {}] ]);
     });
-  });
 
-  describe("concatMutable:", () => {
-    it("should be a transformer", () =>
-      isTransformer(concatMutable).should.be.true);
+    it("should compose with other transformers", () => {
+      let testArray = [
+        [ 5 ],
+        [ true, 1, "hi" ],
+        [ false, null, [ "asdf", {} ] ]
+      ];
 
-    it("should concatenate 2 arrays", () => {
-      let result = [ ...array2, ...numbersData ];
-      concatMutable(numbersData, array2).should.eql(result);
-    });
+      let xform = compose(take(2), cat);
 
-    it("should mutate original array", () => {
-      concatMutable([], array2).should.equal(array2);
+      let result = reduce(xform(pushMutable), [], testArray);
 
-      let newLength = array2.length + 1;
-      concatMutable([ 2 ], array2).length.should.equal(newLength);
-    });
-
-    it("should throw error if source and "
-       + "target semi-groups are not of the same type", () => {
-      expect(concatMutable.bind(null, "asdf", [])).to.throw(/.*/);
-      expect(concatMutable.bind(null, [], {})).to.throw(/.*/);
-    });
-
-    it("should flatten nested arrays by 1 level", () => {
-      let testArray = [ [5], [true], [false, null, ["asdf", {}] ] ];
-
-      let result = reduce(idT(concatMutable), [], testArray);
-      result.should.have.lengthOf(5);
-      result.should.eql([ 5, true, false, null, ["asdf", {}] ]);
+      result.should.have.lengthOf(4);
+      result.should.eql([ 5, true, 1, "hi"]);
     });
   });
 
@@ -176,8 +152,55 @@ export default () => {
     });
   });
 
-  describe("filter:", () => {
+  describe("flatmap:", () => {
     it("should return a transducer if only mapping function is passed", () => {
+      isTransducer(flatmap(() => {})).should.be.true;
+    });
+
+    it("should return a transformer if transformer "
+       + "passed as second argument", () => {
+      isTransformer(flatmap(() => {}, stubTransformer)).should.be.true;
+    });
+
+    it("should flatten collection if mapping function "
+       + "yields a collection at each iteration", () => {
+      let func = x => [ x, "string: " + x ];
+
+      let result = reduce(flatmap(func, pushMutable), [], numbersData);
+      result.should.have.lengthOf(numbersData.length * 2);
+      result.should.eql([
+        1,  "string: 1",
+        2,  "string: 2",
+        3,  "string: 3",
+        10, "string: 10",
+        0,  "string: 0",
+        -3, "string: -3"
+      ]);
+    });
+
+    it("should flatten collection while preserving Reduced status", () => {
+      let func = x => [ x, "string: " + x ];
+      let xform = compose(flatmap(func), take(3));
+
+      let result = reduce(xform(pushMutable), [], numbersData);
+      result.should.have.lengthOf(3);
+      result.should.eql([ 1,  "string: 1", 2 ]);
+
+      let xform2 = compose(take(3), flatmap(func));
+
+      let result2 = reduce(xform2(pushMutable), [], numbersData);
+      result2.should.have.lengthOf(6);
+      result2.should.eql([
+        1,  "string: 1",
+        2,  "string: 2",
+        3,  "string: 3"
+      ]);
+    });
+  });
+
+  describe("filter:", () => {
+    it("should return a transducer if only "
+       + "predicate function is passed", () => {
       isTransducer(filter(() => {})).should.be.true;
     });
 

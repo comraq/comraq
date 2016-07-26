@@ -23,7 +23,7 @@ export { default as filter, remove, distinct, dedupe, keep } from "./filter";
 export { default as replace } from "./replace";
 export { default as take, takeWhile, takeNth } from "./take";
 export { default as drop, dropWhile } from "./drop";
-export { default as concat, concatMutable } from "./concat";
+export { default as cat } from "./cat";
 export { partitionAll, partitionBy } from "./partition";
 export { default as random } from "./random";
 export { default as interpose } from "./interpose";
@@ -31,8 +31,10 @@ export { default as identity } from "./identity";
 
 export { default as tail } from "./tail";
 export { default as initial } from "./initial";
+export { default as flatmap } from "./flatmap";
 
 /**
  * TODO-list:
  * - mapcat/flatmap
  */
+

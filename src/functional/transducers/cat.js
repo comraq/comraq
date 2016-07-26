@@ -19,6 +19,9 @@ import {
  * - a transformer that will "flatten" nested collection/iterations
  *
  * @see @mixin Transformer
+ *
+ * @throws TypeError
+ * - if target is not a instance of Transformer mixin
  */
 export default target => {
   if (!isTransformer(target))

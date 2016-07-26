@@ -25,8 +25,7 @@ export default target => {
     );
 
   return Transformer(
-    (acc, next, ...args) =>
-      step(target, acc, next, ...args),
+    (acc, next, ...args) => step(target, acc, next, ...args),
 
     acc => complete(target, acc),
 

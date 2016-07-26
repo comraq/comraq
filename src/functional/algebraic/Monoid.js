@@ -30,17 +30,14 @@ export const empty = monoid => {
 };
 
 /**
- * @private @function _concat
+ * @public @function concat
  * - concatenates a value into a semi-group
- * - for public usage, see transducers/concat
- *
- * @see @function transducers/concat
- *
- * @param {Any|Semigroup} value
- * - the target concatenated to sg
  *
  * @param {Any|Semigroup} sg
  * - the target being concatenated to
+ *
+ * @param {Any|Semigroup} value
+ * - the target concatenated to sg
  *
  * @returns {Any|Semigroup}
  * - the concatenated target
@@ -52,7 +49,7 @@ export const empty = monoid => {
  * @throws TypeError
  * - if sg and value are not of the same semigroup
  */
-export const _concat = currify((value, sg) => {
+export const concat = currify((sg, value) => {
   let vType = types.toString(value);
 
   switch(types.toString(sg)) {
@@ -88,14 +85,12 @@ export const _concat = currify((value, sg) => {
 }, 2, false, placeholder);
 
 /**
- * @private @function _concatMutable
+ * @private @function concatMutable
  * - mutable version of concat
- * - for public usage, see transducers/concatMutable
  *
  * @see @function concat
- * @see @function transducers/concatMutable
  */
-export const _concatMutable = currify((value, sg) => {
+export const concatMutable = currify((sg, value) => {
   let vType = types.toString(value);
 
   switch(types.toString(sg)) {

@@ -20,7 +20,7 @@ export default class Monad {
 
   chain(f) {
     throw new Error(
-      `Monad instances must implement the chain method!`
+      "Monad instances must implement the chain method!"
     );
   }
 }
