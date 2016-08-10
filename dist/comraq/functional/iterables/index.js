@@ -31,12 +31,18 @@ Object.defineProperty(exports, "reduceRight1", {
   }
 });
 
-var _reverse = require("./reverse");
+var _toArray = require("./to-array");
 
+Object.defineProperty(exports, "toArray", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_toArray).default;
+  }
+});
 Object.defineProperty(exports, "reverse", {
   enumerable: true,
   get: function get() {
-    return _interopRequireDefault(_reverse).default;
+    return _toArray.reverse;
   }
 });
 

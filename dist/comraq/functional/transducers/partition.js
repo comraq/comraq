@@ -15,7 +15,7 @@ var _algebraic = require("./../algebraic");
 
 var _strings = require("./../strings");
 
-var _concat = require("./concat");
+var _arrays = require("./../arrays");
 
 var _Reduced = require("./Reduced");
 
@@ -24,6 +24,8 @@ var _Transformer = require("./Transformer");
 var _Transformer2 = _interopRequireDefault(_Transformer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _marked = [_partitionAllGen, _partitionByGen].map(regeneratorRuntime.mark);
 
 /**
  * @public @function partitionAll
@@ -35,9 +37,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - an iterable with partitions each of 'size' number of iterables,
+ * - a generator yielding partitions each of 'size' number of iterables,
  *   last partition may be smaller than 'size' if target iterable's total
  *   number of elements is not divisible by size
  *
@@ -45,7 +47,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * - size of each partition is not a number
  */
 var partitionAll = exports.partitionAll = (0, _curry.currify)(function (size, target) {
-  if (!(0, _checks.isNumber)(size)) throw new TypeError("Cannot partitionAll with a non-number " + size + "!");else if (!(0, _Transformer.isTransformer)(target)) return _partitionAll(size, target);
+  if (!(0, _checks.isNumber)(size)) throw new TypeError("Cannot partitionAll with a non-number " + size + "!");else if (!(0, _Transformer.isTransformer)(target)) return _partitionAllGen(size, target);
 
   // Partition is undefined for now as we currently have no access to the
   // unit/void/empty instance of the accumulator until the step function of
@@ -60,10 +62,10 @@ var partitionAll = exports.partitionAll = (0, _curry.currify)(function (size, ta
 
     partition = (0, _checks.isUndefined)(partition) ? (0, _algebraic.empty)(acc) : partition;
 
-    if (count++ < size) partition = (0, _concat.concatMutable)(next, partition);else {
+    if (count++ < size) partition = (0, _arrays.pushMutable)(next, partition);else {
       var temp = partition;
       count = 1;
-      partition = (0, _concat.concatMutable)(next, (0, _algebraic.empty)(acc));
+      partition = (0, _arrays.pushMutable)(next, (0, _algebraic.empty)(acc));
       return _Transformer.step.apply(undefined, [target, acc, temp].concat(args));
     }
 
@@ -78,40 +80,88 @@ var partitionAll = exports.partitionAll = (0, _curry.currify)(function (size, ta
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _partitionAll
- * - private version of partitionAll that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _partitionAllGen
+ * - private version of partitionAll returning a generator
  *
  * @see @function partitionAll
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence in
+ *   partitions specified by size
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-var _partitionAll = function _partitionAll(size, target) {
-  if (!(0, _checks.isIterable)(target)) throw new TypeError("Cannot partitionAll of non-iterable " + target + "!");
+function _partitionAllGen(size, target) {
+  var count, partition, iterator, result, item;
+  return regeneratorRuntime.wrap(function _partitionAllGen$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context.next = 2;
+            break;
+          }
 
-  var count = 0,
-      partition = (0, _algebraic.empty)(target);
+          throw new TypeError("Cannot partitionAll of non-iterable " + target + "!");
 
-  var iterator = (0, _iterables.getIterator)(target);
-  var result = (0, _algebraic.empty)(target);
+        case 2:
+          count = 0, partition = (0, _algebraic.empty)(target);
+          iterator = (0, _iterables.getIterator)(target);
+          result = void 0;
+          item = iterator.next();
 
-  var item = iterator.next();
-  while (!item.done) {
-    if (count++ < size) partition = (0, _concat.concatMutable)(item.value, partition);else {
-      var temp = partition;
-      count = 1;
-      partition = (0, _concat.concatMutable)(item.value, (0, _algebraic.empty)(target));
-      target = (0, _concat.concatMutable)(temp, result);
+        case 6:
+          if (item.done) {
+            _context.next = 19;
+            break;
+          }
+
+          if (!(count++ < size)) {
+            _context.next = 11;
+            break;
+          }
+
+          partition = (0, _arrays.pushMutable)(item.value, partition);
+
+          _context.next = 16;
+          break;
+
+        case 11:
+          _context.next = 13;
+          return partition;
+
+        case 13:
+          result = _context.sent;
+
+          count = 1;
+          partition = (0, _arrays.pushMutable)(item.value, (0, _algebraic.empty)(target));
+
+        case 16:
+
+          item = iterator.next(result);
+          _context.next = 6;
+          break;
+
+        case 19:
+          if (!((0, _strings.length)(partition) > 0)) {
+            _context.next = 22;
+            break;
+          }
+
+          _context.next = 22;
+          return partition;
+
+        case 22:
+          return _context.abrupt("return");
+
+        case 23:
+        case "end":
+          return _context.stop();
+      }
     }
-
-    item = iterator.next();
-  }
-
-  if ((0, _strings.length)(partition) > 0) result = (0, _concat.concatMutable)(partition, result);
-
-  return result;
-};
+  }, _marked[0], this);
+}
 
 /**
  * @public @function partitionBy
@@ -126,16 +176,16 @@ var _partitionAll = function _partitionAll(size, target) {
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - an iterable with partitions of elements divided by when predicate
+ * - generator yielding partitions of elements divided by when predicate
  *   function returns a different value, 
  *
  * @throws TypeError
  * - predicate argument is not a function
  */
 var partitionBy = exports.partitionBy = (0, _curry.currify)(function (predicate, target) {
-  if (!(0, _checks.isFunction)(predicate)) throw new TypeError("Cannot partitionBy with non-function " + predicate + "!");else if (!(0, _Transformer.isTransformer)(target)) return _partitionBy(predicate, target);
+  if (!(0, _checks.isFunction)(predicate)) throw new TypeError("Cannot partitionBy with non-function " + predicate + "!");else if (!(0, _Transformer.isTransformer)(target)) return _partitionByGen(predicate, target);
 
   // Partition is undefined for now as we currently have no access to the
   // unit/void/empty instance of the accumulator until the step function of
@@ -151,16 +201,16 @@ var partitionBy = exports.partitionBy = (0, _curry.currify)(function (predicate,
     var nextVal = predicate.apply(undefined, [next].concat(args));
 
     if ((0, _checks.isUndefined)(partition)) {
-      partition = (0, _concat.concatMutable)(next, (0, _algebraic.empty)(acc));
+      partition = (0, _arrays.pushMutable)(next, (0, _algebraic.empty)(acc));
       val = nextVal;
       return acc;
     }
 
     if (val === nextVal) {
-      partition = (0, _concat.concatMutable)(next, partition);
+      partition = (0, _arrays.pushMutable)(next, partition);
     } else {
       var temp = partition;
-      partition = (0, _concat.concatMutable)(next, (0, _algebraic.empty)(acc));
+      partition = (0, _arrays.pushMutable)(next, (0, _algebraic.empty)(acc));
       val = nextVal;
       return _Transformer.step.apply(undefined, [target, acc, temp].concat(args));
     }
@@ -176,37 +226,102 @@ var partitionBy = exports.partitionBy = (0, _curry.currify)(function (predicate,
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _partitionBy
- * - private version of partitionBy that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _partitionByGen
+ * - private version of partitionBy returning a generator
  *
  * @see @function partitionBy
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence separated
+ *   into partitions every time predicate function returns a different value
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-var _partitionBy = function _partitionBy(predicate, target) {
-  if (!(0, _checks.isIterable)(target)) throw new TypeError("Cannot partitionAll of non-iterable " + target + "!");
+function _partitionByGen(predicate, target) {
+  var iterator, item, val, partition, result, index, nextVal;
+  return regeneratorRuntime.wrap(function _partitionByGen$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context2.next = 2;
+            break;
+          }
 
-  var val = undefined,
-      partition = undefined;
-  return (0, _iterables.reduce)(function (acc, next, i, coll) {
-    var nextVal = predicate(next, i, coll);
-    if ((0, _checks.isUndefined)(partition)) {
-      partition = (0, _concat.concatMutable)(next, (0, _algebraic.empty)(coll));
-      val = nextVal;
-      return acc;
+          throw new TypeError("Cannot partitionAll of non-iterable " + target + "!");
+
+        case 2:
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next();
+          val = void 0, partition = void 0, result = void 0;
+          index = 0;
+
+        case 6:
+          if (item.done) {
+            _context2.next = 26;
+            break;
+          }
+
+          nextVal = predicate(item.value, index, target);
+
+          if (!(index === 0)) {
+            _context2.next = 13;
+            break;
+          }
+
+          partition = (0, _arrays.pushMutable)(item.value, (0, _algebraic.empty)(target));
+          val = nextVal;
+
+          _context2.next = 22;
+          break;
+
+        case 13:
+          if (!(val === nextVal)) {
+            _context2.next = 17;
+            break;
+          }
+
+          partition = (0, _arrays.pushMutable)(item.value, partition);
+
+          _context2.next = 22;
+          break;
+
+        case 17:
+          _context2.next = 19;
+          return partition;
+
+        case 19:
+          result = _context2.sent;
+
+          partition = (0, _arrays.pushMutable)(item.value, (0, _algebraic.empty)(target));
+          val = nextVal;
+
+        case 22:
+
+          item = iterator.next(result);
+
+        case 23:
+          ++index;
+          _context2.next = 6;
+          break;
+
+        case 26:
+          if ((0, _checks.isUndefined)(partition)) {
+            _context2.next = 29;
+            break;
+          }
+
+          _context2.next = 29;
+          return partition;
+
+        case 29:
+          return _context2.abrupt("return");
+
+        case 30:
+        case "end":
+          return _context2.stop();
+      }
     }
-
-    if (val === nextVal) partition = (0, _concat.concatMutable)(next, partition);else {
-      var temp = partition;
-      partition = (0, _concat.concatMutable)(next, (0, _algebraic.empty)(coll));
-      acc = (0, _concat.concatMutable)(temp, acc);
-      val = nextVal;
-    }
-
-    if (i === (0, _strings.length)(coll) - 1 && !(0, _checks.isUndefined)(partition)) acc = (0, _concat.concatMutable)(partition, acc);
-
-    return acc;
-  }, (0, _algebraic.empty)(target), target);
-};
+  }, _marked[1], this);
+}

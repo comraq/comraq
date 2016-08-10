@@ -35,9 +35,7 @@ export default currify((total, target) => {
     );
 
   else if (!isTransformer(target))
-    return (function* (total, target) {
-      yield* _takeGen(total, target);
-    })(total, target);
+    return _takeGen(total, target);
 
   let count = 0;
 
@@ -116,9 +114,7 @@ export const takeWhile = currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return (function* (predicate, target) {
-      yield* _takeWhileGen(predicate, target);
-    })(predicate, target);
+    return _takeWhileGen(predicate, target);
 
   return Transformer(
     (acc, next, ...args) => {
@@ -250,9 +246,7 @@ const _takeNth = (n, start, target) => {
     start %= n;
 
   if (!isTransformer(target))
-    return (function* (n, start, target) {
-      yield* __takeNthGen(n, start, target);
-    })(n, start, target);
+    return __takeNthGen(n, start, target);
 
   let current = -1, i = 0, started = (start < 0)? true: false;
   return Transformer(

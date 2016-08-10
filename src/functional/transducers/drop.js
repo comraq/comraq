@@ -35,9 +35,7 @@ export default currify((total, target) => {
     );
 
   else if (!isTransformer(target))
-    return (function* (total, target) {
-      yield* _dropGen(total, target);
-    })(total, target);
+    return _dropGen(total, target);
 
   let count = 0;
 
@@ -117,9 +115,7 @@ export const dropWhile = currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return (function* (predicate, target) {
-      yield* _dropWhileGen(predicate, target);
-    })(predicate, target);
+    return _dropWhileGen(predicate, target);
 
   let dropped = false;
   return Transformer(

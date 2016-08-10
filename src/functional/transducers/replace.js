@@ -35,9 +35,7 @@ export default currify((map, target) => {
     );
 
   if (!isTransformer(target))
-    return (function* (map, target) {
-      yield* _replaceGen(map, target);
-    })(map, target);
+    return _replaceGen(map, target);
 
   return Transformer(
     (acc, next, ...args) => step(

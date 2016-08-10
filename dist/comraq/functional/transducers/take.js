@@ -11,10 +11,6 @@ var _curry = require("./../curry");
 
 var _iterables = require("./../iterables");
 
-var _algebraic = require("./../algebraic");
-
-var _concat = require("./concat");
-
 var _Reduced = require("./Reduced");
 
 var _Transformer = require("./Transformer");
@@ -22,6 +18,8 @@ var _Transformer = require("./Transformer");
 var _Transformer2 = _interopRequireDefault(_Transformer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _marked = [_takeGen, _takeWhileGen, __takeNthGen].map(regeneratorRuntime.mark);
 
 /**
  * @public @function take
@@ -34,16 +32,16 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - an iterable with the first 'total' number of elements from the target
+ * - a generator yielding the first 'total' number of elements from the target
  *   iterable or all elements if total number of elements <= 'number'
  *
  * @throws TypeError
  * - total number to take is not a number
  */
 exports.default = (0, _curry.currify)(function (total, target) {
-  if (!(0, _checks.isNumber)(total)) throw new TypeError("Cannot take elements with a non-number limit " + total + "!");else if (!(0, _Transformer.isTransformer)(target)) return _take(total, target);
+  if (!(0, _checks.isNumber)(total)) throw new TypeError("Cannot take elements with a non-number limit " + total + "!");else if (!(0, _Transformer.isTransformer)(target)) return _takeGen(total, target);
 
   var count = 0;
 
@@ -63,31 +61,63 @@ exports.default = (0, _curry.currify)(function (total, target) {
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _take
- * - private version of take that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _takeGen
+ * - private version of take returning a generator
  *
  * @see @function take
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield the first num values from the
+ *   iterable sequence
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
 
-var _take = function _take(num, target) {
-  if (!(0, _checks.isIterable)(target)) throw new TypeError("Cannot take elements from non-iterable " + target + "!");
+function _takeGen(num, target) {
+  var iterator, i, item, result;
+  return regeneratorRuntime.wrap(function _takeGen$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context.next = 2;
+            break;
+          }
 
-  var iterator = (0, _iterables.getIterator)(target);
-  var result = (0, _algebraic.empty)(target);
+          throw new TypeError("Cannot take elements from non-iterable " + target + "!");
 
-  var i = 0;
-  var item = iterator.next();
-  while (i++ < num && !item.done) {
-    result = (0, _concat.concatMutable)(item.value, result);
-    item = iterator.next();
-  }
+        case 2:
+          iterator = (0, _iterables.getIterator)(target);
+          i = 0;
+          item = iterator.next();
 
-  return result;
-};
+        case 5:
+          if (!(i++ < num && !item.done)) {
+            _context.next = 12;
+            break;
+          }
+
+          _context.next = 8;
+          return item.value;
+
+        case 8:
+          result = _context.sent;
+
+          item = iterator.next(result);
+          _context.next = 5;
+          break;
+
+        case 12:
+          return _context.abrupt("return");
+
+        case 13:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked[0], this);
+}
 
 /**
  * @public @function takeWhile
@@ -103,10 +133,10 @@ var _take = function _take(num, target) {
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - if target is an iterable, returns an iterable from the beginning of the
- *   iteration sequence while predicate holds true
+ * - a generator yielding values from the beginning of the iteration sequence
+ *   while predicate holds true
  *
  * @throws TypeError
  * - predicate is not a function
@@ -114,7 +144,7 @@ var _take = function _take(num, target) {
 var takeWhile = exports.takeWhile = (0, _curry.currify)(function (predicate, target) {
   if (!(0, _checks.isFunction)(predicate)) throw new TypeError("Cannot takeWhile elements with non-function predicate " + predicate + "!");
 
-  if (!(0, _Transformer.isTransformer)(target)) return _takeWhile(predicate, target);
+  if (!(0, _Transformer.isTransformer)(target)) return _takeWhileGen(predicate, target);
 
   return (0, _Transformer2.default)(function (acc, next) {
     for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
@@ -132,30 +162,61 @@ var takeWhile = exports.takeWhile = (0, _curry.currify)(function (predicate, tar
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _takeWhile
- * - private version of takeWhile that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _takeWhileGen
+ * - private version of takeWhile returning a generator
  *
  * @see @function takeWhile
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield values from the beginning of the
+ *   sequence until predicate returns false when applied with value
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-var _takeWhile = function _takeWhile(predicate, target) {
-  if (!(0, _checks.isIterable)(target)) throw new TypeError("Cannot takeWhile elements from non-iterable " + target + "!");
+function _takeWhileGen(predicate, target) {
+  var iterator, item, i, result;
+  return regeneratorRuntime.wrap(function _takeWhileGen$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context2.next = 2;
+            break;
+          }
 
-  var iterator = (0, _iterables.getIterator)(target);
-  var result = (0, _algebraic.empty)(target);
+          throw new TypeError("Cannot takeWhile elements from non-iterable " + target + "!");
 
-  var item = iterator.next(),
-      i = 0;
-  while (predicate(item.value, i++, target) && !item.done) {
-    result = (0, _concat.concatMutable)(item.value, result);
-    item = iterator.next();
-  }
+        case 2:
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next(), i = 0;
 
-  return result;
-};
+        case 4:
+          if (!(predicate(item.value, i++, target) && !item.done)) {
+            _context2.next = 11;
+            break;
+          }
+
+          _context2.next = 7;
+          return item.value;
+
+        case 7:
+          result = _context2.sent;
+
+          item = iterator.next(result);
+          _context2.next = 4;
+          break;
+
+        case 11:
+          return _context2.abrupt("return");
+
+        case 12:
+        case "end":
+          return _context2.stop();
+      }
+    }
+  }, _marked[1], this);
+}
 
 /**
  * @public @function takeNth
@@ -199,10 +260,10 @@ var _takeWhile = function _takeWhile(predicate, target) {
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - if target is an iterable, returns an iterable with only every nth
- *   element starting from index start (start defaults to 0)
+ * - a generator yielding only every nth element starting from index start
+ *   (start defaults to 0)
  */
 var takeNth = exports.takeNth = (0, _curry.currify)(function (n, start, target) {
   if ((0, _checks.isIterable)(start) || (0, _Transformer.isTransformer)(start)) return _takeNth(n, 0, start);
@@ -232,7 +293,7 @@ var _takeNth = function _takeNth(n, start, target) {
 
   if (start < 0) start %= n;
 
-  if (!(0, _Transformer.isTransformer)(target)) return __takeNth(n, start, target);
+  if (!(0, _Transformer.isTransformer)(target)) return __takeNthGen(n, start, target);
 
   var current = -1,
       i = 0,
@@ -266,40 +327,96 @@ var _takeNth = function _takeNth(n, start, target) {
 };
 
 /**
- * @private @function __takeNth
- * - private version of _takeNth that immediately returns the iterable
- *   result when the iterable is passed instead of a transformer mixin
+ * @private @function __takeNthGen
+ * - private version of _takeNth returning a generator
  *
  * @see @function _takeNth
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield only every nth values in the
+ *   original iterable sequence
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-var __takeNth = function __takeNth(n, start, target) {
-  if (!(0, _checks.isIterable)(target)) throw new TypeError("Cannot takeNth elements from non-iterable " + target + "!");
+function __takeNthGen(n, start, target) {
+  var iterator, current, i, started, item, result;
+  return regeneratorRuntime.wrap(function __takeNthGen$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context3.next = 2;
+            break;
+          }
 
-  var iterator = (0, _iterables.getIterator)(target);
-  var result = (0, _algebraic.empty)(target);
+          throw new TypeError("Cannot takeNth elements from non-iterable " + target + "!");
 
-  var current = -1,
-      i = 0,
-      started = start < 0 ? true : false;
-  var item = iterator.next();
-  while (!item.done) {
-    if (!started) {
-      if (i++ === start) {
-        started = true;
-        current = start;
-        result = (0, _concat.concatMutable)(item.value, result);
-      }
-    } else {
-      if (++current - n === start) {
-        current = start;
-        result = (0, _concat.concatMutable)(item.value, result);
+        case 2:
+          iterator = (0, _iterables.getIterator)(target);
+          current = -1, i = 0, started = start < 0 ? true : false;
+          item = iterator.next();
+          result = void 0;
+
+        case 6:
+          if (item.done) {
+            _context3.next = 27;
+            break;
+          }
+
+          if (started) {
+            _context3.next = 16;
+            break;
+          }
+
+          if (!(i++ === start)) {
+            _context3.next = 14;
+            break;
+          }
+
+          started = true;
+          current = start;
+          _context3.next = 13;
+          return item.value;
+
+        case 13:
+          result = _context3.sent;
+
+        case 14:
+          _context3.next = 24;
+          break;
+
+        case 16:
+          if (!(++current - n === start)) {
+            _context3.next = 23;
+            break;
+          }
+
+          current = start;
+          _context3.next = 20;
+          return item.value;
+
+        case 20:
+          result = _context3.sent;
+          _context3.next = 24;
+          break;
+
+        case 23:
+          result = undefined;
+
+        case 24:
+
+          item = iterator.next(result);
+          _context3.next = 6;
+          break;
+
+        case 27:
+          return _context3.abrupt("return");
+
+        case 28:
+        case "end":
+          return _context3.stop();
       }
     }
-    item = iterator.next();
-  }
-
-  return result;
-};
+  }, _marked[2], this);
+}

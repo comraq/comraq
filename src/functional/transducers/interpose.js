@@ -27,10 +27,7 @@ import {
  */
 export default currify((entry, target) => {
   if (!isTransformer(target))
-    return (function* (entry, target) {
-      yield* _interposeGen(entry, target);
-    })(entry, target);
-    //return _interpose(entry, target);
+    return _interposeGen(entry, target);
 
   let started = false;
   return Transformer(

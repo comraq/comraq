@@ -3,22 +3,21 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports._mapGen = _mapGen;
 
 var _checks = require("./../../utils/checks");
 
 var _curry = require("./../curry");
 
-var _algebraic = require("./../algebraic");
-
 var _iterables = require("./../iterables");
-
-var _concat = require("./concat");
 
 var _Transformer = require("./Transformer");
 
 var _Transformer2 = _interopRequireDefault(_Transformer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _marked = [_mapGen].map(regeneratorRuntime.mark);
 
 /**
  * @public @function map
@@ -34,9 +33,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @param {Transformer|Iterable|Functor|Monoid} target
  * - the transformer or target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with all elements
+ * - returns a lazy generator which will yield all elements
  *   applied with the mapping functon
  *
  * @throws TypeError
@@ -45,7 +44,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = (0, _curry.currify)(function (func, target) {
   if (!(0, _checks.isFunction)(func)) throw new TypeError("map cannot be applied without first specifying a function!");
 
-  if (!(0, _Transformer.isTransformer)(target)) return _map(func, target);
+  if (!(0, _Transformer.isTransformer)(target)) return _mapGen(func, target);
 
   var i = 0;
   return (0, _Transformer2.default)(function (acc, next) {
@@ -62,19 +61,64 @@ exports.default = (0, _curry.currify)(function (func, target) {
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _map
- * - private version of map that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
- * - uses the iterables's reduce to carry out the mapping function across
- *   all elements in the iterable
+ * @private @function _mapGen
+ * - private verson of map returning a generator
  *
- * @see @function map
- * @see @function iterables/reduce
+ * @see @function @map
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence after
+ *   applying the mapping function
+ *
+ * @throws TypeError
+ * - target is not/does not implement the iterable interface
  */
 
-var _map = function _map(func, target) {
+function _mapGen(func, target) {
   var i = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
-  return (0, _iterables.reduce)(function (acc, next, index, target) {
-    return (0, _concat.concatMutable)(func(next, index, target, i++), acc);
-  }, (0, _algebraic.empty)(target), target);
-};
+  var iterator, item, index, result;
+  return regeneratorRuntime.wrap(function _mapGen$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context.next = 2;
+            break;
+          }
+
+          throw new Error("Cannot map over non-iterable " + target + "!");
+
+        case 2:
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next();
+          index = 0;
+
+        case 5:
+          if (item.done) {
+            _context.next = 13;
+            break;
+          }
+
+          _context.next = 8;
+          return func(item.value, index, target, i++);
+
+        case 8:
+          result = _context.sent;
+
+          item = iterator.next(result);
+
+        case 10:
+          ++index;
+          _context.next = 5;
+          break;
+
+        case 13:
+          return _context.abrupt("return");
+
+        case 14:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked[0], this);
+}

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.isInstance = exports.isIterable = exports.isGeneratorFunction = exports.isGeneratorObject = exports.isSet = exports.isMap = exports.isObject = exports.isBoolean = exports.isUndefined = exports.isNull = exports.isJson = exports.isDate = exports.isNumber = exports.isString = exports.isArray = exports.isFunction = undefined;
+exports.isInstance = exports.isPrimitive = exports.isIterable = exports.isGeneratorFunction = exports.isGeneratorObject = exports.isSet = exports.isMap = exports.isObject = exports.isBoolean = exports.isUndefined = exports.isNull = exports.isJson = exports.isDate = exports.isNumber = exports.isString = exports.isArray = exports.isFunction = undefined;
 
 var _curry = require("./../functional/curry");
 
@@ -237,6 +237,30 @@ var isIterable = exports.isIterable = function isIterable(target) {
 };
 
 /**
+ * @public @function isPrimitive
+ * - tests whether a value is primitive
+ *
+ * @param {Any} target
+ * - the target to test
+ *
+ * @returns {Boolean}
+ * - true if target is a primitve value, false otherwise
+ *
+ * @example
+ * - isPrimitive(123)        // false
+ * - isPrimitive("asdf")     // true
+ * - isPrimitive({})         // true
+ * - isPrimitive(Array)      // true
+ * - isPrimitive(null)       // false
+ * - isPrimitive(undefined)  // false
+ *
+ * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isPrototypeOf
+ */
+var isPrimitive = exports.isPrimitive = function isPrimitive(target) {
+  return !Object.prototype.isPrototypeOf(target);
+};
+
+/**
  * @public @function isInstance
  * - checks for whether target is an instance of a
  *   class/interface/prototype/function
@@ -249,6 +273,8 @@ var isIterable = exports.isIterable = function isIterable(target) {
  *
  * @returns {Boolean}
  * - true if instance is an instance of target, false otherwise
+ *
+ * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof
  */
 var isInstance = exports.isInstance = (0, _curry.currify)(function (target, instance) {
   return target[Symbol.hasInstance](instance);

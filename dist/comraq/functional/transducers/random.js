@@ -8,17 +8,15 @@ var _checks = require("./../../utils/checks");
 
 var _curry = require("./../curry");
 
-var _algebraic = require("./../algebraic");
-
 var _iterables = require("./../iterables");
-
-var _concat = require("./concat");
 
 var _Transformer = require("./Transformer");
 
 var _Transformer2 = _interopRequireDefault(_Transformer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _marked = [_randomGen].map(regeneratorRuntime.mark);
 
 /**
  * @public @function random
@@ -43,7 +41,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = (0, _curry.currify)(function (prob, target) {
   if (!(0, _checks.isNumber)(prob) || prob < 0 || prob > 1) throw new TypeError("random cannot be applied with invalid probability " + prob + "!");
 
-  if (!(0, _Transformer.isTransformer)(target)) return _random(prob, target);
+  if (!(0, _Transformer.isTransformer)(target)) return _randomGen(prob, target);
 
   return (0, _Transformer2.default)(function (acc, next) {
     for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
@@ -59,23 +57,71 @@ exports.default = (0, _curry.currify)(function (prob, target) {
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _random
- * - private version of random that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _randomGen
+ * - private version of random returning a generator
  *
  * @see @function random
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield values from iterable sequence with a
+ *   probability of prob
  *
  * @throws TypeError
  * - target is not an iterable
  */
 
-var _random = function _random(prob, target) {
-  if (!(0, _checks.isIterable)(target)) throw new Error("Cannot get random elements from non-iterable " + target + "!");
+function _randomGen(prob, target) {
+  var iterator, item, result;
+  return regeneratorRuntime.wrap(function _randomGen$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context.next = 2;
+            break;
+          }
 
-  var result = (0, _algebraic.empty)(target);
+          throw new Error("Cannot get random elements from non-iterable " + target + "!");
 
-  var iterator = (0, _iterables.getIterator)(target);
-  for (var item = iterator.next(); !item.done; item = iterator.next()) {
-    result = Math.random() < prob ? (0, _concat.concatMutable)(item.value, result) : result;
-  }return result;
-};
+        case 2:
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next();
+          result = void 0;
+
+        case 5:
+          if (item.done) {
+            _context.next = 16;
+            break;
+          }
+
+          if (!(Math.random() < prob)) {
+            _context.next = 12;
+            break;
+          }
+
+          _context.next = 9;
+          return item.value;
+
+        case 9:
+          result = _context.sent;
+          _context.next = 13;
+          break;
+
+        case 12:
+          result = undefined;
+
+        case 13:
+          item = iterator.next(result);
+          _context.next = 5;
+          break;
+
+        case 16:
+          return _context.abrupt("return");
+
+        case 17:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked[0], this);
+}

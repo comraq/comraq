@@ -35,10 +35,7 @@ export default currify((prob, target) => {
     );
 
   if (!isTransformer(target))
-    return (function* (prob, target) {
-      yield* _randomGen(prob, target);
-    })(prob, target);
-    //return _random(prob, target);
+    return _randomGen(prob, target);
 
   return Transformer(
     (acc, next, ...args) =>

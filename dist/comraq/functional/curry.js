@@ -89,13 +89,13 @@ exports.default = curry;
  *       |
  *       +-> function gets called with all excess arguments
  *
- *     NOTE: const many = func(pl, pl, pl, pl, pl, pl, "g") 
+ *     NOTE: const sparse = func(pl, pl, pl, pl, pl, pl, "g")
  *       |
- *       +-> // many === func( ___, ___, ___, ___, ___, "g")
+ *       +-> // many === func( ___, ___, ___, ___, ___, ___, "g")
  *       |
- *       +-> many("a", "b", "c", pl, "e")
+ *       +-> sparse("a", "b", "c", pl, "e")
  *           |
- *           +-> // func( "a", "b", "c", ___, "e", "g")
+ *           +-> // func( "a", "b", "c", ___, "e", ___, "g")
  *           |
  *           +-> not yet evaluated, still a function!
  *
@@ -198,7 +198,7 @@ var _replacePlaceholders = function _replacePlaceholders(match, newArray, baseAr
 
       pos = pos === -1 ? baseArray.length : pos;
 
-      if (e !== match) baseArray[pos] = e;
+      if (e !== match) baseArray[pos] = e;else if (pos === baseArray.length) baseArray[pos] = match;
     }
   } catch (err) {
     _didIteratorError = true;

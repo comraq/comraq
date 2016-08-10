@@ -8,11 +8,7 @@ var _checks = require("./../../utils/checks");
 
 var _curry = require("./../curry");
 
-var _algebraic = require("./../algebraic");
-
 var _iterables = require("./../iterables");
-
-var _concat = require("./concat");
 
 var _Reduced = require("./Reduced");
 
@@ -21,6 +17,8 @@ var _Transformer = require("./Transformer");
 var _Transformer2 = _interopRequireDefault(_Transformer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _marked = [_interposeGen].map(regeneratorRuntime.mark);
 
 /**
  * @public @function interpose
@@ -33,13 +31,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @param {Transformer|Iterable} target
  * - the transformer or target iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with entry inserted between each element from the
- *   original collection
+ * - returns a generator yielding avlues with entry inserted between each
+ *   element from the original collection
  */
 exports.default = (0, _curry.currify)(function (entry, target) {
-  if (!(0, _Transformer.isTransformer)(target)) return _interpose(entry, target);
+  if (!(0, _Transformer.isTransformer)(target)) return _interposeGen(entry, target);
 
   var started = false;
   return (0, _Transformer2.default)(function (acc, next) {
@@ -64,30 +62,79 @@ exports.default = (0, _curry.currify)(function (entry, target) {
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _interpose
- * - private version of interpose that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _interposeGen
+ * - private version of interpose returning a generator
  *
  * @see @function interpose
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence that
+ *   while also yielding entry in between each consecutive element from
+ *   original sequence
  *
  * @throws TypeError
  * - target is not an iterable
  */
 
-var _interpose = function _interpose(entry, target) {
-  if (!(0, _checks.isIterable)(target)) throw new Error("Cannot interpose elements for non-iterable " + target + "!");
+function _interposeGen(entry, target) {
+  var result, iterator, item;
+  return regeneratorRuntime.wrap(function _interposeGen$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context.next = 2;
+            break;
+          }
 
-  var result = (0, _algebraic.empty)(target);
+          throw new Error("Cannot interpose elements for non-iterable " + target + "!");
 
-  var iterator = (0, _iterables.getIterator)(target);
-  var item = iterator.next();
+        case 2:
+          result = void 0;
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next();
 
-  if (!item.done) {
-    result = (0, _concat.concatMutable)(item.value, result);
-    for (item = iterator.next(); !item.done; item = iterator.next()) {
-      result = (0, _concat.concatMutable)(item.value, (0, _concat.concatMutable)(entry, result));
+          if (item.done) {
+            _context.next = 19;
+            break;
+          }
+
+          _context.next = 8;
+          return item.value;
+
+        case 8:
+          result = _context.sent;
+
+          item = iterator.next(result);
+
+        case 10:
+          if (item.done) {
+            _context.next = 19;
+            break;
+          }
+
+          _context.next = 13;
+          return entry;
+
+        case 13:
+          _context.next = 15;
+          return item.value;
+
+        case 15:
+          result = _context.sent;
+
+
+          item = iterator.next(result);
+          _context.next = 10;
+          break;
+
+        case 19:
+          return _context.abrupt("return");
+
+        case 20:
+        case "end":
+          return _context.stop();
+      }
     }
-  }
-
-  return result;
-};
+  }, _marked[0], this);
+}

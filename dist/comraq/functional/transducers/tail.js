@@ -8,23 +8,13 @@ var _checks = require("./../../utils/checks");
 
 var _iterables = require("./../iterables");
 
-var _iterableReduce = require("./../iterables/iterable-reduce");
-
-var _iterableReduce2 = _interopRequireDefault(_iterableReduce);
-
-var _strings = require("./../strings");
-
-var _algebraic = require("./../algebraic");
-
-var _arrays = require("./../arrays");
-
-var _concat = require("./concat");
-
 var _Transformer = require("./Transformer");
 
 var _Transformer2 = _interopRequireDefault(_Transformer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _marked = [_tailGen].map(regeneratorRuntime.mark);
 
 /**
  * @public @function tail
@@ -33,14 +23,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @param {Transformer|Iterable} target
  * - the transformer or target iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - an iterable with all but the first element of the iterable
- * - empty iterable if empty target iterable is empty
+ * - a generator with all but the first element of the iterable sequence
+ * - empty generator if target iterable is empty
  */
 
 exports.default = function (target) {
-  if (!(0, _Transformer.isTransformer)(target)) return _tail(target);
+  if (!(0, _Transformer.isTransformer)(target)) return _tailGen(target);
 
   var first = true;
   return (0, _Transformer2.default)(function (acc, next) {
@@ -62,23 +52,63 @@ exports.default = function (target) {
 };
 
 /**
- * @private @function _tail
- * - private version of tail that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _tailGen
+ * - private version of tail returning a generator
  *
  * @see @function tail
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence after
+ *   skiping the first (head) element
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
 
 
-var _tail = function _tail(target) {
-  if (!(0, _checks.isIterable)(target)) throw new Error("Cannot get tail elements of non-iterable " + target + "!");else if ((0, _checks.isArray)(target)) return (0, _strings.length)(target) > 1 ? (0, _arrays.slice)(1, (0, _strings.length)(target), target) : (0, _algebraic.empty)(target);
+function _tailGen(target) {
+  var iterator, item, result;
+  return regeneratorRuntime.wrap(function _tailGen$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context.next = 2;
+            break;
+          }
 
-  var iterator = (0, _iterables.getIterator)(target);
-  iterator.next();
-  return (0, _iterableReduce2.default)(function (acc, next) {
-    return (0, _concat.concatMutable)(next, acc);
-  }, (0, _algebraic.empty)(_algebraic.empty), target, iterator);
-};
+          throw new Error("Cannot get tail elements of non-iterable " + target + "!");
+
+        case 2:
+          iterator = (0, _iterables.getIterator)(target);
+
+          iterator.next();
+
+          item = iterator.next();
+
+        case 5:
+          if (item.done) {
+            _context.next = 12;
+            break;
+          }
+
+          _context.next = 8;
+          return item.value;
+
+        case 8:
+          result = _context.sent;
+
+          item = iterator.next(result);
+          _context.next = 5;
+          break;
+
+        case 12:
+          return _context.abrupt("return");
+
+        case 13:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked[0], this);
+}

@@ -10,20 +10,20 @@ Object.defineProperty(exports, "__esModule", {
  *
  * @see @public @function toString
  */
-var tString = exports.tString = "[object String]";
-var tNumber = exports.tNumber = "[object Number]";
-var tArray = exports.tArray = "[object Array]";
-var tObject = exports.tObject = "[object Object]";
-var tFunction = exports.tFunction = "[object Function]";
-var tNull = exports.tNull = "[object Null]";
-var tUndefined = exports.tUndefined = "[object Undefined]";
-var tBoolean = exports.tBoolean = "[object Boolean]";
-var tDate = exports.tDate = "[object Date]";
-var tJson = exports.tJson = "[object JSON]";
-var tMap = exports.tMap = "[object Map]";
-var tSet = exports.tSet = "[object Set]";
-var tGeneratorObject = exports.tGeneratorObject = "[object Generator]";
-var tGeneratorFunction = exports.tGeneratorFunction = "[object GeneratorFunction]";
+var sString = exports.sString = "[object String]";
+var sNumber = exports.sNumber = "[object Number]";
+var sArray = exports.sArray = "[object Array]";
+var sObject = exports.sObject = "[object Object]";
+var sFunction = exports.sFunction = "[object Function]";
+var sNull = exports.sNull = "[object Null]";
+var sUndefined = exports.sUndefined = "[object Undefined]";
+var sBoolean = exports.sBoolean = "[object Boolean]";
+var sDate = exports.sDate = "[object Date]";
+var sJson = exports.sJson = "[object JSON]";
+var sMap = exports.sMap = "[object Map]";
+var sSet = exports.sSet = "[object Set]";
+var sGeneratorObject = exports.sGeneratorObject = "[object Generator]";
+var sGeneratorFunction = exports.sGeneratorFunction = "[object GeneratorFunction]";
 
 /**
  * @public @function toString
@@ -34,3 +34,17 @@ var tGeneratorFunction = exports.tGeneratorFunction = "[object GeneratorFunction
 var toString = exports.toString = function toString(target) {
   return Object.prototype.toString.call(target);
 };
+
+/**
+ * @public @const
+ * - primitive types to match when using 'typeof'
+ *
+ * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/typeof
+ */
+var pString = exports.pString = "string";
+var pUndefined = exports.pUndefined = "undefined";
+var pObject = exports.pObject = "object";
+var pBoolean = exports.pBoolean = "boolean";
+var pNumber = exports.pNumber = "number";
+var pSymbol = exports.pSymbol = "symbol";
+var pFunction = exports.pFunction = "function";

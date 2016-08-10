@@ -7,19 +7,19 @@ exports.keep = exports.dedupe = exports.distinct = exports.remove = undefined;
 
 var _checks = require("./../../utils/checks");
 
+var _utils = require("./../../utils");
+
 var _curry = require("./../curry");
 
-var _algebraic = require("./../algebraic");
-
 var _iterables = require("./../iterables");
-
-var _concat = require("./concat");
 
 var _Transformer = require("./Transformer");
 
 var _Transformer2 = _interopRequireDefault(_Transformer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _marked = [_filterGen, _removeGen, _distinctGen, _dedupeGen, _keepGen].map(regeneratorRuntime.mark);
 
 /**
  * @public @function filter
@@ -34,18 +34,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @param {Transformer|Iterable|Monoid} target
  * - the target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
  * - returns a new iterable with all elements filtered and left out those
  *   that returned false when applied with the predicate function
+ * - returns a lazy generator which will yield all elements from original
+ *   sequence that returns true when applied with the predicate functon
  *
  * @throws TypeError
- * - predicate function func is not a function
+ * - predicate function is not a function
  */
 exports.default = (0, _curry.currify)(function (predicate, target) {
   if (!(0, _checks.isFunction)(predicate)) throw new Error("filter cannot be applied without first specifying a predicate function!");
 
-  if (!(0, _Transformer.isTransformer)(target)) return _filter(predicate, target);
+  if (!(0, _Transformer.isTransformer)(target)) return _filterGen(predicate, target);
 
   return (0, _Transformer2.default)(function (acc, next) {
     for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
@@ -61,21 +63,77 @@ exports.default = (0, _curry.currify)(function (predicate, target) {
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _filter
- * - private version of filter that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
- * - uses the iterables's reduce to carry out the filtering across
- *   all elements in the iterable
+ * @private @function _filterGen
+ * - private version of filter returning a generator
  *
- * @see @function filter
- * @see @function iterables/reduce
+ * @see @function @filter
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield only values in the sequence that
+ *   returns true for the predicate filter
+ *
+ * @throws TypeError
+ * - target is not/does not implement the iterable interface
  */
 
-var _filter = function _filter(predicate, target) {
-  return (0, _iterables.reduce)(function (acc, next, index, target) {
-    return predicate(next, index, target) ? (0, _concat.concatMutable)(next, acc) : acc;
-  }, (0, _algebraic.empty)(target), target);
-};
+function _filterGen(predicate, target) {
+  var iterator, item, result, index;
+  return regeneratorRuntime.wrap(function _filterGen$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context.next = 2;
+            break;
+          }
+
+          throw new Error("Cannot filter over non-iterable " + target + "!");
+
+        case 2:
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next(), result = void 0;
+          index = 0;
+
+        case 5:
+          if (item.done) {
+            _context.next = 17;
+            break;
+          }
+
+          if (!predicate(item.value, index, target)) {
+            _context.next = 12;
+            break;
+          }
+
+          _context.next = 9;
+          return item.value;
+
+        case 9:
+          result = _context.sent;
+          _context.next = 13;
+          break;
+
+        case 12:
+          result = undefined;
+
+        case 13:
+          item = iterator.next(result);
+
+        case 14:
+          ++index;
+          _context.next = 5;
+          break;
+
+        case 17:
+          return _context.abrupt("return");
+
+        case 18:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked[0], this);
+}
 
 /**
  * @public @function remove
@@ -101,7 +159,7 @@ var _filter = function _filter(predicate, target) {
 var remove = exports.remove = (0, _curry.currify)(function (predicate, target) {
   if (!(0, _checks.isFunction)(predicate)) throw new Error("remove cannot be applied without first specifying a predicate function!");
 
-  if (!(0, _Transformer.isTransformer)(target)) return _remove(predicate, target);
+  if (!(0, _Transformer.isTransformer)(target)) return _removeGen(predicate, target);
 
   return (0, _Transformer2.default)(function (acc, next) {
     for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
@@ -117,20 +175,78 @@ var remove = exports.remove = (0, _curry.currify)(function (predicate, target) {
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _remove
- * - private version of remove that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
- * - uses the iterables's reduce to carry out the removing across
- *   all elements in the iterable
+ * @private @function _removeGen
+ * - private verson of remove returning a generator
  *
- * @see @function remove
- * @see @function iterables/reduce
+ * @see @function @remove
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence that
+ *   returns false when evaluated with the predicate
+ *
+ * @throws TypeError
+ * - target is not/does not implement the iterable interface
  */
-var _remove = function _remove(predicate, target) {
-  return (0, _iterables.reduce)(function (acc, next, index, target) {
-    return predicate(next, index, target) ? acc : (0, _concat.concatMutable)(next, acc);
-  }, (0, _algebraic.empty)(target), target);
-};
+function _removeGen(predicate, target) {
+  var iterator, item, result, index;
+  return regeneratorRuntime.wrap(function _removeGen$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context2.next = 2;
+            break;
+          }
+
+          throw new Error("Cannot remove from non-iterable " + target + "!");
+
+        case 2:
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next(), result = void 0;
+          index = 0;
+
+        case 5:
+          if (item.done) {
+            _context2.next = 17;
+            break;
+          }
+
+          if (!predicate(item.value, index, target)) {
+            _context2.next = 10;
+            break;
+          }
+
+          result = undefined;
+
+          _context2.next = 13;
+          break;
+
+        case 10:
+          _context2.next = 12;
+          return item.value;
+
+        case 12:
+          result = _context2.sent;
+
+        case 13:
+
+          item = iterator.next(result);
+
+        case 14:
+          ++index;
+          _context2.next = 5;
+          break;
+
+        case 17:
+          return _context2.abrupt("return");
+
+        case 18:
+        case "end":
+          return _context2.stop();
+      }
+    }
+  }, _marked[1], this);
+}
 
 /**
  * @public @function distinct
@@ -139,13 +255,14 @@ var _remove = function _remove(predicate, target) {
  * @param {Transformer|Iterable|Monoid} target
  * - the target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with all elements filtered to only occur once,
- *   preserving the order of elements by its first occurence
+ * - returns a generator yielding all elements from iterable sequence filtered
+ *   to only occur once, preserving the order of elements by its first
+ *   occurence
  */
 var distinct = exports.distinct = function distinct(target) {
-  if (!(0, _Transformer.isTransformer)(target)) return _distinct(target);
+  if (!(0, _Transformer.isTransformer)(target)) return _distinctGen(target);
 
   var set = new Set();
   return (0, _Transformer2.default)(function (acc, next) {
@@ -165,34 +282,77 @@ var distinct = exports.distinct = function distinct(target) {
 };
 
 /**
- * @private @function _distinct
- * - private version of distinct that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _distinctGen
+ * - private version of distinct returning a generator
  *
  * @see @function distinct
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence omitting
+ *   any duplicates
  *
  * @throws TypeError
  * - target is not an iterable
  */
-var _distinct = function _distinct(target) {
-  if (!(0, _checks.isIterable)(target)) throw new Error("Cannot get distinct elements of non-iterable " + target + "!");
+function _distinctGen(target) {
+  var set, result, iterator, item;
+  return regeneratorRuntime.wrap(function _distinctGen$(_context3) {
+    while (1) {
+      switch (_context3.prev = _context3.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context3.next = 2;
+            break;
+          }
 
-  var set = new Set();
-  var result = (0, _algebraic.empty)(target);
+          throw new Error("Cannot get distinct elements of non-iterable " + target + "!");
 
-  var iterator = (0, _iterables.getIterator)(target);
-  var item = iterator.next();
-  while (!item.done) {
-    if (!set.has(item.value)) {
-      result = (0, _concat.concatMutable)(item.value, result);
-      set.add(item.value);
+        case 2:
+          set = new Set();
+          result = void 0;
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next();
+
+        case 6:
+          if (item.done) {
+            _context3.next = 18;
+            break;
+          }
+
+          if (set.has(item.value)) {
+            _context3.next = 14;
+            break;
+          }
+
+          _context3.next = 10;
+          return item.value;
+
+        case 10:
+          result = _context3.sent;
+
+          set.add(item.value);
+
+          _context3.next = 15;
+          break;
+
+        case 14:
+          result = undefined;
+
+        case 15:
+          item = iterator.next(result);
+          _context3.next = 6;
+          break;
+
+        case 18:
+          return _context3.abrupt("return");
+
+        case 19:
+        case "end":
+          return _context3.stop();
+      }
     }
-
-    item = iterator.next();
-  }
-
-  return result;
-};
+  }, _marked[2], this);
+}
 
 /**
  * @public @function dedupe
@@ -202,13 +362,13 @@ var _distinct = function _distinct(target) {
  * @param {Transformer|Iterable|Monoid} target
  * - the target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with all elements having consecutive duplicates
- *   removed to occur only once
+ * - returns a generator yielding all elements from iterable sequence having
+ *   consecutive duplicates removed to occur only once
  */
 var dedupe = exports.dedupe = function dedupe(target) {
-  if (!(0, _Transformer.isTransformer)(target)) return _dedupe(target);
+  if (!(0, _Transformer.isTransformer)(target)) return _dedupeGen(target);
 
   var prev = {};
   return (0, _Transformer2.default)(function (acc, next) {
@@ -228,34 +388,77 @@ var dedupe = exports.dedupe = function dedupe(target) {
 };
 
 /**
- * @private @function _dedupe
- * - private version of depdupe that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _dedupeGen
+ * - private version of depdupe returning a generator
  *
  * @see @function dedupe
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence omitting
+ *   any consecutive duplicates
  *
  * @throws TypeError
  * - target is not an iterable
  */
-var _dedupe = function _dedupe(target) {
-  if (!(0, _checks.isIterable)(target)) throw new Error("Cannot deduplicate elements of non-iterable " + target + "!");
+function _dedupeGen(target) {
+  var result, prev, iterator, item;
+  return regeneratorRuntime.wrap(function _dedupeGen$(_context4) {
+    while (1) {
+      switch (_context4.prev = _context4.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context4.next = 2;
+            break;
+          }
 
-  var result = (0, _algebraic.empty)(target);
-  var prev = {};
+          throw new Error("Cannot deduplicate elements of non-iterable " + target + "!");
 
-  var iterator = (0, _iterables.getIterator)(target);
-  var item = iterator.next();
-  while (!item.done) {
-    if (item.value !== prev) {
-      result = (0, _concat.concatMutable)(item.value, result);
-      prev = item.value;
+        case 2:
+          result = void 0;
+          prev = {};
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next();
+
+        case 6:
+          if (item.done) {
+            _context4.next = 18;
+            break;
+          }
+
+          if (!(item.value !== prev)) {
+            _context4.next = 14;
+            break;
+          }
+
+          _context4.next = 10;
+          return item.value;
+
+        case 10:
+          result = _context4.sent;
+
+          prev = item.value;
+
+          _context4.next = 15;
+          break;
+
+        case 14:
+          result = undefined;
+
+        case 15:
+          item = iterator.next(result);
+          _context4.next = 6;
+          break;
+
+        case 18:
+          return _context4.abrupt("return");
+
+        case 19:
+        case "end":
+          return _context4.stop();
+      }
     }
-
-    item = iterator.next();
-  }
-
-  return result;
-};
+  }, _marked[3], this);
+}
 
 /**
  * @public @function keep
@@ -273,10 +476,11 @@ var _dedupe = function _dedupe(target) {
  * @param {Transformer|Iterable|Monoid} target
  * - the target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with all elements filtered and left out those
- *   that returned null or undefined when applied with the predicate function
+ * - returns a generator yielding all elements from iterable sequence and leave
+ *   out those that returned null or undefined when applied with the
+ *   predicate function
  *
  * @throws TypeError
  * - predicate function func is not a function
@@ -284,7 +488,7 @@ var _dedupe = function _dedupe(target) {
 var keep = exports.keep = (0, _curry.currify)(function (predicate, target) {
   if (!(0, _checks.isFunction)(predicate)) throw new Error("keep cannot be applied without first specifying a predicate function!");
 
-  if (!(0, _Transformer.isTransformer)(target)) return _keep(predicate, target);
+  if (!(0, _Transformer.isTransformer)(target)) return _keepGen(predicate, target);
 
   var i = 0;
   return (0, _Transformer2.default)(function (acc, next) {
@@ -294,7 +498,8 @@ var keep = exports.keep = (0, _curry.currify)(function (predicate, target) {
 
     var result = predicate.apply(undefined, [next].concat(args, [i++]));
 
-    return (0, _checks.isNull)(result) || (0, _checks.isUndefined)(result) ? acc : _Transformer.step.apply(undefined, [target, acc, next].concat(args));
+    var type = _utils.types.toString(result);
+    return type === _utils.types.sNull || type === _utils.types.sUndefined ? acc : _Transformer.step.apply(undefined, [target, acc, next].concat(args));
   }, function (acc) {
     return (0, _Transformer.complete)(target, acc);
   }, function () {
@@ -303,20 +508,80 @@ var keep = exports.keep = (0, _curry.currify)(function (predicate, target) {
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _keep
- * - private version of keep that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
- * - uses the iterables's reduce to carry out the filtering across
- *   all elements in the iterable
+ * @private @function _keepGen
+ * - private version of keep returning a generator
  *
  * @see @function keep
- * @see @function iterables/reduce
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values in the sequence that
+ *   returns a non-null or non-undefined value when applied with predicate
+ *
+ * @throws TypeError
+ * - target is not an iterable
  */
-var _keep = function _keep(predicate, target) {
+function _keepGen(predicate, target) {
   var i = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
-  return (0, _iterables.reduce)(function (acc, next, index, target) {
-    var result = predicate(next, index, target, i++);
+  var result, iterator, item, index, value, vType;
+  return regeneratorRuntime.wrap(function _keepGen$(_context5) {
+    while (1) {
+      switch (_context5.prev = _context5.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context5.next = 2;
+            break;
+          }
 
-    return (0, _checks.isNull)(result) || (0, _checks.isUndefined)(result) ? acc : (0, _concat.concatMutable)(next, acc);
-  }, (0, _algebraic.empty)(target), target);
-};
+          throw new Error("Cannot keep elements of non-iterable " + target + "!");
+
+        case 2:
+          result = void 0;
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next();
+          index = 0;
+
+        case 6:
+          if (item.done) {
+            _context5.next = 20;
+            break;
+          }
+
+          value = predicate(item.value, index, target, i++);
+          vType = _utils.types.toString(value);
+
+          if (!(vType === _utils.types.sNull || vType === _utils.types.sUndefined)) {
+            _context5.next = 13;
+            break;
+          }
+
+          result = undefined;
+
+          _context5.next = 16;
+          break;
+
+        case 13:
+          _context5.next = 15;
+          return item.value;
+
+        case 15:
+          result = _context5.sent;
+
+        case 16:
+
+          item = iterator.next(result);
+
+        case 17:
+          ++i;
+          _context5.next = 6;
+          break;
+
+        case 20:
+          return _context5.abrupt("return");
+
+        case 21:
+        case "end":
+          return _context5.stop();
+      }
+    }
+  }, _marked[4], this);
+}

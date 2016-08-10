@@ -181,18 +181,12 @@ Object.defineProperty(exports, "dropWhile", {
   }
 });
 
-var _concat = require("./concat");
+var _cat = require("./cat");
 
-Object.defineProperty(exports, "concat", {
+Object.defineProperty(exports, "cat", {
   enumerable: true,
   get: function get() {
-    return _interopRequireDefault(_concat).default;
-  }
-});
-Object.defineProperty(exports, "concatMutable", {
-  enumerable: true,
-  get: function get() {
-    return _concat.concatMutable;
+    return _interopRequireDefault(_cat).default;
   }
 });
 
@@ -229,6 +223,15 @@ Object.defineProperty(exports, "interpose", {
   }
 });
 
+var _identity = require("./identity");
+
+Object.defineProperty(exports, "identity", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_identity).default;
+  }
+});
+
 var _tail = require("./tail");
 
 Object.defineProperty(exports, "tail", {
@@ -244,6 +247,15 @@ Object.defineProperty(exports, "initial", {
   enumerable: true,
   get: function get() {
     return _interopRequireDefault(_initial).default;
+  }
+});
+
+var _flatmap = require("./flatmap");
+
+Object.defineProperty(exports, "flatmap", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_flatmap).default;
   }
 });
 

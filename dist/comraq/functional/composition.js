@@ -5,7 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.pipe = exports.compose = undefined;
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _checks = require("./../utils/checks");
+
+var _types = require("./../utils/types");
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
@@ -39,7 +43,7 @@ var getResult = function getResult(reducerIterator, spread) {
   }
 
   return reducerIterator.call(args, function (result, func) {
-    if (!(0, _checks.isFunction)(func) && !(0, _checks.isGeneratorFunction)(func)) throw new Error("Composition functions cannot take non-function " + "as intermediate arguments!");
+    if ((typeof func === "undefined" ? "undefined" : _typeof(func)) !== _types.pFunction) throw new Error("Composition functions cannot take non-function " + "as intermediate arguments!");
 
     /**
      * All user function params captured/bundled in array
@@ -77,7 +81,7 @@ var compose = exports.compose = function compose() {
 
   var target = args[args.length - 1];
 
-  if (!(0, _checks.isFunction)(target) && !(0, _checks.isGeneratorFunction)(target)) {
+  if ((typeof target === "undefined" ? "undefined" : _typeof(target)) !== _types.pFunction) {
     if (args.length <= 1) throw new Error("Functions must be supplied before function arguments!");
 
     return getResult.apply(undefined, [Array.prototype.reduceRight, false].concat(args));
@@ -120,7 +124,7 @@ var pipe = exports.pipe = function pipe() {
 
   var target = args[0];
 
-  if (!(0, _checks.isFunction)(target) && !(0, _checks.isGeneratorFunction)(target)) {
+  if ((typeof target === "undefined" ? "undefined" : _typeof(target)) !== _types.pFunction) {
     if (args.length <= 1) return target;else return getResult.apply(undefined, [Array.prototype.reduce, false].concat(args));
   }
 

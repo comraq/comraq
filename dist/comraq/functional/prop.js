@@ -7,7 +7,17 @@ exports.hasProp = exports.withProp = exports.getProp = undefined;
 
 var _checks = require("./../utils/checks");
 
+var _utils = require("./../utils");
+
 var _curry = require("./curry");
+
+var toString = _utils.types.toString;
+var sNumber = _utils.types.sNumber;
+var sString = _utils.types.sString;
+var sMap = _utils.types.sMap;
+var sSet = _utils.types.sSet;
+var sArray = _utils.types.sArray;
+
 
 /**
  * @public @function getProp
@@ -28,17 +38,16 @@ var _curry = require("./curry");
  * - non-string or number passed as prop if target is object
  */
 var getProp = exports.getProp = (0, _curry.currify)(function (prop, target) {
-  if ((0, _checks.isMap)(target)) {
-    if (!target.has(prop)) return null;
-
-    return target.get(prop);
-  }
-
-  if (!(0, _checks.isString)(prop) && !(0, _checks.isNumber)(prop)) throw new Error("First argument '" + prop + "' of getProp must be string or number!");
-
   if (!hasProp(prop, target)) return null;
 
-  return target[prop];
+  switch (toString(target)) {
+    case sMap:
+    case sSet:
+      return target.get(prop);
+
+    default:
+      return target[prop];
+  }
 }, 2, false, _curry.placeholder);
 
 /**
@@ -62,20 +71,29 @@ var getProp = exports.getProp = (0, _curry.currify)(function (prop, target) {
  * @throws Error
  * - non-string or number passed as prop
  */
-var withProp = exports.withProp = (0, _curry.currify)(function (prop) {
-  var value = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-  var target = arguments[2];
+var withProp = exports.withProp = (0, _curry.currify)(function (prop, value, target) {
+  var mutate = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
-  if (!(0, _checks.isString)(prop) && !(0, _checks.isNumber)(prop)) throw new Error("First argument '" + prop + "' of getProp must be string or number!");
+  var sPropType = toString(prop);
+  if (sPropType !== sString && sPropType !== sNumber) throw new Error("First argument '" + prop + "' of getProp must be string or number!");
 
-  var temp = {};
-  if (!(0, _checks.isUndefined)(target) && !(0, _checks.isNull)(target)) {
-    target = (0, _checks.isString)(target) ? {} : target;
-
-    temp[prop] = value;
+  if ((0, _checks.isPrimitive)(target)) {
+    (function () {
+      var temp = target;
+      target = {
+        valueOf: function valueOf() {
+          return temp;
+        }
+      };
+    })();
   }
 
-  return Object.assign({}, target, temp);
+  var toMerge = {};
+  toMerge[prop] = value;
+
+  if (!mutate) return Object.assign({}, target, toMerge);
+
+  return Object.assign(target, toMerge);
 }, 3, false, _curry.placeholder);
 
 /**
@@ -88,11 +106,25 @@ var withProp = exports.withProp = (0, _curry.currify)(function (prop) {
  * @param {Any} target
  * - the target object/map
  *
+ * @param {Boolean} inherited (optional)
+ * - flag to indicate whether to check for inherited properties, defaults to
+ *   false
+ *
  * @return {Boolean}
- * - true if target has prop directly (not inherited), false otherwise
+ * - true if target has prop, if inherited is true, then inherited
+ *   properties are also checked, false otherwise
  */
 var hasProp = exports.hasProp = (0, _curry.currify)(function (prop, target) {
-  if ((0, _checks.isMap)(target)) return target.has(prop);
+  var inherited = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
 
-  return target.hasOwnProperty(prop);
+  if (inherited && prop in target) return true;
+
+  switch (toString(target)) {
+    case sMap:
+    case sSet:
+      return target.has(prop);
+
+    default:
+      return target.hasOwnProperty(prop);
+  }
 }, 2, false, _curry.placeholder);

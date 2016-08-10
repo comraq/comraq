@@ -44,9 +44,7 @@ export const partitionAll = currify((size, target) => {
     );
 
   else if (!isTransformer(target))
-    return (function* (size, target) {
-      yield* _partitionAllGen(size, target);
-    })(size, target);
+    return _partitionAllGen(size, target);
 
   // Partition is undefined for now as we currently have no access to the
   // unit/void/empty instance of the accumulator until the step function of
@@ -153,9 +151,7 @@ export const partitionBy = currify((predicate, target) => {
     );
 
   else if (!isTransformer(target))
-    return (function* (predicate, target) {
-      yield* _partitionByGen(predicate, target);
-    })(predicate, target);
+    return _partitionByGen(predicate, target);
 
   // Partition is undefined for now as we currently have no access to the
   // unit/void/empty instance of the accumulator until the step function of

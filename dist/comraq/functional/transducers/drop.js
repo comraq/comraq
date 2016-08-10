@@ -11,15 +11,13 @@ var _curry = require("./../curry");
 
 var _iterables = require("./../iterables");
 
-var _algebraic = require("./../algebraic");
-
-var _concat = require("./concat");
-
 var _Transformer = require("./Transformer");
 
 var _Transformer2 = _interopRequireDefault(_Transformer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _marked = [_dropGen, _dropWhileGen].map(regeneratorRuntime.mark);
 
 /**
  * @public @function drop
@@ -32,16 +30,17 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - an iterable without the first 'total' number of elements from the target
- *   iterable or all elements if total number of elements <= 'number'
+ * - a generator yielding elements without the first 'total' number of elements
+ *   from the target iterable or all elements if total number of elements <=
+ *   'number'
  *
  * @throws TypeError
  * - total number to take is not a number
  */
 exports.default = (0, _curry.currify)(function (total, target) {
-  if (!(0, _checks.isNumber)(total)) throw new TypeError("Cannot drop elements with a non-number limit " + total + "!");else if (!(0, _Transformer.isTransformer)(target)) return _drop(total, target);
+  if (!(0, _checks.isNumber)(total)) throw new TypeError("Cannot drop elements with a non-number limit " + total + "!");else if (!(0, _Transformer.isTransformer)(target)) return _dropGen(total, target);
 
   var count = 0;
 
@@ -61,34 +60,68 @@ exports.default = (0, _curry.currify)(function (total, target) {
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _drop
- * - private version of drop that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _dropGen
+ * - private version of drop returning a generator
  *
  * @see @function drop
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all values from iterable sequence
+ *   after omitting the first 'num' number of elements
  *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
 
-var _drop = function _drop(num, target) {
-  if (!(0, _checks.isIterable)(target)) throw new TypeError("Cannot drop elements from non-iterable " + target + "!");
+function _dropGen(num, target) {
+  var iterator, i, item, result;
+  return regeneratorRuntime.wrap(function _dropGen$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context.next = 2;
+            break;
+          }
 
-  var iterator = (0, _iterables.getIterator)(target);
-  var result = (0, _algebraic.empty)(target);
+          throw new TypeError("Cannot drop elements from non-iterable " + target + "!");
 
-  var i = 0;
-  var item = iterator.next();
+        case 2:
+          iterator = (0, _iterables.getIterator)(target);
+          i = 0;
+          item = iterator.next();
 
-  while (++i <= num) {
-    item = iterator.next();
-  }while (!item.done) {
-    result = (0, _concat.concatMutable)(item.value, result);
-    item = iterator.next();
-  }
 
-  return result;
-};
+          while (++i <= num) {
+            item = iterator.next();
+          }
+
+        case 6:
+          if (item.done) {
+            _context.next = 13;
+            break;
+          }
+
+          _context.next = 9;
+          return item.value;
+
+        case 9:
+          result = _context.sent;
+
+          item = iterator.next(result);
+          _context.next = 6;
+          break;
+
+        case 13:
+          return _context.abrupt("return");
+
+        case 14:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked[0], this);
+}
 
 /**
  * @public @function dropWhile
@@ -104,9 +137,9 @@ var _drop = function _drop(num, target) {
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - if target is an iterable, returns an iterable without the beginning
+ * - a generator yielding elements without the beginning
  *   iteration sequence while predicate holds true
  *
  * @throws TypeError
@@ -115,7 +148,7 @@ var _drop = function _drop(num, target) {
 var dropWhile = exports.dropWhile = (0, _curry.currify)(function (predicate, target) {
   if (!(0, _checks.isFunction)(predicate)) throw new TypeError("Cannot dropWhile elements with non-function predicate " + predicate + "!");
 
-  if (!(0, _Transformer.isTransformer)(target)) return _dropWhile(predicate, target);
+  if (!(0, _Transformer.isTransformer)(target)) return _dropWhileGen(predicate, target);
 
   var dropped = false;
   return (0, _Transformer2.default)(function (acc, next) {
@@ -135,29 +168,62 @@ var dropWhile = exports.dropWhile = (0, _curry.currify)(function (predicate, tar
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _dropWhile
- * - private version of dropWhile that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
+ * @private @function _dropWhileGen
+ * - private version of dropWhile returning a generator
  *
  * @see @function dropWhile
  *
+ * @returns {Generator}
+ * - a generator that will lazily yield only values from iterable sequence
+ *   after predicate evaluates to false
+ 
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */
-var _dropWhile = function _dropWhile(predicate, target) {
-  if (!(0, _checks.isIterable)(target)) throw new TypeError("Cannot dropWhile elements from non-iterable " + target + "!");
+function _dropWhileGen(predicate, target) {
+  var iterator, item, i, result;
+  return regeneratorRuntime.wrap(function _dropWhileGen$(_context2) {
+    while (1) {
+      switch (_context2.prev = _context2.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context2.next = 2;
+            break;
+          }
 
-  var iterator = (0, _iterables.getIterator)(target);
-  var result = (0, _algebraic.empty)(target);
+          throw new TypeError("Cannot dropWhile elements from non-iterable " + target + "!");
 
-  var item = iterator.next(),
-      i = 0;
-  while (predicate(item.value, i++, target) && !item.done) {
-    item = iterator.next();
-  }while (!item.done) {
-    result = (0, _concat.concatMutable)(item.value, result);
-    item = iterator.next();
-  }
+        case 2:
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next(), i = 0;
 
-  return result;
-};
+          while (predicate(item.value, i++, target) && !item.done) {
+            item = iterator.next();
+          }
+
+        case 5:
+          if (item.done) {
+            _context2.next = 12;
+            break;
+          }
+
+          _context2.next = 8;
+          return item.value;
+
+        case 8:
+          result = _context2.sent;
+
+          item = iterator.next(result);
+          _context2.next = 5;
+          break;
+
+        case 12:
+          return _context2.abrupt("return");
+
+        case 13:
+        case "end":
+          return _context2.stop();
+      }
+    }
+  }, _marked[1], this);
+}

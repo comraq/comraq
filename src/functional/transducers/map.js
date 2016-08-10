@@ -37,9 +37,7 @@ export default currify((func, target) => {
     );
 
   if (!isTransformer(target))
-    return (function* (func, target) {
-      yield* _mapGen(func, target);
-    })(func, target);
+    return _mapGen(func, target);
 
   let i = 0;
   return Transformer(

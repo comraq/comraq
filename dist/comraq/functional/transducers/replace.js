@@ -10,17 +10,15 @@ var _curry = require("./../curry");
 
 var _prop = require("./../prop");
 
-var _algebraic = require("./../algebraic");
-
 var _iterables = require("./../iterables");
-
-var _concat = require("./concat");
 
 var _Transformer = require("./Transformer");
 
 var _Transformer2 = _interopRequireDefault(_Transformer);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var _marked = [_replaceGen].map(regeneratorRuntime.mark);
 
 /**
  * @public @function replace
@@ -33,9 +31,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @param {Transformer|Iterable|Functor|Monoid} target
  * - the transformer or target iterable/functor
  *
- * @returns {Transformer|Iterable}
+ * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
- * - returns a new iterable with elements matching keys in map replaced by
+ * - returns a generator yielding elements matching keys in map replaced by
  *   the corresponding values
  *
  * @throws TypeError
@@ -44,7 +42,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.default = (0, _curry.currify)(function (map, target) {
   if (!(0, _checks.isMap)(map) && !(0, _checks.isObject)(map)) throw new TypeError("replace cannot be applied without providing a replacement map or object!");
 
-  if (!(0, _Transformer.isTransformer)(target)) return _replace(map, target);
+  if (!(0, _Transformer.isTransformer)(target)) return _replaceGen(map, target);
 
   return (0, _Transformer2.default)(function (acc, next) {
     for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
@@ -60,18 +58,77 @@ exports.default = (0, _curry.currify)(function (map, target) {
 }, 2, false, _curry.placeholder);
 
 /**
- * @private @function _replace
- * - private version of replace that immediately returns the iterable
- *   result when the second argument is not a transformer mixin
- * - uses the iterables's reduce to iterate and replace elements in iterable
- *   if found
+ * @private @function _replaceGen
+ * - private version of replace returning a generator
  *
  * @see @function replace
- * @see @function iterables/reduce
+ *
+ * @returns {Generator}
+ * - a generator that will lazily yield all elements in the sequence while
+ *   replacing those found in map with the values from map if element is
+ *   found as a key
+ *
+ * @throws TypeError
+ * - target is not an iterable
  */
 
-var _replace = function _replace(map, target) {
-  return (0, _iterables.reduce)(function (acc, next) {
-    return (0, _concat.concatMutable)((0, _prop.hasProp)(next, map) ? (0, _prop.getProp)(next, map) : next, acc);
-  }, (0, _algebraic.empty)(target), target);
-};
+function _replaceGen(map, target) {
+  var result, iterator, item;
+  return regeneratorRuntime.wrap(function _replaceGen$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          if ((0, _checks.isIterable)(target)) {
+            _context.next = 2;
+            break;
+          }
+
+          throw new Error("Cannot keep elements of non-iterable " + target + "!");
+
+        case 2:
+          result = void 0;
+          iterator = (0, _iterables.getIterator)(target);
+          item = iterator.next();
+
+        case 5:
+          if (item.done) {
+            _context.next = 18;
+            break;
+          }
+
+          if (!(0, _prop.hasProp)(item.value, map)) {
+            _context.next = 12;
+            break;
+          }
+
+          _context.next = 9;
+          return (0, _prop.getProp)(item.value, map);
+
+        case 9:
+          result = _context.sent;
+          _context.next = 15;
+          break;
+
+        case 12:
+          _context.next = 14;
+          return item.value;
+
+        case 14:
+          result = _context.sent;
+
+        case 15:
+
+          item = iterator.next(result);
+          _context.next = 5;
+          break;
+
+        case 18:
+          return _context.abrupt("return");
+
+        case 19:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _marked[0], this);
+}

@@ -12,6 +12,18 @@ Object.defineProperty(exports, "empty", {
     return _Monoid.empty;
   }
 });
+Object.defineProperty(exports, "concat", {
+  enumerable: true,
+  get: function get() {
+    return _Monoid.concat;
+  }
+});
+Object.defineProperty(exports, "concatMutable", {
+  enumerable: true,
+  get: function get() {
+    return _Monoid.concatMutable;
+  }
+});
 
 var _join = require("./join");
 

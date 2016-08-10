@@ -39,9 +39,7 @@ export default currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return (function* (predicate, target) {
-      yield* _filterGen(predicate, target);
-    })(predicate, target);
+    return _filterGen(predicate, target);
 
   return Transformer(
     (acc, next, ...args) => (predicate(next, ...args))?
@@ -113,9 +111,7 @@ export const remove = currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return (function* (predicate, target) {
-      yield* _removeGen(predicate, target);
-    })(predicate, target);
+    return _removeGen(predicate, target);
 
   return Transformer(
     (acc, next, ...args) => (predicate(next, ...args))?
@@ -174,7 +170,7 @@ function* _removeGen(predicate, target) {
  */
 export const distinct = target => {
   if (!isTransformer(target))
-    return (function* (target) { yield* _distinctGen(target); })(target);
+    return _distinctGen(target);
 
   const set = new Set();
   return Transformer(
@@ -243,7 +239,7 @@ function* _distinctGen(target) {
  */
 export const dedupe = target => {
   if (!isTransformer(target))
-    return (function* (target) { yield* _dedupeGen(target); })(target);
+    return _dedupeGen(target);
 
   let prev = {};
   return Transformer(
@@ -329,9 +325,7 @@ export const keep = currify((predicate, target) => {
     );
 
   if (!isTransformer(target))
-    return (function* (predicate, target) {
-      yield* _keepGen(predicate, target);
-    })(predicate, target);
+    return _keepGen(predicate, target);
 
   let i = 0;
   return Transformer(
