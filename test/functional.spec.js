@@ -7,6 +7,7 @@ import stringsSpecs           from "./functional/strings.spec";
 import algebraicSpecs         from "./functional/algebraic.spec";
 import transducersSpecs       from "./functional/transducers.spec";
 import iterablesSpecs         from "./functional/iterables.spec";
+import aritySpecs             from "./functional/arity.spec";
 
 describe("functional:", () => {
   describe("curry:",          currySpecs);
@@ -18,4 +19,5 @@ describe("functional:", () => {
   describe("iterables:",      iterablesSpecs);
   describe("algebraic",       algebraicSpecs);
   describe("transducers:",    transducersSpecs);
+  describe("arity",           aritySpecs);
 });

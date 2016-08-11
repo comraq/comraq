@@ -11,3 +11,4 @@ export { trace } from "./utils";
 export { getProp, withProp, hasProp } from "./prop";
 export { default as curry, currify, placeholder, autoCurry } from "./curry";
 export { compose, pipe } from "./composition";
+export { default as nAry } from "./arity";

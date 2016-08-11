@@ -135,7 +135,9 @@ export default () => {
       let sparse = all(dummy, dummy, dummy, dummy, dummy, dummy, "g", "h");
       sparse("a", "b", "c", "d").should.be.a("function");
       sparse("a", "b", "c", dummy, "e").should.be.a("function");
-      sparse("a", "b", "c", "d", "e").should.eql([ ...result, dummy, "g", "h" ]);
+      sparse("a", "b", "c", "d", "e").should.eql(
+        [ ...result, dummy, "g", "h" ]
+      );
     });
   });
 
