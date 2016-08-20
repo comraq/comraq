@@ -1,4 +1,4 @@
-import { isFunction } from "../utils/checks";
+import { isFunction } from "./../../utils/checks";
 
 /**
  * @public @var {Symbol} placeholder

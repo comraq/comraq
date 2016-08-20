@@ -5,23 +5,22 @@ import {
   isFunction
 } from "./../../utils/checks";
 
-import { currify, placeholder } from "./../curry";
+import { currify, placeholder, empty } from "./../library";
 import { getIterator } from "./../iterables";
-import { empty } from "./../algebraic";
 import { length } from "./../strings";
 import { pushMutable } from "./../arrays";
 
 import { ensureUnreduced } from "./Reduced";
 import {
   step, complete, init,
-  isTransformer, 
+  isTransformer,
   default as Transformer
 } from "./Transformer";
 
 /**
  * @public @function partitionAll
  * - partitions an iterable into many smaller iterables as specified by size
- * 
+ *
  * @param {Number} size
  * - the size/number of elements in each partition
  *
@@ -63,7 +62,7 @@ export const partitionAll = currify((size, target) => {
         count = 1;
         partition = pushMutable(next, empty(acc));
         return step(target, acc, temp, ...args);
-      }   
+      }
 
       return acc;
     },
@@ -129,7 +128,7 @@ function* _partitionAllGen(size, target) {
  *   predicate returns a new value
  * - like other functions, this also passes the index and original iterable
  *   to the predicate function as the second and third argument
- * 
+ *
  * @param {Function} predicate
  * - the predicate function to check on each element in iterable
  *
@@ -139,7 +138,7 @@ function* _partitionAllGen(size, target) {
  * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
  * - generator yielding partitions of elements divided by when predicate
- *   function returns a different value, 
+ *   function returns a different value
  *
  * @throws TypeError
  * - predicate argument is not a function

@@ -1,16 +1,22 @@
-import {
-  isNumber,
-  isUndefined,
-  isNull,
-  isMap,
-  isString,
-  isPrimitive
-} from "./../utils/checks";
+"use strict";
 
-import { types } from "./../utils";
-const { toString, sNumber, sString, sMap, sSet, sArray } = types;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.hasProp = exports.withProp = exports.getProp = undefined;
 
-import { currify, placeholder } from "./curry";
+var _checks = require("./../../utils/checks");
+
+var _utils = require("./../../utils");
+
+var _curry = require("./curry");
+
+var toString = _utils.types.toString;
+var sNumber = _utils.types.sNumber;
+var sString = _utils.types.sString;
+var sMap = _utils.types.sMap;
+var sSet = _utils.types.sSet;
+
 
 /**
  * @public @function getProp
@@ -30,9 +36,8 @@ import { currify, placeholder } from "./curry";
  * @throws Error
  * - non-string or number passed as prop if target is object
  */
-export const getProp = currify((prop, target) => {
-  if (!hasProp(prop, target))
-    return null;
+var getProp = exports.getProp = (0, _curry.currify)(function (prop, target) {
+  if (!hasProp(prop, target)) return null;
 
   switch (toString(target)) {
     case sMap:
@@ -42,7 +47,7 @@ export const getProp = currify((prop, target) => {
     default:
       return target[prop];
   }
-}, 2, false, placeholder);
+}, 2, false, _curry.placeholder);
 
 /**
  * @public @function withProp
@@ -65,29 +70,30 @@ export const getProp = currify((prop, target) => {
  * @throws Error
  * - non-string or number passed as prop
  */
-export const withProp = currify((prop, value, target, mutate = false) => {
-  let sPropType = toString(prop);
-  if (sPropType !== sString && sPropType !== sNumber)
-    throw new Error(
-      `First argument '${prop}' of getProp must be string or number!`
-    );
+var withProp = exports.withProp = (0, _curry.currify)(function (prop, value, target) {
+  var mutate = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
 
-  if (isPrimitive(target)) {
-    let temp = target
-    target = {
-      valueOf: () => temp
-    };
+  var sPropType = toString(prop);
+  if (sPropType !== sString && sPropType !== sNumber) throw new Error("First argument '" + prop + "' of getProp must be string or number!");
+
+  if ((0, _checks.isPrimitive)(target)) {
+    (function () {
+      var temp = target;
+      target = {
+        valueOf: function valueOf() {
+          return temp;
+        }
+      };
+    })();
   }
 
-  let toMerge = {};
+  var toMerge = {};
   toMerge[prop] = value;
 
-  if (!mutate)
-    return Object.assign({}, target, toMerge);
+  if (!mutate) return Object.assign({}, target, toMerge);
 
   return Object.assign(target, toMerge);
-
-}, 3, false, placeholder);
+}, 3, false, _curry.placeholder);
 
 /**
  * @public @function hasProp
@@ -107,9 +113,10 @@ export const withProp = currify((prop, value, target, mutate = false) => {
  * - true if target has prop, if inherited is true, then inherited
  *   properties are also checked, false otherwise
  */
-export const hasProp = currify((prop, target, inherited = false) => {
-  if (inherited && (prop in target))
-    return true;
+var hasProp = exports.hasProp = (0, _curry.currify)(function (prop, target) {
+  var inherited = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
+
+  if (inherited && prop in target) return true;
 
   switch (toString(target)) {
     case sMap:
@@ -119,4 +126,4 @@ export const hasProp = currify((prop, target, inherited = false) => {
     default:
       return target.hasOwnProperty(prop);
   }
-}, 2, false, placeholder);
+}, 2, false, _curry.placeholder);

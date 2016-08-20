@@ -7,11 +7,9 @@ exports.partitionBy = exports.partitionAll = undefined;
 
 var _checks = require("./../../utils/checks");
 
-var _curry = require("./../curry");
+var _library = require("./../library");
 
 var _iterables = require("./../iterables");
-
-var _algebraic = require("./../algebraic");
 
 var _strings = require("./../strings");
 
@@ -30,7 +28,7 @@ var _marked = [_partitionAllGen, _partitionByGen].map(regeneratorRuntime.mark);
 /**
  * @public @function partitionAll
  * - partitions an iterable into many smaller iterables as specified by size
- * 
+ *
  * @param {Number} size
  * - the size/number of elements in each partition
  *
@@ -46,7 +44,7 @@ var _marked = [_partitionAllGen, _partitionByGen].map(regeneratorRuntime.mark);
  * @throws TypeError
  * - size of each partition is not a number
  */
-var partitionAll = exports.partitionAll = (0, _curry.currify)(function (size, target) {
+var partitionAll = exports.partitionAll = (0, _library.currify)(function (size, target) {
   if (!(0, _checks.isNumber)(size)) throw new TypeError("Cannot partitionAll with a non-number " + size + "!");else if (!(0, _Transformer.isTransformer)(target)) return _partitionAllGen(size, target);
 
   // Partition is undefined for now as we currently have no access to the
@@ -60,12 +58,12 @@ var partitionAll = exports.partitionAll = (0, _curry.currify)(function (size, ta
       args[_key - 2] = arguments[_key];
     }
 
-    partition = (0, _checks.isUndefined)(partition) ? (0, _algebraic.empty)(acc) : partition;
+    partition = (0, _checks.isUndefined)(partition) ? (0, _library.empty)(acc) : partition;
 
     if (count++ < size) partition = (0, _arrays.pushMutable)(next, partition);else {
       var temp = partition;
       count = 1;
-      partition = (0, _arrays.pushMutable)(next, (0, _algebraic.empty)(acc));
+      partition = (0, _arrays.pushMutable)(next, (0, _library.empty)(acc));
       return _Transformer.step.apply(undefined, [target, acc, temp].concat(args));
     }
 
@@ -77,7 +75,7 @@ var partitionAll = exports.partitionAll = (0, _curry.currify)(function (size, ta
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _partitionAllGen
@@ -106,7 +104,7 @@ function _partitionAllGen(size, target) {
           throw new TypeError("Cannot partitionAll of non-iterable " + target + "!");
 
         case 2:
-          count = 0, partition = (0, _algebraic.empty)(target);
+          count = 0, partition = (0, _library.empty)(target);
           iterator = (0, _iterables.getIterator)(target);
           result = void 0;
           item = iterator.next();
@@ -135,7 +133,7 @@ function _partitionAllGen(size, target) {
           result = _context.sent;
 
           count = 1;
-          partition = (0, _arrays.pushMutable)(item.value, (0, _algebraic.empty)(target));
+          partition = (0, _arrays.pushMutable)(item.value, (0, _library.empty)(target));
 
         case 16:
 
@@ -169,7 +167,7 @@ function _partitionAllGen(size, target) {
  *   predicate returns a new value
  * - like other functions, this also passes the index and original iterable
  *   to the predicate function as the second and third argument
- * 
+ *
  * @param {Function} predicate
  * - the predicate function to check on each element in iterable
  *
@@ -179,12 +177,12 @@ function _partitionAllGen(size, target) {
  * @returns {Transformer|Generator}
  * - returns transformer if target is an instance with the transformer mixin
  * - generator yielding partitions of elements divided by when predicate
- *   function returns a different value, 
+ *   function returns a different value
  *
  * @throws TypeError
  * - predicate argument is not a function
  */
-var partitionBy = exports.partitionBy = (0, _curry.currify)(function (predicate, target) {
+var partitionBy = exports.partitionBy = (0, _library.currify)(function (predicate, target) {
   if (!(0, _checks.isFunction)(predicate)) throw new TypeError("Cannot partitionBy with non-function " + predicate + "!");else if (!(0, _Transformer.isTransformer)(target)) return _partitionByGen(predicate, target);
 
   // Partition is undefined for now as we currently have no access to the
@@ -201,7 +199,7 @@ var partitionBy = exports.partitionBy = (0, _curry.currify)(function (predicate,
     var nextVal = predicate.apply(undefined, [next].concat(args));
 
     if ((0, _checks.isUndefined)(partition)) {
-      partition = (0, _arrays.pushMutable)(next, (0, _algebraic.empty)(acc));
+      partition = (0, _arrays.pushMutable)(next, (0, _library.empty)(acc));
       val = nextVal;
       return acc;
     }
@@ -210,7 +208,7 @@ var partitionBy = exports.partitionBy = (0, _curry.currify)(function (predicate,
       partition = (0, _arrays.pushMutable)(next, partition);
     } else {
       var temp = partition;
-      partition = (0, _arrays.pushMutable)(next, (0, _algebraic.empty)(acc));
+      partition = (0, _arrays.pushMutable)(next, (0, _library.empty)(acc));
       val = nextVal;
       return _Transformer.step.apply(undefined, [target, acc, temp].concat(args));
     }
@@ -223,7 +221,7 @@ var partitionBy = exports.partitionBy = (0, _curry.currify)(function (predicate,
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _partitionByGen
@@ -270,7 +268,7 @@ function _partitionByGen(predicate, target) {
             break;
           }
 
-          partition = (0, _arrays.pushMutable)(item.value, (0, _algebraic.empty)(target));
+          partition = (0, _arrays.pushMutable)(item.value, (0, _library.empty)(target));
           val = nextVal;
 
           _context2.next = 22;
@@ -294,7 +292,7 @@ function _partitionByGen(predicate, target) {
         case 19:
           result = _context2.sent;
 
-          partition = (0, _arrays.pushMutable)(item.value, (0, _algebraic.empty)(target));
+          partition = (0, _arrays.pushMutable)(item.value, (0, _library.empty)(target));
           val = nextVal;
 
         case 22:

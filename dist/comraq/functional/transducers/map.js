@@ -7,7 +7,7 @@ exports._mapGen = _mapGen;
 
 var _checks = require("./../../utils/checks");
 
-var _curry = require("./../curry");
+var _library = require("./../library");
 
 var _iterables = require("./../iterables");
 
@@ -41,7 +41,7 @@ var _marked = [_mapGen].map(regeneratorRuntime.mark);
  * @throws TypeError
  * - mapping function func is not a function
  */
-exports.default = (0, _curry.currify)(function (func, target) {
+exports.default = (0, _library.currify)(function (func, target) {
   if (!(0, _checks.isFunction)(func)) throw new TypeError("map cannot be applied without first specifying a function!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _mapGen(func, target);
@@ -58,7 +58,7 @@ exports.default = (0, _curry.currify)(function (func, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _mapGen

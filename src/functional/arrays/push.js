@@ -1,5 +1,5 @@
 import { Transformer } from "./../transducers";
-import { identity } from "./../algebraic";
+import { identity } from "./../library";
 import { isArray } from "./../../utils/checks";
 
 /**

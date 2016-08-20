@@ -9,7 +9,7 @@ var _checks = require("./../../utils/checks");
 
 var _utils = require("./../../utils");
 
-var _curry = require("./../curry");
+var _library = require("./../library");
 
 var _iterables = require("./../iterables");
 
@@ -44,7 +44,7 @@ var _marked = [_filterGen, _removeGen, _distinctGen, _dedupeGen, _keepGen].map(r
  * @throws TypeError
  * - predicate function is not a function
  */
-exports.default = (0, _curry.currify)(function (predicate, target) {
+exports.default = (0, _library.currify)(function (predicate, target) {
   if (!(0, _checks.isFunction)(predicate)) throw new Error("filter cannot be applied without first specifying a predicate function!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _filterGen(predicate, target);
@@ -60,7 +60,7 @@ exports.default = (0, _curry.currify)(function (predicate, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _filterGen
@@ -156,7 +156,7 @@ function _filterGen(predicate, target) {
  * @throws TypeError
  * - predicate function func is not a function
  */
-var remove = exports.remove = (0, _curry.currify)(function (predicate, target) {
+var remove = exports.remove = (0, _library.currify)(function (predicate, target) {
   if (!(0, _checks.isFunction)(predicate)) throw new Error("remove cannot be applied without first specifying a predicate function!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _removeGen(predicate, target);
@@ -172,7 +172,7 @@ var remove = exports.remove = (0, _curry.currify)(function (predicate, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _removeGen
@@ -485,7 +485,7 @@ function _dedupeGen(target) {
  * @throws TypeError
  * - predicate function func is not a function
  */
-var keep = exports.keep = (0, _curry.currify)(function (predicate, target) {
+var keep = exports.keep = (0, _library.currify)(function (predicate, target) {
   if (!(0, _checks.isFunction)(predicate)) throw new Error("keep cannot be applied without first specifying a predicate function!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _keepGen(predicate, target);
@@ -505,7 +505,7 @@ var keep = exports.keep = (0, _curry.currify)(function (predicate, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _keepGen

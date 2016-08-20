@@ -1,6 +1,6 @@
-import comraq from "./../../src";
+import comraq from "./../../../src";
 
-const { nAry } = comraq.functional;
+const { nAry } = comraq.functional.library;
 export default () => {
   describe("nAry", () => {
     it("should return a function", () => {

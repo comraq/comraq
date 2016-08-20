@@ -1,12 +1,11 @@
-import comraq from "./../../src";
-import contexts from "./transducers-context.spec.js";
+import comraq from "./../../../src";
 
 import {
-         inc10, triple,
-         even, positive, getTrue, getFalse,
-         array2, array1, numbersData,
-         stubTransformer, isTransducer
-       } from "./../test-data";
+  inc10, triple,
+  even, positive, getTrue, getFalse,
+  array2, array1, numbersData,
+  stubTransformer, isTransducer
+} from "./../../test-data";
 
 const {
   transduce, identity: idT,
@@ -20,14 +19,11 @@ const {
 
 const { isNumber } = comraq.utils.checks;
 const { reduce, toArray } = comraq.functional.iterables;
-const { empty, identity } = comraq.functional.algebraic;
-const { compose, placeholder: _ } = comraq.functional;
+const { compose, placeholder: _, empty, identity } = comraq.functional.library;
 const { length } = comraq.functional.strings;
 const { slice, push, pushMutable } = comraq.functional.arrays;
 
 export default () => {
-  describe("contexts:", contexts);
-
   describe("identity:", () => {
     it("should be a transducer", () => {
       isTransducer(idT).should.be.true;

@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.isInstance = exports.isPrimitive = exports.isIterable = exports.isGeneratorFunction = exports.isGeneratorObject = exports.isSet = exports.isMap = exports.isObject = exports.isBoolean = exports.isUndefined = exports.isNull = exports.isJson = exports.isDate = exports.isNumber = exports.isString = exports.isArray = exports.isFunction = undefined;
 
-var _curry = require("./../functional/curry");
+var _curry = require("./../functional/library/curry");
 
 /**
  * @private @function is

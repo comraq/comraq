@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports._applyTransform = exports.transduce1 = undefined;
 
-var _curry = require("./../curry");
+var _library = require("./../library");
 
 var _Transformer = require("./Transformer");
 
@@ -36,11 +36,11 @@ var _iterables = require("./../iterables");
  * @throws TypeError
  * - if transformer does not implement the _Transformer interface
  */
-var transduce = (0, _curry.currify)(function (transducer, transformer, init, target) {
+var transduce = (0, _library.currify)(function (transducer, transformer, init, target) {
   if (!(0, _Transformer.isTransformer)(transformer)) throw new TypeError("transduce cannot be applied with non-Transformer " + transformer + "!");
 
   return (0, _iterables.reduce)(_applyTransform(transducer, transformer), init, target);
-}, 4, false, _curry.placeholder);
+}, 4, false, _library.placeholder);
 
 exports.default = transduce;
 
@@ -53,9 +53,9 @@ exports.default = transduce;
  * @see @function transduce
  */
 
-var transduce1 = exports.transduce1 = (0, _curry.currify)(function (transducer, transformer, target) {
+var transduce1 = exports.transduce1 = (0, _library.currify)(function (transducer, transformer, target) {
   return transduce(transducer, transformer, (0, _Transformer.init)(transformer), target);
-}, 3, false, _curry.placeholder);
+}, 3, false, _library.placeholder);
 
 /**
  * @private @function _applyTransform

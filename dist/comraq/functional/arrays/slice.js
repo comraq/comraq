@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _curry = require("./../curry");
+var _library = require("./../library");
 
 /**
  * @public @function slice
@@ -12,6 +12,6 @@ var _curry = require("./../curry");
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
  */
-exports.default = (0, _curry.currify)(function (begin, end, target) {
+exports.default = (0, _library.currify)(function (begin, end, target) {
   return target.slice(begin, end);
-}, 3, false, _curry.placeholder);
+}, 3, false, _library.placeholder);

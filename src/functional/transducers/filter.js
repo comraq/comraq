@@ -1,6 +1,6 @@
 import { isFunction, isIterable } from "./../../utils/checks";
 import { types } from "./../../utils";
-import { currify, placeholder } from "./../curry";
+import { currify, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
 import {

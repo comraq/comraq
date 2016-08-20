@@ -7,7 +7,7 @@ exports.isTransformer = exports.init = exports.complete = exports.step = undefin
 
 var _checks = require("./../../utils/checks");
 
-var _algebraic = require("./../algebraic");
+var _library = require("./../library");
 
 var transformerInit = Symbol.for("transformer-init");
 var transformerCompletion = Symbol.for("transformer-completion");
@@ -37,7 +37,7 @@ var transformerStep = Symbol.for("transformer-step");
  * @see @function step
  *
  * @return {Function}
- * - returns the original function after adding the mixin, 
+ * - returns the original function after adding the mixin,
  *   with step, complete and init functions
  */
 function _Transformer(reducer, complete, init, step) {
@@ -66,7 +66,7 @@ function _Transformer(reducer, complete, init, step) {
  */
 
 exports.default = function (reducer) {
-  var complete = arguments.length <= 1 || arguments[1] === undefined ? _algebraic.identity : arguments[1];
+  var complete = arguments.length <= 1 || arguments[1] === undefined ? _library.identity : arguments[1];
   var init = arguments.length <= 2 || arguments[2] === undefined ? reducer : arguments[2];
   var step = arguments.length <= 3 || arguments[3] === undefined ? reducer : arguments[3];
   return _Transformer(reducer, complete, init, step);
@@ -81,7 +81,7 @@ exports.default = function (reducer) {
  * - an instance augmented with the _Transformer mixin
  *
  * @param {Any} acc
- * - the accumulator passed to the step function 
+ * - the accumulator passed to the step function
  *
  * @param {Any} next
  * - the next element in the Iterable sequence passed to the step function
@@ -153,7 +153,7 @@ var init = exports.init = function init(target) {
 /**
  * @public @function isTransformer
  * - checks whether target is augmented with the  _Transformer mixin
- * 
+ *
  * @param {Any} target
  * - the target to check
  *

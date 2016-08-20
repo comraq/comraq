@@ -1,10 +1,10 @@
 import { isNumber, isFunction, isIterable } from "./../../utils/checks";
-import { currify, placeholder } from "./../curry";
+import { currify, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
 import {
   step, complete, init,
-  isTransformer, 
+  isTransformer,
   default as Transformer
 } from "./Transformer";
 
@@ -142,7 +142,7 @@ export const dropWhile = currify((predicate, target) => {
  * @returns {Generator}
  * - a generator that will lazily yield only values from iterable sequence
  *   after predicate evaluates to false
- 
+ *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */

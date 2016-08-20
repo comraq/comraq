@@ -1,8 +1,8 @@
-import comraq from "./../../src";
+import comraq from "./../../../src";
 
-import { inc10, triple } from "./../test-data";
+import { inc10, triple } from "./../../test-data";
 
-const { compose, pipe } = comraq.functional;
+const { compose, pipe } = comraq.functional.library;
 
 export default () => {
   const a = 10, b = -4, c = 0, d = 100;
@@ -19,7 +19,7 @@ export default () => {
       const resultA = compose(inc10, triple, triple)(a);
       const resultC = compose(inc10, triple, c);
       const resultD = compose(inc10, inc10, triple, triple, inc10)(d);
-      
+
       resultA.should.equal(a * 3 * 3 + 10);
       resultC.should.equal(c * 3 + 10);
       resultD.should.equal((d + 10) * 3 * 3 + 10 + 10);

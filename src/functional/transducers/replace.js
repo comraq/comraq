@@ -1,6 +1,5 @@
 import { isIterable, isObject, isMap } from "./../../utils/checks";
-import { currify, placeholder } from "./../curry";
-import { getProp, hasProp } from "./../prop";
+import { currify, placeholder, getProp, hasProp } from "./../library";
 import { getIterator } from "./../iterables";
 
 import {

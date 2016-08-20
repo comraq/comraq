@@ -2,14 +2,14 @@ import comraq from "./../../src";
 import iterReduce from "./../../src/functional/iterables/iterable-reduce";
 
 import {
-         numbersData,
-         inc10,
-         triple,
-         even,
-         add,
-         subtract,
-         array1, genArray2
-       } from "./../test-data";
+  numbersData,
+  inc10,
+  triple,
+  even,
+  add,
+  subtract,
+  array1, genArray2
+} from "./../test-data";
 
 const {
   getIterator, reverse,
@@ -18,7 +18,7 @@ const {
   head, last
 } = comraq.functional.iterables;
 
-const { compose } = comraq.functional;
+const { compose } = comraq.functional.library;
 const { map, filter } = comraq.functional.transducers;
 
 export default () => {

@@ -19,7 +19,7 @@ var _marked = [_tailGen].map(regeneratorRuntime.mark);
 /**
  * @public @function tail
  * - gets all except the first element of the iterable
- * 
+ *
  * @param {Transformer|Iterable} target
  * - the transformer or target iterable
  *
@@ -28,7 +28,6 @@ var _marked = [_tailGen].map(regeneratorRuntime.mark);
  * - a generator with all but the first element of the iterable sequence
  * - empty generator if target iterable is empty
  */
-
 exports.default = function (target) {
   if (!(0, _Transformer.isTransformer)(target)) return _tailGen(target);
 

@@ -6,9 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _checks = require("./../../utils/checks");
 
-var _curry = require("./../curry");
-
-var _prop = require("./../prop");
+var _library = require("./../library");
 
 var _iterables = require("./../iterables");
 
@@ -39,7 +37,7 @@ var _marked = [_replaceGen].map(regeneratorRuntime.mark);
  * @throws TypeError
  * - map is not of type Object or Map
  */
-exports.default = (0, _curry.currify)(function (map, target) {
+exports.default = (0, _library.currify)(function (map, target) {
   if (!(0, _checks.isMap)(map) && !(0, _checks.isObject)(map)) throw new TypeError("replace cannot be applied without providing a replacement map or object!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _replaceGen(map, target);
@@ -49,13 +47,13 @@ exports.default = (0, _curry.currify)(function (map, target) {
       args[_key - 2] = arguments[_key];
     }
 
-    return _Transformer.step.apply(undefined, [target, acc, (0, _prop.hasProp)(next, map) ? (0, _prop.getProp)(next, map) : next].concat(args));
+    return _Transformer.step.apply(undefined, [target, acc, (0, _library.hasProp)(next, map) ? (0, _library.getProp)(next, map) : next].concat(args));
   }, function (acc) {
     return (0, _Transformer.complete)(target, acc);
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _replaceGen
@@ -96,13 +94,13 @@ function _replaceGen(map, target) {
             break;
           }
 
-          if (!(0, _prop.hasProp)(item.value, map)) {
+          if (!(0, _library.hasProp)(item.value, map)) {
             _context.next = 12;
             break;
           }
 
           _context.next = 9;
-          return (0, _prop.getProp)(item.value, map);
+          return (0, _library.getProp)(item.value, map);
 
         case 9:
           result = _context.sent;

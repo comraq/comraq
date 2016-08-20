@@ -1,8 +1,8 @@
-import comraq from "./../../src";
+import comraq from "./../../../src";
 
-import { namesData, numbersData } from "./../test-data";
+import { namesData, numbersData } from "./../../test-data";
 
-const { composable, compose, pipe } = comraq.functional;
+const { composable, compose, pipe } = comraq.functional.library;
 const { reduce1 } = comraq.functional.iterables;
 const { map, filter } = comraq.functional.transducers;
 

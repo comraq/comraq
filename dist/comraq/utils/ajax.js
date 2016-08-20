@@ -30,7 +30,6 @@ var _checks = require("./checks");
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
  */
-
 exports.default = function (req) {
   return new Promise(function (resolve, reject) {
     var method = req.method || "GET";

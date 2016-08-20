@@ -1,5 +1,5 @@
 import { isNumber, isObject } from "./../../utils/checks";
-import { currify, placeholder } from "./../curry";
+import { currify, placeholder } from "./../library";
 
 /**
  * @public @function length

@@ -1,5 +1,5 @@
 import { isFunction } from "./../../utils/checks";
-import { identity } from "./../algebraic";
+import { identity } from "./../library";
 
 const transformerInit = Symbol.for("transformer-init");
 const transformerCompletion = Symbol.for("transformer-completion");
@@ -29,7 +29,7 @@ const transformerStep = Symbol.for("transformer-step");
  * @see @function step
  *
  * @return {Function}
- * - returns the original function after adding the mixin, 
+ * - returns the original function after adding the mixin,
  *   with step, complete and init functions
  */
 function _Transformer(reducer, complete, init, step) {
@@ -72,7 +72,7 @@ export default (
  * - an instance augmented with the _Transformer mixin
  *
  * @param {Any} acc
- * - the accumulator passed to the step function 
+ * - the accumulator passed to the step function
  *
  * @param {Any} next
  * - the next element in the Iterable sequence passed to the step function
@@ -147,7 +147,7 @@ export const init = target => {
 /**
  * @public @function isTransformer
  * - checks whether target is augmented with the  _Transformer mixin
- * 
+ *
  * @param {Any} target
  * - the target to check
  *
@@ -159,4 +159,4 @@ export const isTransformer = target =>
   isFunction(target[transformerStep]) &&
   isFunction(target[transformerCompletion]) &&
   isFunction(target[transformerInit]);
-  
+

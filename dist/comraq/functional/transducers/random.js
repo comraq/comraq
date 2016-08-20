@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _checks = require("./../../utils/checks");
 
-var _curry = require("./../curry");
+var _library = require("./../library");
 
 var _iterables = require("./../iterables");
 
@@ -38,7 +38,7 @@ var _marked = [_randomGen].map(regeneratorRuntime.mark);
  * @throws TypeError
  * - prob is not a valid number between 0.0 - 1.0 (inclusive)
  */
-exports.default = (0, _curry.currify)(function (prob, target) {
+exports.default = (0, _library.currify)(function (prob, target) {
   if (!(0, _checks.isNumber)(prob) || prob < 0 || prob > 1) throw new TypeError("random cannot be applied with invalid probability " + prob + "!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _randomGen(prob, target);
@@ -54,7 +54,7 @@ exports.default = (0, _curry.currify)(function (prob, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _randomGen

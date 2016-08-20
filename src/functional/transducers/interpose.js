@@ -1,5 +1,5 @@
 import { isIterable } from "./../../utils/checks";
-import { currify, placeholder } from "./../curry";
+import { currify, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
 import { isReduced } from "./Reduced";

@@ -10,7 +10,7 @@ import {
 /**
  * @public @function tail
  * - gets all except the first element of the iterable
- * 
+ *
  * @param {Transformer|Iterable} target
  * - the transformer or target iterable
  *

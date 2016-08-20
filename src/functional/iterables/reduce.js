@@ -1,9 +1,8 @@
 import { isFunction, isIterable } from "./../../utils/checks";
-import { currify, placeholder } from "./../curry";
+import { currify, placeholder, identity } from "./../library";
 
 import iterReduce from "./iterable-reduce";
 import getIterator from "./get-iterator";
-import { identity } from "./../algebraic";
 
 /**
  * @public @function reduce

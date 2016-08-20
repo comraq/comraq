@@ -1,4 +1,4 @@
-import { currify, placeholder } from "./../curry";
+import { currify, placeholder } from "./../library";
 import map from "./map";
 import cat from "./cat";
 

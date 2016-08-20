@@ -1,4 +1,4 @@
-import { isFunction } from "./../utils/checks";
+import { isFunction } from "./../../utils/checks";
 import { currify, placeholder } from "./curry";
 
 

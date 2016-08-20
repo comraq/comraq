@@ -7,7 +7,7 @@ exports.pushMutable = undefined;
 
 var _transducers = require("./../transducers");
 
-var _algebraic = require("./../algebraic");
+var _library = require("./../library");
 
 var _checks = require("./../../utils/checks");
 
@@ -48,7 +48,7 @@ var _push = function _push(value, array) {
  * @see @mixin Transformer
  * @see @function _push
  */
-exports.default = (0, _transducers.Transformer)(_push, _algebraic.identity, _push, function (acc, next) {
+exports.default = (0, _transducers.Transformer)(_push, _library.identity, _push, function (acc, next) {
   return _push(next, acc);
 });
 
@@ -89,6 +89,6 @@ var _pushMutable = function _pushMutable(value, array) {
  * @see @mixin Transformer
  * @see @function _pushMutable
  */
-var pushMutable = exports.pushMutable = (0, _transducers.Transformer)(_pushMutable, _algebraic.identity, _pushMutable, function (acc, next) {
+var pushMutable = exports.pushMutable = (0, _transducers.Transformer)(_pushMutable, _library.identity, _pushMutable, function (acc, next) {
   return _pushMutable(next, acc);
 });

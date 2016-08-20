@@ -7,7 +7,7 @@ exports.trim = exports.upper = exports.lower = exports.split = exports.replace =
 
 var _checks = require("./../../utils/checks");
 
-var _curry = require("./../curry");
+var _library = require("./../library");
 
 /**
  * @public @function length
@@ -35,9 +35,9 @@ var length = exports.length = function length(target) {
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/repeat
  */
-var repeat = exports.repeat = (0, _curry.currify)(function (count, s) {
+var repeat = exports.repeat = (0, _library.currify)(function (count, s) {
   return s.repeat(count);
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @public @function replace
@@ -45,9 +45,9 @@ var repeat = exports.repeat = (0, _curry.currify)(function (count, s) {
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace
  */
-var replace = exports.replace = (0, _curry.currify)(function (expr, replacement, s) {
+var replace = exports.replace = (0, _library.currify)(function (expr, replacement, s) {
   return s.replace(expr, replacement);
-}, 3, false, _curry.placeholder);
+}, 3, false, _library.placeholder);
 
 /**
  * @public @function split
@@ -55,9 +55,9 @@ var replace = exports.replace = (0, _curry.currify)(function (expr, replacement,
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split
  */
-var split = exports.split = (0, _curry.currify)(function (sep, s) {
+var split = exports.split = (0, _library.currify)(function (sep, s) {
   return s.split(sep);
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @public @function lower

@@ -7,7 +7,7 @@ exports.takeNth = exports.takeWhile = undefined;
 
 var _checks = require("./../../utils/checks");
 
-var _curry = require("./../curry");
+var _library = require("./../library");
 
 var _iterables = require("./../iterables");
 
@@ -25,7 +25,7 @@ var _marked = [_takeGen, _takeWhileGen, __takeNthGen].map(regeneratorRuntime.mar
  * @public @function take
  * - gets the first 'number' of elements from an iterable specified
  *   by num
- * 
+ *
  * @param {Number} total
  * - the count of elements to take from iterable
  *
@@ -40,7 +40,7 @@ var _marked = [_takeGen, _takeWhileGen, __takeNthGen].map(regeneratorRuntime.mar
  * @throws TypeError
  * - total number to take is not a number
  */
-exports.default = (0, _curry.currify)(function (total, target) {
+exports.default = (0, _library.currify)(function (total, target) {
   if (!(0, _checks.isNumber)(total)) throw new TypeError("Cannot take elements with a non-number limit " + total + "!");else if (!(0, _Transformer.isTransformer)(target)) return _takeGen(total, target);
 
   var count = 0;
@@ -58,7 +58,7 @@ exports.default = (0, _curry.currify)(function (total, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _takeGen
@@ -141,7 +141,7 @@ function _takeGen(num, target) {
  * @throws TypeError
  * - predicate is not a function
  */
-var takeWhile = exports.takeWhile = (0, _curry.currify)(function (predicate, target) {
+var takeWhile = exports.takeWhile = (0, _library.currify)(function (predicate, target) {
   if (!(0, _checks.isFunction)(predicate)) throw new TypeError("Cannot takeWhile elements with non-function predicate " + predicate + "!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _takeWhileGen(predicate, target);
@@ -159,7 +159,7 @@ var takeWhile = exports.takeWhile = (0, _curry.currify)(function (predicate, tar
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _takeWhileGen
@@ -265,7 +265,7 @@ function _takeWhileGen(predicate, target) {
  * - a generator yielding only every nth element starting from index start
  *   (start defaults to 0)
  */
-var takeNth = exports.takeNth = (0, _curry.currify)(function (n, start, target) {
+var takeNth = exports.takeNth = (0, _library.currify)(function (n, start, target) {
   if ((0, _checks.isIterable)(start) || (0, _Transformer.isTransformer)(start)) return _takeNth(n, 0, start);
 
   if (arguments.length > 2) return _takeNth(n, start, target);
@@ -273,7 +273,7 @@ var takeNth = exports.takeNth = (0, _curry.currify)(function (n, start, target) 
   return function (target) {
     return _takeNth(n, start, target);
   };
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /*
  * @private @function _takeNth

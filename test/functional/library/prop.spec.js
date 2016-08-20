@@ -1,16 +1,16 @@
-import comraq from "./../../src";
+import comraq from "./../../../src";
 
 import {
-         namesData,
-         positive,
-         triple,
-         add
-       } from "./../test-data";
+  namesData,
+  positive,
+  triple,
+  add
+} from "./../../test-data";
 
 const {
   curry, composable, compose, pipe,
   getProp, withProp, hasProp, placeholder: _
-} = comraq.functional;
+} = comraq.functional.library;
 
 const { upper } = comraq.functional.strings;
 const { toArray, reduce1 } = comraq.functional.iterables;

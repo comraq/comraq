@@ -1,4 +1,10 @@
-import { isFunction } from "./../utils/checks";
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _checks = require("./../../utils/checks");
 
 /**
  * @public @function composable
@@ -16,16 +22,15 @@ import { isFunction } from "./../utils/checks";
  * @throws Error
  * - non-function passed as first argument
  */
-const composable = selfFunc => {
-  if (!isFunction(selfFunc))
-    throw new Error(
-      `First argument '${selfFunc}' of currify is not a function!`
-    );
+var composable = function composable(selfFunc) {
+  if (!(0, _checks.isFunction)(selfFunc)) throw new Error("First argument '" + selfFunc + "' of currify is not a function!");
 
-  return function() {
-    const next = arguments[0];
+  return function () {
+    var _this = this;
 
-    if (!isFunction(next)) {
+    var next = arguments[0];
+
+    if (!(0, _checks.isFunction)(next)) {
       // First argument is not a function, execute and return result
 
       // Always pass all potential arguments to to-be-called function (selfFunc)
@@ -35,8 +40,14 @@ const composable = selfFunc => {
 
     // Always pass all potential arguments to to-be-called function (selfFunc)
     // Regardless of selfFunc.length
-    return (...args) => composable(selfFunc)(next.apply(this, args));
+    return function () {
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      return composable(selfFunc)(next.apply(_this, args));
+    };
   };
 };
 
-export default composable;
+exports.default = composable;

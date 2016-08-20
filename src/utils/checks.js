@@ -1,4 +1,4 @@
-import { currify, placeholder } from "./../functional/curry";
+import { currify, placeholder } from "./../functional/library/curry";
 
 /**
  * @private @function is

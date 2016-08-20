@@ -1,11 +1,11 @@
 import { isNumber, isFunction, isIterable } from "./../../utils/checks";
-import { currify, placeholder } from "./../curry";
+import { currify, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
 import { ensureReduced } from "./Reduced";
 import {
   step, complete, init,
-  isTransformer, 
+  isTransformer,
   default as Transformer
 } from "./Transformer";
 
@@ -13,7 +13,7 @@ import {
  * @public @function take
  * - gets the first 'number' of elements from an iterable specified
  *   by num
- * 
+ *
  * @param {Number} total
  * - the count of elements to take from iterable
  *

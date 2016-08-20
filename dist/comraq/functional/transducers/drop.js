@@ -7,7 +7,7 @@ exports.dropWhile = undefined;
 
 var _checks = require("./../../utils/checks");
 
-var _curry = require("./../curry");
+var _library = require("./../library");
 
 var _iterables = require("./../iterables");
 
@@ -39,7 +39,7 @@ var _marked = [_dropGen, _dropWhileGen].map(regeneratorRuntime.mark);
  * @throws TypeError
  * - total number to take is not a number
  */
-exports.default = (0, _curry.currify)(function (total, target) {
+exports.default = (0, _library.currify)(function (total, target) {
   if (!(0, _checks.isNumber)(total)) throw new TypeError("Cannot drop elements with a non-number limit " + total + "!");else if (!(0, _Transformer.isTransformer)(target)) return _dropGen(total, target);
 
   var count = 0;
@@ -57,7 +57,7 @@ exports.default = (0, _curry.currify)(function (total, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _dropGen
@@ -145,7 +145,7 @@ function _dropGen(num, target) {
  * @throws TypeError
  * - predicate is not a function
  */
-var dropWhile = exports.dropWhile = (0, _curry.currify)(function (predicate, target) {
+var dropWhile = exports.dropWhile = (0, _library.currify)(function (predicate, target) {
   if (!(0, _checks.isFunction)(predicate)) throw new TypeError("Cannot dropWhile elements with non-function predicate " + predicate + "!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _dropWhileGen(predicate, target);
@@ -165,7 +165,7 @@ var dropWhile = exports.dropWhile = (0, _curry.currify)(function (predicate, tar
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _dropWhileGen
@@ -176,7 +176,7 @@ var dropWhile = exports.dropWhile = (0, _curry.currify)(function (predicate, tar
  * @returns {Generator}
  * - a generator that will lazily yield only values from iterable sequence
  *   after predicate evaluates to false
- 
+ *
  * @throws TypeError
  * - target is not/does not implement the iterable interface
  */

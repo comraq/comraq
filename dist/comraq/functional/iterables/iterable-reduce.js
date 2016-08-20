@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _curry = require("./../curry");
+var _library = require("./../library");
 
 var _checks = require("./../../utils/checks");
 
@@ -49,7 +49,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @throws Error
  * - if iterable is not/does not implement the iterator interface
  */
-var reduce = (0, _curry.currify)(function (func, acc, iterable) {
+var reduce = (0, _library.currify)(function (func, acc, iterable) {
   var index = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
   var iterator = arguments.length <= 4 || arguments[4] === undefined ? (0, _getIterator2.default)(iterable) : arguments[4];
 
@@ -60,7 +60,7 @@ var reduce = (0, _curry.currify)(function (func, acc, iterable) {
 
   acc = func(acc, item.value, index, iterable);
   return reduce(func, acc, iterable, index + 1, iterator);
-}, 3, false, _curry.placeholder);
+}, 3, false, _library.placeholder);
 
 exports.default = reduce;
 

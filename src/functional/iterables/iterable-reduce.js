@@ -1,4 +1,4 @@
-import { currify, placeholder } from "./../curry";
+import { currify, placeholder } from "./../library";
 import { isIterable, isFunction } from "./../../utils/checks";
 
 import getIterator from "./get-iterator";

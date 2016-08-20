@@ -23,7 +23,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 /**
  * @public @function initial
  * - gets all except the last element of the iterable
- * 
+ *
  * @param {Transformer|Iterable} target
  * - the transformer or target iterable
  *
@@ -32,7 +32,6 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
  * - a generator yielding all but the last element of the iterable sequence
  * - empty generator if target iterable is empty
  */
-
 exports.default = function (target) {
   if (!(0, _Transformer.isTransformer)(target)) return _initialGen(target);
 

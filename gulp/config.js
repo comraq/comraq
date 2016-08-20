@@ -75,7 +75,7 @@ export default wagner => {
                    plugins.util.colors.bgGreen
                  :
                    plugins.util.colors.bgYellow;
-  
+
     plugins.util.log("Production", colour(production));
   });
 

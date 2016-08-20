@@ -13,7 +13,7 @@ function _toArray(arr) { return Array.isArray(arr) ? arr : Array.from(arr); }
  * @public @function reverse
  * - takes an iterable target and returns a new iterable that will iterate
  *   though the same elements but in reverse order
- * 
+ *
  * @param {Iterable} target
  * - the iterable target to reverse
  *

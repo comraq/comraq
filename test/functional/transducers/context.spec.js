@@ -1,11 +1,11 @@
-import comraq from "./../../src";
+import comraq from "./../../../src";
 
 import {
-         inc5,
-         triple,
-         even,
-         array2, numbersData
-       } from "./../test-data";
+  inc5,
+  triple,
+  even,
+  array2, numbersData
+} from "./../../test-data";
 
 const {
   transduce, transduce1, into,
@@ -15,8 +15,7 @@ const {
 } = comraq.functional.transducers;
 
 const { pushMutable } = comraq.functional.arrays;
-const { compose } = comraq.functional;
-const { empty, identity } = comraq.functional.algebraic;
+const { empty, identity, compose } = comraq.functional.library;
 
 export default () => {
   describe("transduce:", () => {

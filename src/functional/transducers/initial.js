@@ -11,7 +11,7 @@ import {
 /**
  * @public @function initial
  * - gets all except the last element of the iterable
- * 
+ *
  * @param {Transformer|Iterable} target
  * - the transformer or target iterable
  *

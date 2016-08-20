@@ -1,4 +1,4 @@
-import comraq from "./../../src";
+import comraq from "./../../../src";
 
 import {
   multiply,
@@ -6,9 +6,9 @@ import {
   add, inc5,
   arity1Add,
   toArray
-} from "../test-data";
+} from "./../../test-data";
 
-const { curry, currify, autoCurry } = comraq.functional;
+const { curry, currify, autoCurry } = comraq.functional.library;
 
 export default () => {
   describe("curry:", () => {

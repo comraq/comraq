@@ -9,7 +9,7 @@ var _checks = require("./../../utils/checks");
 /**
  * @public @function last
  * - gets the last element of the iterable
- * 
+ *
  * @param {Iterable} target
  * - the target iterable
  *
@@ -19,7 +19,6 @@ var _checks = require("./../../utils/checks");
  * @throws Error
  * - target is not/does not implement the iterable interface
  */
-
 exports.default = function (target) {
   if (!(0, _checks.isIterable)(target)) throw new Error("Cannot get last element of non-iterable " + target + "!");else if ((0, _checks.isArray)(target)) return (0, _checks.isUndefined)(target[target.length - 1]) ? null : target[target.length - 1];
 

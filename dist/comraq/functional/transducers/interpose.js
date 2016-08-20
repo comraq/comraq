@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _checks = require("./../../utils/checks");
 
-var _curry = require("./../curry");
+var _library = require("./../library");
 
 var _iterables = require("./../iterables");
 
@@ -36,7 +36,7 @@ var _marked = [_interposeGen].map(regeneratorRuntime.mark);
  * - returns a generator yielding avlues with entry inserted between each
  *   element from the original collection
  */
-exports.default = (0, _curry.currify)(function (entry, target) {
+exports.default = (0, _library.currify)(function (entry, target) {
   if (!(0, _Transformer.isTransformer)(target)) return _interposeGen(entry, target);
 
   var started = false;
@@ -59,7 +59,7 @@ exports.default = (0, _curry.currify)(function (entry, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _curry.placeholder);
+}, 2, false, _library.placeholder);
 
 /**
  * @private @function _interposeGen

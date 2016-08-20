@@ -3,7 +3,7 @@ import { isArray, isUndefined, isIterable } from "./../../utils/checks";
 /**
  * @public @function last
  * - gets the last element of the iterable
- * 
+ *
  * @param {Iterable} target
  * - the target iterable
  *
@@ -21,6 +21,6 @@ export default target => {
     return (isUndefined(target[target.length - 1]))?
       null: target[target.length - 1];
 
-  for (var item of target) {}
+  for (var item of target);
   return item;
 };

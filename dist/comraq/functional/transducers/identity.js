@@ -24,7 +24,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @throws TypeError
  * - if target is not an instance with the Transformer mixin
  */
-
 exports.default = function (target) {
   if (!(0, _Transformer.isTransformer)(target)) throw new TypeError("Non-transformer " + target + " is supplied to identity Transducer!");
 

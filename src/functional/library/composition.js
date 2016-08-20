@@ -1,5 +1,5 @@
-import { isArray } from "./../utils/checks";
-import { pFunction } from "./../utils/types";
+import { isArray } from "./../../utils/checks";
+import { pFunction } from "./../../utils/types";
 
 /**
  * @private @function getResult
@@ -40,7 +40,7 @@ const getResult = (reducerIterator, spread, ...args) => {
 
     else
       return func(result);
- 
+
   });
 };
 
@@ -96,7 +96,7 @@ export const compose = (...args) => {
  * @public @function pipe
  * - pipe any number of functions and executes them from left to right
  *   order, piping each result to next function
- * 
+ *
  * @see @function compose
  * - this function is completely the same as compose except for
  *   executing the functions with the reverse order

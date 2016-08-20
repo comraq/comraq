@@ -1,4 +1,4 @@
-import { currify, placeholder } from "./../curry";
+import { currify, placeholder } from "./../library";
 
 /**
  * @public @function slice

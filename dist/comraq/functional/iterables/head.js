@@ -25,7 +25,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @throws Error
  * - target is not/does not implement the iterable interface
  */
-
 exports.default = function (target) {
   if (!(0, _checks.isIterable)(target)) throw new Error("Cannot get head element of non-iterable " + target + "!");else if ((0, _checks.isArray)(target)) return (0, _checks.isUndefined)(target[0]) ? null : target[0];
 

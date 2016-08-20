@@ -19,7 +19,6 @@ var _checks = require("./../../utils/checks");
  * @throws TypeError
  * - if target is not/does not implement the iterator interface
  */
-
 exports.default = function (target) {
   // TODO: support other types of data structures such as objects by
   //       creating custom iterators
