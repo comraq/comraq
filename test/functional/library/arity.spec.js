@@ -2,7 +2,7 @@ import comraq from "./../../../src";
 
 const { nAry } = comraq.functional.library;
 export default () => {
-  describe("nAry", () => {
+  describe("nAry:", () => {
     it("should return a function", () => {
       nAry(5, () => {}).should.be.a("function");
     });

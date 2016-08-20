@@ -8,7 +8,7 @@ import {
 } from "./../../test-data";
 
 const {
-  curry, composable, compose, pipe,
+  curry, compose, pipe,
   getProp, withProp, hasProp, placeholder: _
 } = comraq.functional.library;
 
@@ -36,12 +36,12 @@ export default () => {
         filter(compose(positive, getProp("id")))
       );
 
-      const B = pipe(namesData, getProp(0), getProp("id"), triple);
+      const B = pipe(getProp(0), getProp("id"), triple);
       const C = compose(triple, getProp("id"), getProp(0));
       const D = compose(reduce1(add), A);
-    
+
       A(namesData).should.eql([ "ADAM", "COMRAQ", "YIN" ]);
-      B.should.equal(namesData[0]["id"] * 3);
+      B(namesData).should.equal(namesData[0]["id"] * 3);
       C(namesData).should.equal(namesData[0]["id"] * 3);
       D(namesData).should.equal("ADAMCOMRAQYIN");
     });
@@ -109,13 +109,12 @@ export default () => {
 
     it("can be used in composition with other functions", () => {
       const A = pipe(
-        namesData,
         filter(compose(positive, withProp("id", -1))),
         toArray
       );
-      A.should.eql([]);
+      A(namesData).should.eql([]);
 
-      const lengthLT = composable((len, e) => e.length < len);
+      const lengthLT = (len, e) => e.length < len;
       let lenLT5 = curry(lengthLT, 5);
 
       const B = compose(

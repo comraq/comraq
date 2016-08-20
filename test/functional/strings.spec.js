@@ -9,7 +9,7 @@ export default () => {
   const s1 = "aSdf";
   const s2 = "1234";
   const s3 = "my name is: yi ran";
-  const s4 = "  hello world "; 
+  const s4 = "  hello world ";
 
   describe("length:", () => {
     it("should return the length of strings", () => {

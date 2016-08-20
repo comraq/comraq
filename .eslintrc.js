@@ -24,6 +24,9 @@ module.exports = {
     "react"
   ],
   "rules": {
+    "no-unused-vars": {
+      "argsIgnorePattern": "^_$"
+    },
     "indent": [
       "error",
       2,

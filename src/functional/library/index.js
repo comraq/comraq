@@ -1,4 +1,4 @@
-export { default as composable } from "./composable";
+export { default as Arrow } from "./Arrow";
 export { trace } from "./utils";
 export { getProp, withProp, hasProp } from "./prop";
 export { default as curry, currify, placeholder, autoCurry } from "./curry";
