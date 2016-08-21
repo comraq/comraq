@@ -5,7 +5,7 @@ import {
 } from "./../../test-data";
 
 const { Arrow } = comraq.functional.library;
-const { Functor } = comraq.functional.categories;
+const { Functor, Applicative } = comraq.functional.categories;
 
 export default () => {
   describe("of:", () => {
@@ -57,7 +57,6 @@ export default () => {
 
     arr.should.be.an.instanceof(Functor);
     arr.fmap.should.be.a("function");
-    arr.should.be.an.instanceof(Arrow);
   });
 
   it("can apply functions to contained value via fmap", () => {
@@ -80,5 +79,13 @@ export default () => {
     add5Times3Add10(2).should.equal(31);
 
     Arrow.lift( inc5 ).fmap( triple ).fmap( inc10 )(2).should.equal(31);
+  });
+
+  it("instances are applicatives", () => {
+    const arr = Arrow.of(null);
+
+    arr.should.be.an.instanceof(Applicative);
+    arr.of.should.be.a("function");
+    arr.ap.should.be.a("function");
   });
 };

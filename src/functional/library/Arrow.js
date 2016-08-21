@@ -1,5 +1,5 @@
 import { isFunction } from "./../../utils/checks";
-import { Functor } from "./../categories";
+import { Functor, Applicative } from "./../categories";
 
 /**
  * @private @var {Symbol} arrowSymbol
@@ -14,39 +14,76 @@ const arrowSymbol = Symbol.for("comraq-Arrow");
 const _compose = (g, f) => (...args) => g(f(...args));
 
 /**
- * @private @function _makeArrow
- * - helper function for lifting a function into an Arrow instance
- * - also implements:
- *   - Functor
+ * @private @class Arrow
+ * - the Arrow class, 'wrapping' regular functions
+ *
+ * @implements Functor
+ */
+const Arrow = {
+  [arrowSymbol]: true
+};
+
+/**
+ * @private @function _pure
+ * - helper function for copy a function into an Arrow instance
  *
  * @param {Function} f
  * - the function to lift
  *
- * @return {Arrow}
- * - the original function f lifted into an Arrow instance
+ * @return {Function, Arrow}
+ * - the original function f with properties and symbols from Arrow
+ *   set directly onto the function
+ * - as to avoid mutating Function.prototype, duck typing as Arrow
  */
-const _makeArrow = f => {
-  f[arrowSymbol] = true;
+const _pure = f => {
+  for (const prop in Arrow)
+    f[prop] = Arrow[prop];
 
-  f = Functor.implement(f, {
-    fmap: g => _makeArrow(_compose(g, f))
-  });
+  for (const symbol of Object.getOwnPropertySymbols(Arrow))
+    f[symbol] = Arrow[symbol];
 
+  f.__func = f;
   return f;
 };
 
 /**
+ * @public @function of
+ * - lifts any value into an Arrow that will return the original value
+ *   when called (the called arguments are ignored)
+ *
+ * @param {Any} x
+ * - the value that will be returned when Arrow "function" is called
+ *
+ * @see @private @function _pure
+ */
+const of = x => _pure(() => x);
+
+
+/**
+ * Implementations of Typeclasses
+ */
+Functor.implement(Arrow, {
+  fmap: function(g) {
+    const f = _compose(g, this.__func)
+    return _pure(f);
+  }
+});
+
+Applicative.implement(Arrow, {
+  of: of,
+  ap: function(g) {
+    return g.fmap(this.__func);
+  }
+});
+
+
+
+
+/**
  * Define Exposed API in the Object Literal Below
  */
-const Arrow = {
-  /**
-   * @public @function of
-   * - lifts any value into an Arrow that will return the original value
-   *   when called (the called arguments are ignored)
-   *
-   * @see @private @function _makeArrow
-   */
-  of: x => _makeArrow(() => x),
+export default {
+  of: of,
 
   /**
    * @public @function
@@ -64,7 +101,7 @@ const Arrow = {
    * @param {Function} func
    * - the function to lift
    *
-   * @see @private @function _makeArrow
+   * @see @private @function _pure
    *
    * @throws TypeError
    * - if func is not a function
@@ -75,8 +112,6 @@ const Arrow = {
         `Non-Function '${func}' cannot be made into Arrow using 'lift'!`
       );
 
-    return _makeArrow((...args) => func(...args));
+    return _pure((...args) => func(...args));
   }
 };
-
-export default Arrow;
