@@ -1,4 +1,5 @@
-import { isNumber, isFunction, isIterable } from "./../../utils/checks";
+import { isIterable } from "./../../utils/checks";
+import { pNumber, pFunction } from "./../../utils/types";
 import { curry, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
@@ -29,7 +30,7 @@ import {
  * - total number to take is not a number
  */
 export default curry((total, target) => {
-  if (!isNumber(total))
+  if (typeof total !== pNumber)
     throw new TypeError(
       `Cannot take elements with a non-number limit ${total}!`
     );
@@ -108,7 +109,7 @@ function* _takeGen(num, target) {
  * - predicate is not a function
  */
 export const takeWhile = curry((predicate, target) => {
-  if (!isFunction(predicate))
+  if (typeof predicate !== pFunction)
     throw new TypeError(
       `Cannot takeWhile elements with non-function predicate ${predicate}!`
     );
@@ -231,12 +232,12 @@ export const takeNth = curry(function(n, start, target) {
  * - start is not a number
  */
 const _takeNth = (n, start, target) => {
-  if (!isNumber(n) || n <= 0)
+  if (typeof n !== pNumber || n <= 0)
     throw new TypeError(
       `Cannot takeNth elements with an invalid n: '${n}'!`
     );
 
-  else if (!isNumber(start))
+  else if (typeof start !== pNumber)
     throw new TypeError(
       "Second argument to takeNth must be a starting index number, "
       + "transformer or iterable!"

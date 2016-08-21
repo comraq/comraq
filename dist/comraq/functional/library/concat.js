@@ -9,6 +9,10 @@ var _utils = require("./../../utils");
 
 var _curry = require("./curry");
 
+var _curry2 = _interopRequireDefault(_curry);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 /**
@@ -31,7 +35,7 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
  * @throws TypeError
  * - if sg and value are not of the same semigroup
  */
-exports.default = (0, _curry.currify)(function (sg, value) {
+exports.default = (0, _curry2.default)(function (sg, value) {
   var vType = _utils.types.toString(value);
 
   switch (_utils.types.toString(sg)) {
@@ -53,7 +57,7 @@ exports.default = (0, _curry.currify)(function (sg, value) {
     default:
       throw new TypeError("Do not know how to concat for unknown type: " + sg + "!");
   }
-}, 2, false, _curry.placeholder);
+}, 2, _curry.placeholder);
 
 /**
  * @private @function concatMutable
@@ -62,7 +66,7 @@ exports.default = (0, _curry.currify)(function (sg, value) {
  * @see @function concat
  */
 
-var concatMutable = exports.concatMutable = (0, _curry.currify)(function (sg, value) {
+var concatMutable = exports.concatMutable = (0, _curry2.default)(function (sg, value) {
   var vType = _utils.types.toString(value);
 
   switch (_utils.types.toString(sg)) {
@@ -85,4 +89,4 @@ var concatMutable = exports.concatMutable = (0, _curry.currify)(function (sg, va
     default:
       throw new TypeError("Do not know how to concatMutable for unknown type: " + sg + "!");
   }
-}, 2, false, _curry.placeholder);
+}, 2, _curry.placeholder);

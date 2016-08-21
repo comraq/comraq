@@ -1,4 +1,4 @@
-import { isFunction } from "./../../utils/checks";
+import { pFunction } from "./../../utils/types";
 
 /**
  * @private @var {Symbol} functorSymbol
@@ -26,13 +26,13 @@ export default {
    * - if fmap is later called without a function
    */
   implement: (source, implementation) => {
-    if (!isFunction(implementation.fmap))
+    if (typeof implementation.fmap !== pFunction)
       throw new TypeError(
         "Cannot implement the Functor Typeclass without 'fmap'!"
       );
 
     source.fmap = function(g) {
-      if (!isFunction(g))
+      if (typeof g !== pFunction)
         throw new TypeError(`Cannot fmap with Non-Function ${g}!`);
 
       return implementation.fmap.call(this, g);

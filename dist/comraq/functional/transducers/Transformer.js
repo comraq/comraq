@@ -5,7 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.isTransformer = exports.init = exports.complete = exports.step = undefined;
 
-var _checks = require("./../../utils/checks");
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var _types = require("./../../utils/types");
 
 var _library = require("./../library");
 
@@ -104,7 +106,7 @@ var step = exports.step = function step(target, acc, next) {
 
   if (!isTransformer(target)) throw new TypeError(target + " does not implement the Transformer interface");
 
-  return target[transformerStep].apply(target, [acc, next].concat(args));
+  return _library.curriedApply.apply(undefined, [target[transformerStep], acc, next].concat(args));
 };
 
 /**
@@ -116,7 +118,7 @@ var step = exports.step = function step(target, acc, next) {
  * - an instance augmented with the _Transformer mixin
  *
  * @param {Any} acc
- * - the accumulator passed to the complete function 
+ * - the accumulator passed to the complete function
  *
  * @returns {Any}
  * - the return value of target's complete function
@@ -162,5 +164,5 @@ var init = exports.init = function init(target) {
  *   false otherwise
  */
 var isTransformer = exports.isTransformer = function isTransformer(target) {
-  return (0, _checks.isFunction)(target[transformerStep]) && (0, _checks.isFunction)(target[transformerCompletion]) && (0, _checks.isFunction)(target[transformerInit]);
+  return _typeof(target[transformerStep]) === _types.pFunction && _typeof(target[transformerCompletion]) === _types.pFunction && _typeof(target[transformerInit]) === _types.pFunction;
 };

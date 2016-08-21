@@ -4,12 +4,12 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _composable = require("./composable");
+var _Arrow = require("./Arrow");
 
-Object.defineProperty(exports, "composable", {
+Object.defineProperty(exports, "Arrow", {
   enumerable: true,
   get: function get() {
-    return _interopRequireDefault(_composable).default;
+    return _interopRequireDefault(_Arrow).default;
   }
 });
 
@@ -43,33 +43,6 @@ Object.defineProperty(exports, "hasProp", {
   }
 });
 
-var _curry = require("./curry");
-
-Object.defineProperty(exports, "curry", {
-  enumerable: true,
-  get: function get() {
-    return _interopRequireDefault(_curry).default;
-  }
-});
-Object.defineProperty(exports, "currify", {
-  enumerable: true,
-  get: function get() {
-    return _curry.currify;
-  }
-});
-Object.defineProperty(exports, "placeholder", {
-  enumerable: true,
-  get: function get() {
-    return _curry.placeholder;
-  }
-});
-Object.defineProperty(exports, "autoCurry", {
-  enumerable: true,
-  get: function get() {
-    return _curry.autoCurry;
-  }
-});
-
 var _composition = require("./composition");
 
 Object.defineProperty(exports, "compose", {
@@ -91,6 +64,15 @@ Object.defineProperty(exports, "nAry", {
   enumerable: true,
   get: function get() {
     return _interopRequireDefault(_arity).default;
+  }
+});
+
+var _flip = require("./flip");
+
+Object.defineProperty(exports, "flip", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_flip).default;
   }
 });
 
@@ -124,6 +106,45 @@ Object.defineProperty(exports, "concatMutable", {
   enumerable: true,
   get: function get() {
     return _concat.concatMutable;
+  }
+});
+
+var _curry = require("./curry");
+
+Object.defineProperty(exports, "curry", {
+  enumerable: true,
+  get: function get() {
+    return _interopRequireDefault(_curry).default;
+  }
+});
+Object.defineProperty(exports, "isCurried", {
+  enumerable: true,
+  get: function get() {
+    return _curry.isCurried;
+  }
+});
+Object.defineProperty(exports, "getArity", {
+  enumerable: true,
+  get: function get() {
+    return _curry.getArity;
+  }
+});
+Object.defineProperty(exports, "partial", {
+  enumerable: true,
+  get: function get() {
+    return _curry.partial;
+  }
+});
+Object.defineProperty(exports, "placeholder", {
+  enumerable: true,
+  get: function get() {
+    return _curry.placeholder;
+  }
+});
+Object.defineProperty(exports, "curriedApply", {
+  enumerable: true,
+  get: function get() {
+    return _curry.curriedApply;
   }
 });
 

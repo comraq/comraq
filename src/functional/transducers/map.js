@@ -1,4 +1,5 @@
-import { isFunction, isIterable } from "./../../utils/checks";
+import { isIterable } from "./../../utils/checks";
+import { pFunction } from "./../../utils/types";
 import { curry, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
@@ -31,7 +32,7 @@ import {
  * - mapping function func is not a function
  */
 export default curry((func, target) => {
-  if (!isFunction(func))
+  if (typeof func !== pFunction)
     throw new TypeError(
       "map cannot be applied without first specifying a function!"
     );

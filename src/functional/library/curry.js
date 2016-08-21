@@ -213,7 +213,7 @@ export default function curry(
     fnLen = func.length;
 
   if (fnLen === 0)
-    return _markCurried(0, () => func());
+    return _markCurried(0, (...args) => func(...args));
 
   if (arguments.length < 3)
     return _curry(func, fnLen);

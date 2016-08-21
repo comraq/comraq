@@ -4,7 +4,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _checks = require("./../../utils/checks");
+
+var _types = require("./../../utils/types");
 
 var _iterables = require("./../iterables");
 
@@ -43,7 +47,7 @@ exports.default = function (target) {
 
     var _stored;
 
-    if ((0, _checks.isUndefined)(stored)) {
+    if ((typeof stored === "undefined" ? "undefined" : _typeof(stored)) === _types.pUndefined) {
       stored = [next].concat(args);
       return acc;
     }

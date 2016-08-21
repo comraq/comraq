@@ -1,4 +1,5 @@
-import { isIterable, isObject, isMap } from "./../../utils/checks";
+import { isIterable } from "./../../utils/checks";
+import { toString, sObject, sMap } from "./../../utils/types";
 import { curry, placeholder, getProp, hasProp } from "./../library";
 import { getIterator } from "./../iterables";
 
@@ -28,7 +29,8 @@ import {
  * - map is not of type Object or Map
  */
 export default curry((map, target) => {
-  if (!isMap(map) && !isObject(map))
+  const type = toString(map);
+  if (type !== sMap && type !== sObject)
     throw new TypeError(
       "replace cannot be applied without providing a replacement map or object!"
     );

@@ -1,5 +1,5 @@
-import { isFunction } from "./../../utils/checks";
-import { identity } from "./../library";
+import { pFunction } from "./../../utils/types";
+import { identity, curriedApply } from "./../library";
 
 const transformerInit = Symbol.for("transformer-init");
 const transformerCompletion = Symbol.for("transformer-completion");
@@ -92,7 +92,7 @@ export const step = (target, acc, next, ...args) => {
       `${target} does not implement the Transformer interface`
     );
 
-  return target[transformerStep](acc, next, ...args);
+  return curriedApply(target[transformerStep], acc, next, ...args);
 };
 
 /**
@@ -104,7 +104,7 @@ export const step = (target, acc, next, ...args) => {
  * - an instance augmented with the _Transformer mixin
  *
  * @param {Any} acc
- * - the accumulator passed to the complete function 
+ * - the accumulator passed to the complete function
  *
  * @returns {Any}
  * - the return value of target's complete function
@@ -156,7 +156,7 @@ export const init = target => {
  *   false otherwise
  */
 export const isTransformer = target =>
-  isFunction(target[transformerStep]) &&
-  isFunction(target[transformerCompletion]) &&
-  isFunction(target[transformerInit]);
+  typeof target[transformerStep] === pFunction &&
+  typeof target[transformerCompletion] === pFunction &&
+  typeof target[transformerInit] === pFunction;
 

@@ -4,7 +4,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _checks = require("./../../utils/checks");
+
+var _types = require("./../../utils/types");
 
 /**
  * @public @function last
@@ -20,7 +24,7 @@ var _checks = require("./../../utils/checks");
  * - target is not/does not implement the iterable interface
  */
 exports.default = function (target) {
-  if (!(0, _checks.isIterable)(target)) throw new Error("Cannot get last element of non-iterable " + target + "!");else if ((0, _checks.isArray)(target)) return (0, _checks.isUndefined)(target[target.length - 1]) ? null : target[target.length - 1];
+  if (!(0, _checks.isIterable)(target)) throw new Error("Cannot get last element of non-iterable " + target + "!");else if ((0, _checks.isArray)(target)) return _typeof(target[target.length - 1]) === _types.pUndefined ? null : target[target.length - 1];
 
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;

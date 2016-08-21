@@ -41,10 +41,6 @@ export default () => {
           .map(triple)
         );
     });
-
-    it("should work with all other transducers", () => {
-      expect.fail(null, null, "test not yet implemented");
-    });
   });
 
   describe("transduce1:", () => {
@@ -81,10 +77,6 @@ export default () => {
           .slice(0, 4)
         );
     });
-
-    it("should work with all other transducers", () => {
-      expect.fail(null, null, "test not yet implemented");
-    });
   });
 
   describe("into:", () => {
@@ -107,10 +99,6 @@ export default () => {
           .slice(0, 5)
           .map(triple)
         );
-    });
-
-    it("should work with all other transducers", () => {
-      expect.fail(null, null, "test not yet implemented");
     });
   });
 };

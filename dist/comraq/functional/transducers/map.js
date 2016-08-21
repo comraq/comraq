@@ -3,9 +3,14 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 exports._mapGen = _mapGen;
 
 var _checks = require("./../../utils/checks");
+
+var _types = require("./../../utils/types");
 
 var _library = require("./../library");
 
@@ -41,8 +46,8 @@ var _marked = [_mapGen].map(regeneratorRuntime.mark);
  * @throws TypeError
  * - mapping function func is not a function
  */
-exports.default = (0, _library.currify)(function (func, target) {
-  if (!(0, _checks.isFunction)(func)) throw new TypeError("map cannot be applied without first specifying a function!");
+exports.default = (0, _library.curry)(function (func, target) {
+  if ((typeof func === "undefined" ? "undefined" : _typeof(func)) !== _types.pFunction) throw new TypeError("map cannot be applied without first specifying a function!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _mapGen(func, target);
 
@@ -58,7 +63,7 @@ exports.default = (0, _library.currify)(function (func, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _mapGen

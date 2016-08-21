@@ -1,4 +1,5 @@
-import { isFunction, isIterable } from "./../../utils/checks";
+import { isIterable } from "./../../utils/checks";
+import { pFunction } from "./../../utils/types";
 import { curry, placeholder, identity } from "./../library";
 
 import iterReduce from "./iterable-reduce";
@@ -27,7 +28,7 @@ import getIterator from "./get-iterator";
  * - iterable is not/does not implement the iterable interface
  */
 export default curry((func, acc, iterable) => {
-  if (!isFunction(func))
+  if (typeof func !== pFunction)
     throw new TypeError(
       "reduce cannot be applied without first specifying a function!"
     );
@@ -51,7 +52,7 @@ export default curry((func, acc, iterable) => {
  * - iterable is empty
  */
 export const reduce1 = curry((func, iterable) => {
-  if (!isFunction(func))
+  if (typeof func !== pFunction)
     throw new TypeError(
       "reduce1 cannot be applied without first specifying a function!"
     );
@@ -96,7 +97,7 @@ const _reduceR = reducer => (prevFunc, val, index, source) => acc =>
  * @see @function reduce
  */
 export const reduceRight = curry((func, acc, iterable) => {
-  if (!isFunction(func))
+  if (typeof func !== pFunction)
     throw new TypeError(
       "reduceRight cannot be applied without first specifying a function!"
     );
@@ -120,7 +121,7 @@ export const reduceRight = curry((func, acc, iterable) => {
  * @see @function reduceRight
  */
 export const reduceRight1 = curry((func, iterable) => {
-  if (!isFunction(func))
+  if (typeof func !== pFunction)
     throw new TypeError(
       "reduceRight1 cannot be applied without first specifying a function!"
     );

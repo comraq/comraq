@@ -4,9 +4,13 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _library = require("./../library");
 
 var _checks = require("./../../utils/checks");
+
+var _types = require("./../../utils/types");
 
 var _getIterator = require("./get-iterator");
 
@@ -49,18 +53,18 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @throws Error
  * - if iterable is not/does not implement the iterator interface
  */
-var reduce = (0, _library.currify)(function (func, acc, iterable) {
+var reduce = (0, _library.curry)(function (func, acc, iterable) {
   var index = arguments.length <= 3 || arguments[3] === undefined ? 0 : arguments[3];
   var iterator = arguments.length <= 4 || arguments[4] === undefined ? (0, _getIterator2.default)(iterable) : arguments[4];
 
-  if (!(0, _checks.isIterable)(iterable)) throw new Error("Cannot get iterator of non-iterable " + iterable + "!");else if (!(0, _checks.isFunction)(func)) throw new Error("iterableReduce expected a reducing function, got " + func + "!");else if ((0, _Transformer.isTransformer)(func)) return reduceT(func, acc, iterable, index, iterator);
+  if (!(0, _checks.isIterable)(iterable)) throw new Error("Cannot get iterator of non-iterable " + iterable + "!");else if ((typeof func === "undefined" ? "undefined" : _typeof(func)) !== _types.pFunction) throw new Error("iterableReduce expected a reducing function, got " + func + "!");else if ((0, _Transformer.isTransformer)(func)) return reduceT(func, acc, iterable, index, iterator);
 
   var item = iterator.next();
   if (item.done) return acc;
 
-  acc = func(acc, item.value, index, iterable);
+  acc = (0, _library.curriedApply)(func, acc, item.value, index, iterable);
   return reduce(func, acc, iterable, index + 1, iterator);
-}, 3, false, _library.placeholder);
+}, 3, _library.placeholder);
 
 exports.default = reduce;
 

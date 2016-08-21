@@ -1,9 +1,5 @@
-import {
-  isNumber,
-  isUndefined,
-  isIterable,
-  isFunction
-} from "./../../utils/checks";
+import { isIterable } from "./../../utils/checks";
+import { pNumber, pFunction, pUndefined } from "./../../utils/types";
 
 import { curry, placeholder, empty } from "./../library";
 import { getIterator } from "./../iterables";
@@ -37,7 +33,7 @@ import {
  * - size of each partition is not a number
  */
 export const partitionAll = curry((size, target) => {
-  if (!isNumber(size))
+  if (typeof size !== pNumber)
     throw new TypeError(
       `Cannot partitionAll with a non-number ${size}!`
     );
@@ -52,7 +48,7 @@ export const partitionAll = curry((size, target) => {
 
   return Transformer(
     (acc, next, ...args) => {
-      partition = (isUndefined(partition))? empty(acc): partition;
+      partition = (typeof partition === pUndefined)? empty(acc): partition;
 
       if (count++ < size)
         partition = pushMutable(next, partition);
@@ -68,7 +64,7 @@ export const partitionAll = curry((size, target) => {
     },
 
     acc => {
-      if (!isUndefined(partition) && length(partition) > 0)
+      if (typeof partition !== pUndefined && length(partition) > 0)
         acc = ensureUnreduced(step(target, acc, partition));
 
       return complete(target, acc);
@@ -144,7 +140,7 @@ function* _partitionAllGen(size, target) {
  * - predicate argument is not a function
  */
 export const partitionBy = curry((predicate, target) => {
-  if (!isFunction(predicate))
+  if (typeof predicate !== pFunction)
     throw new TypeError(
       `Cannot partitionBy with non-function ${predicate}!`
     );
@@ -161,7 +157,7 @@ export const partitionBy = curry((predicate, target) => {
     (acc, next, ...args) => {
       let nextVal = predicate(next, ...args);
 
-      if (isUndefined(partition)) {
+      if (typeof partition === pUndefined) {
         partition = pushMutable(next, empty(acc));
         val = nextVal;
         return acc;
@@ -181,7 +177,7 @@ export const partitionBy = curry((predicate, target) => {
     },
 
     acc => {
-      if (!isUndefined(partition) && length(partition) > 0)
+      if (typeof partition !== pUndefined && length(partition) > 0)
         acc = ensureUnreduced(step(target, acc, partition));
 
       return complete(target, acc);
@@ -234,7 +230,7 @@ function* _partitionByGen(predicate, target) {
     item = iterator.next(result);
   }
 
-  if (!isUndefined(partition))
+  if (typeof partition !== pUndefined)
     yield partition;
 
   return;

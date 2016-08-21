@@ -5,7 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.partitionBy = exports.partitionAll = undefined;
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _checks = require("./../../utils/checks");
+
+var _types = require("./../../utils/types");
 
 var _library = require("./../library");
 
@@ -44,8 +48,8 @@ var _marked = [_partitionAllGen, _partitionByGen].map(regeneratorRuntime.mark);
  * @throws TypeError
  * - size of each partition is not a number
  */
-var partitionAll = exports.partitionAll = (0, _library.currify)(function (size, target) {
-  if (!(0, _checks.isNumber)(size)) throw new TypeError("Cannot partitionAll with a non-number " + size + "!");else if (!(0, _Transformer.isTransformer)(target)) return _partitionAllGen(size, target);
+var partitionAll = exports.partitionAll = (0, _library.curry)(function (size, target) {
+  if ((typeof size === "undefined" ? "undefined" : _typeof(size)) !== _types.pNumber) throw new TypeError("Cannot partitionAll with a non-number " + size + "!");else if (!(0, _Transformer.isTransformer)(target)) return _partitionAllGen(size, target);
 
   // Partition is undefined for now as we currently have no access to the
   // unit/void/empty instance of the accumulator until the step function of
@@ -58,7 +62,7 @@ var partitionAll = exports.partitionAll = (0, _library.currify)(function (size, 
       args[_key - 2] = arguments[_key];
     }
 
-    partition = (0, _checks.isUndefined)(partition) ? (0, _library.empty)(acc) : partition;
+    partition = (typeof partition === "undefined" ? "undefined" : _typeof(partition)) === _types.pUndefined ? (0, _library.empty)(acc) : partition;
 
     if (count++ < size) partition = (0, _arrays.pushMutable)(next, partition);else {
       var temp = partition;
@@ -69,13 +73,13 @@ var partitionAll = exports.partitionAll = (0, _library.currify)(function (size, 
 
     return acc;
   }, function (acc) {
-    if (!(0, _checks.isUndefined)(partition) && (0, _strings.length)(partition) > 0) acc = (0, _Reduced.ensureUnreduced)((0, _Transformer.step)(target, acc, partition));
+    if ((typeof partition === "undefined" ? "undefined" : _typeof(partition)) !== _types.pUndefined && (0, _strings.length)(partition) > 0) acc = (0, _Reduced.ensureUnreduced)((0, _Transformer.step)(target, acc, partition));
 
     return (0, _Transformer.complete)(target, acc);
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _partitionAllGen
@@ -182,8 +186,8 @@ function _partitionAllGen(size, target) {
  * @throws TypeError
  * - predicate argument is not a function
  */
-var partitionBy = exports.partitionBy = (0, _library.currify)(function (predicate, target) {
-  if (!(0, _checks.isFunction)(predicate)) throw new TypeError("Cannot partitionBy with non-function " + predicate + "!");else if (!(0, _Transformer.isTransformer)(target)) return _partitionByGen(predicate, target);
+var partitionBy = exports.partitionBy = (0, _library.curry)(function (predicate, target) {
+  if ((typeof predicate === "undefined" ? "undefined" : _typeof(predicate)) !== _types.pFunction) throw new TypeError("Cannot partitionBy with non-function " + predicate + "!");else if (!(0, _Transformer.isTransformer)(target)) return _partitionByGen(predicate, target);
 
   // Partition is undefined for now as we currently have no access to the
   // unit/void/empty instance of the accumulator until the step function of
@@ -198,7 +202,7 @@ var partitionBy = exports.partitionBy = (0, _library.currify)(function (predicat
 
     var nextVal = predicate.apply(undefined, [next].concat(args));
 
-    if ((0, _checks.isUndefined)(partition)) {
+    if ((typeof partition === "undefined" ? "undefined" : _typeof(partition)) === _types.pUndefined) {
       partition = (0, _arrays.pushMutable)(next, (0, _library.empty)(acc));
       val = nextVal;
       return acc;
@@ -215,13 +219,13 @@ var partitionBy = exports.partitionBy = (0, _library.currify)(function (predicat
 
     return acc;
   }, function (acc) {
-    if (!(0, _checks.isUndefined)(partition) && (0, _strings.length)(partition) > 0) acc = (0, _Reduced.ensureUnreduced)((0, _Transformer.step)(target, acc, partition));
+    if ((typeof partition === "undefined" ? "undefined" : _typeof(partition)) !== _types.pUndefined && (0, _strings.length)(partition) > 0) acc = (0, _Reduced.ensureUnreduced)((0, _Transformer.step)(target, acc, partition));
 
     return (0, _Transformer.complete)(target, acc);
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _partitionByGen
@@ -305,7 +309,7 @@ function _partitionByGen(predicate, target) {
           break;
 
         case 26:
-          if ((0, _checks.isUndefined)(partition)) {
+          if (!((typeof partition === "undefined" ? "undefined" : _typeof(partition)) !== _types.pUndefined)) {
             _context2.next = 29;
             break;
           }

@@ -1,5 +1,6 @@
-import { curry, placeholder } from "./../library";
-import { isIterable, isFunction } from "./../../utils/checks";
+import { curriedApply, curry, placeholder } from "./../library";
+import { isIterable } from "./../../utils/checks";
+import { pFunction } from "./../../utils/types";
 
 import getIterator from "./get-iterator";
 
@@ -49,7 +50,7 @@ const reduce =  curry((
       `Cannot get iterator of non-iterable ${iterable}!`
     );
 
-  else if (!isFunction(func))
+  else if (typeof func !== pFunction)
     throw new Error(
       `iterableReduce expected a reducing function, got ${func}!`
     );
@@ -61,7 +62,7 @@ const reduce =  curry((
   if (item.done)
     return acc;
 
-  acc = func(acc, item.value, index, iterable);
+  acc = curriedApply(func, acc, item.value, index, iterable);
   return reduce(func, acc, iterable, index + 1, iterator);
 }, 3, placeholder);
 

@@ -1,4 +1,5 @@
-import { isArray, isUndefined, isIterable } from "./../../utils/checks";
+import { isArray, isIterable } from "./../../utils/checks";
+import { pUndefined } from "./../../utils/checks";
 import getIterator from "./get-iterator";
 
 /**
@@ -19,7 +20,7 @@ export default target => {
     throw new Error(`Cannot get head element of non-iterable ${target}!`);
 
   else if (isArray(target))
-    return (isUndefined(target[0]))? null: target[0];
+    return (typeof target[0] === pUndefined)? null: target[0];
 
   return getIterator(target).next().value;
 };

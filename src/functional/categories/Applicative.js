@@ -1,4 +1,4 @@
-import { isFunction } from "./../../utils/checks";
+import { pFunction } from "./../../utils/types";
 import Functor from "./Functor";
 
 /**
@@ -36,12 +36,12 @@ export default {
         + "implementing Applicative!"
       );
 
-    else if (!isFunction(implementation.ap))
+    else if (typeof implementation.ap !== pFunction)
       throw new TypeError(
         "Cannot implement the Applicative Typeclass without 'ap'!"
       );
 
-    else if (!isFunction(implementation.of))
+    else if (typeof implementation.of !== pFunction)
       throw new TypeError(
         "Cannot implement the Applicative Typeclass without 'of'!"
       );

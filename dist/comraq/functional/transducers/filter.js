@@ -5,6 +5,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.keep = exports.dedupe = exports.distinct = exports.remove = undefined;
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _checks = require("./../../utils/checks");
 
 var _utils = require("./../../utils");
@@ -44,8 +46,8 @@ var _marked = [_filterGen, _removeGen, _distinctGen, _dedupeGen, _keepGen].map(r
  * @throws TypeError
  * - predicate function is not a function
  */
-exports.default = (0, _library.currify)(function (predicate, target) {
-  if (!(0, _checks.isFunction)(predicate)) throw new Error("filter cannot be applied without first specifying a predicate function!");
+exports.default = (0, _library.curry)(function (predicate, target) {
+  if ((typeof predicate === "undefined" ? "undefined" : _typeof(predicate)) !== _utils.types.pFunction) throw new Error("filter cannot be applied without first specifying a predicate function!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _filterGen(predicate, target);
 
@@ -60,7 +62,7 @@ exports.default = (0, _library.currify)(function (predicate, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _filterGen
@@ -156,8 +158,8 @@ function _filterGen(predicate, target) {
  * @throws TypeError
  * - predicate function func is not a function
  */
-var remove = exports.remove = (0, _library.currify)(function (predicate, target) {
-  if (!(0, _checks.isFunction)(predicate)) throw new Error("remove cannot be applied without first specifying a predicate function!");
+var remove = exports.remove = (0, _library.curry)(function (predicate, target) {
+  if ((typeof predicate === "undefined" ? "undefined" : _typeof(predicate)) !== _utils.types.pFunction) throw new Error("remove cannot be applied without first specifying a predicate function!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _removeGen(predicate, target);
 
@@ -172,7 +174,7 @@ var remove = exports.remove = (0, _library.currify)(function (predicate, target)
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _removeGen
@@ -485,8 +487,8 @@ function _dedupeGen(target) {
  * @throws TypeError
  * - predicate function func is not a function
  */
-var keep = exports.keep = (0, _library.currify)(function (predicate, target) {
-  if (!(0, _checks.isFunction)(predicate)) throw new Error("keep cannot be applied without first specifying a predicate function!");
+var keep = exports.keep = (0, _library.curry)(function (predicate, target) {
+  if ((typeof predicate === "undefined" ? "undefined" : _typeof(predicate)) !== _utils.types.pFunction) throw new Error("keep cannot be applied without first specifying a predicate function!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _keepGen(predicate, target);
 
@@ -505,7 +507,7 @@ var keep = exports.keep = (0, _library.currify)(function (predicate, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _keepGen

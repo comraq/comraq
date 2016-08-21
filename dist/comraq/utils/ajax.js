@@ -4,7 +4,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _checks = require("./checks");
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var _types = require("./types");
 
 /**
  * @private @function ajax
@@ -38,7 +40,7 @@ exports.default = function (req) {
     var password = req.password || "";
     var body = null;
     if (req.body) {
-      if (!(0, _checks.isString)(req.body)) body = JSON.stringify(req.body);else body = req.body;
+      if (_typeof(req.body) !== _types.pString) body = JSON.stringify(req.body);else body = req.body;
     }
 
     var xmlhttp = new XMLHttpRequest();
@@ -64,7 +66,7 @@ exports.default = function (req) {
  * - not using Object.assign because header names (object properties)
  *   are case-insensitive, don't want to duplicate headers
  *
- * @param {Object} defaults 
+ * @param {Object} defaults
  * - default headers { headerName: headerValue }
  *
  * @param {Object} headers (optional)

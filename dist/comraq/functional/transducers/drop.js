@@ -5,7 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.dropWhile = undefined;
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _checks = require("./../../utils/checks");
+
+var _types = require("./../../utils/types");
 
 var _library = require("./../library");
 
@@ -23,7 +27,7 @@ var _marked = [_dropGen, _dropWhileGen].map(regeneratorRuntime.mark);
  * @public @function drop
  * - drops the first 'number' of elements from an iterable specified
  *   by num and returns the rest
- * 
+ *
  * @param {Number} total
  * - the count of elements to drop from iterable
  *
@@ -39,8 +43,8 @@ var _marked = [_dropGen, _dropWhileGen].map(regeneratorRuntime.mark);
  * @throws TypeError
  * - total number to take is not a number
  */
-exports.default = (0, _library.currify)(function (total, target) {
-  if (!(0, _checks.isNumber)(total)) throw new TypeError("Cannot drop elements with a non-number limit " + total + "!");else if (!(0, _Transformer.isTransformer)(target)) return _dropGen(total, target);
+exports.default = (0, _library.curry)(function (total, target) {
+  if ((typeof total === "undefined" ? "undefined" : _typeof(total)) !== _types.pNumber) throw new TypeError("Cannot drop elements with a non-number limit " + total + "!");else if (!(0, _Transformer.isTransformer)(target)) return _dropGen(total, target);
 
   var count = 0;
 
@@ -57,7 +61,7 @@ exports.default = (0, _library.currify)(function (total, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _dropGen
@@ -145,8 +149,8 @@ function _dropGen(num, target) {
  * @throws TypeError
  * - predicate is not a function
  */
-var dropWhile = exports.dropWhile = (0, _library.currify)(function (predicate, target) {
-  if (!(0, _checks.isFunction)(predicate)) throw new TypeError("Cannot dropWhile elements with non-function predicate " + predicate + "!");
+var dropWhile = exports.dropWhile = (0, _library.curry)(function (predicate, target) {
+  if ((typeof predicate === "undefined" ? "undefined" : _typeof(predicate)) !== _types.pFunction) throw new TypeError("Cannot dropWhile elements with non-function predicate " + predicate + "!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _dropWhileGen(predicate, target);
 
@@ -165,7 +169,7 @@ var dropWhile = exports.dropWhile = (0, _library.currify)(function (predicate, t
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _dropWhileGen

@@ -3,51 +3,167 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.autoCurry = exports.currify = exports.placeholder = undefined;
+exports.partial = exports.curriedApply = exports.getArity = exports.isCurried = exports.placeholder = undefined;
 
-var _checks = require("./../../utils/checks");
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+exports.default = curry;
+
+var _types = require("./../../utils/types");
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 /**
  * @public @var {Symbol} placeholder
- * - a placeholder symbol for filling in gaps when currying with currify
+ * - a placeholder symbol for filling in gaps when currying with curry
  *
- * @see @public @function currify
+ * @see @public @function curry
  */
 var placeholder = exports.placeholder = Symbol.for("comraq/curry/placeholder");
 
 /**
- * @public @function curry
- * - curries a function with any number of arguments
+ * @public @var {Symbol} aritySymbol
+ * - a symbol keeping track of the arity of a curried function
+ *
+ * @see @public @function curry
+ */
+var aritySymbol = Symbol.for("comraq/curry/curryArity");
+
+/**
+ * @public @function isCurried
+ * - checks whether a function is a curried function
+ *
+ * @param {Function} f
+ * - the function to check
+ *
+ * @return {Boolean}
+ * - true if the function is curried
+ *   (ie: marked as curried by the 'curry' function)
+ * - false otherwise
+ *
+ * @see @public @function curry
+ */
+var isCurried = exports.isCurried = function isCurried(f) {
+  return _typeof(f[aritySymbol]) === _types.pNumber;
+};
+
+/**
+ * @public @function getArity
+ * - gets the curried arity of a function
+ *
+ * @param {Function} f
+ * - the function to get the arity for
+ *
+ * @return {Number}
+ * - (-1) if the function is not marked as curried by 'curry'
+ * - the natural number arity of the curried function otherwise
+ *
+ * @see @public @function curry
+ */
+var getArity = exports.getArity = function getArity(f) {
+  var result = f[aritySymbol];
+  if ((typeof result === "undefined" ? "undefined" : _typeof(result)) === _types.pNumber) return result;
+
+  return -1;
+};
+
+/**
+ * @public @function curriedApply
+ * - applies arguments to a function
+ * - if the function is marked as 'curried', it will only apply the number of
+ *   arguments equal to the curried arity of the function
+ * - otherwise, calls the non-curried function with all arguments
+ * - as long as arguments remain and func returns another function,
+ *   the function will be continuously applied with the curried number of
+ *   arguments (all args if non-curried) until either:
+ *   - arguments run out
+ *   - returned result is not a function
  *
  * @param {Function} func
- * - the function to curry
+ * - the function to apply
+ *
+ * @param {Any, variadic} args
+ * - any number of arguments to call the function with
+ *
+ * @returns {Any}
+ * - if all arguments are consumed by func, the return value of func is returned
+ * - otherwise, repeatedly apply func and its result func with arguments
+ *   equal to the curried arity of the result func
+ *
+ * @throws TypeError
+ * - if func is not a function
+ */
+var curriedApply = exports.curriedApply = function curriedApply(func) {
+  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+
+  if ((typeof func === "undefined" ? "undefined" : _typeof(func)) !== _types.pFunction) throw new TypeError("First argument of curriedApply must be a function!");
+
+  var arity = func[aritySymbol];
+  if ((typeof arity === "undefined" ? "undefined" : _typeof(arity)) !== _types.pNumber) return func.apply(undefined, args);else if (args.length <= arity) return func.apply(undefined, args);
+
+  var result = func;
+  while ((typeof result === "undefined" ? "undefined" : _typeof(result)) === _types.pFunction && args.length !== 0) {
+    arity = _typeof(result[aritySymbol]) === _types.pNumber ? result[aritySymbol] : args.length;
+
+    result = result.apply(undefined, _toConsumableArray(args.splice(0, arity)));
+  }
+  return result;
+};
+
+/**
+ * @private @function _markCurried
+ * - marks a function as curried by setting the 'aritySymbol'
+ *   property to have the curried function arity value
+ *
+ * @param {Number} n
+ * - the curried function arity to set
+ *
+ * @param {Function} f
+ * - the function to mark as 'curried'
+ *
+ * @return {Function}
+ * - the marked function f, with an 'aritySymbol' property
+ *   containing the curried arity number
+ *
+ * @see @private @var {Symbol} aritySymbol
+ */
+var _markCurried = function _markCurried(n, f) {
+  return f[aritySymbol] = n, f;
+};
+
+/**
+ * @public @function partial
+ * - partially applies a function with any number of arguments
+ *
+ * @param {Function} func
+ * - the function to partially apply
  *
  * @param {Any, variadic} ...args
  * - any number of arguments
  *
  * @returns {Function}
- * - the curried function
+ * - the partially function
  *
- * @throws Error
+ * @throws TypeError
  * - non-function passed as first argument
  */
-var curry = function curry(func) {
-  for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    args[_key - 1] = arguments[_key];
+var partial = exports.partial = function partial(func) {
+  for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+    args[_key2 - 1] = arguments[_key2];
   }
 
-  if (!(0, _checks.isFunction)(func)) throw new Error("First argument '" + func + "' of curry is not a function!");
+  if ((typeof func === "undefined" ? "undefined" : _typeof(func)) !== _types.pFunction) throw new TypeError("First argument '" + func + "' of partial is not a function!");
 
   return func.bind.apply(func, [undefined].concat(args));
 };
 
-exports.default = curry;
-
 /**
- * @public @function currify
+ * @public @function curry
  * - auto curries a function
+ * - curried function are marked with 'aritySymbol', indicating the arity of
+ *   the returned 'curried' function
  *
  * @param {Function} func
  * - the function to be auto-curried
@@ -57,13 +173,6 @@ exports.default = curry;
  *   those with default parameters will not have a useful length property,
  *   pass in fnLen to specify a custom function.length if preferred
  *
- * @param {Boolean} right (optional)
- * - the direction of curried arguments
- * - if right === true:
- *     - args will be curried from right to left for func
- * - otherwise:
- *     - args will be curried from left to right for func
- *
  * @param {Any} placeholder (optional)
  * - optional dummy value that can be used as placeholders when partially
  *   applying parameters in the middle of the function declaration
@@ -71,7 +180,7 @@ exports.default = curry;
  *   arguments to be passed to the curried function
  * - @example:
  *     const pl = "some placeholder value";
- *     let init = currify((...args) => args, 5, false, pl);
+ *     let init = curry((...args) => args, 5, false, pl);
  *     let func;
  *
  *     func = init(pl, pl, pl, pl, "e"); // func( ___, ___, ___, ___, "e")
@@ -100,75 +209,80 @@ exports.default = curry;
  *           +-> not yet evaluated, still a function!
  *
  * @return {Function}
- * - a curried function that will currify all arguments for func
+ * - a curried function that will curry all arguments for func
  *   if not enough parameters are passed in
  *
  * @throws Error
  * - non-function passed as first argument
  */
-
-var currify = exports.currify = function currify(func) {
+function curry(func) {
   var fnLen = arguments.length <= 1 || arguments[1] === undefined ? -1 : arguments[1];
-  var right = arguments.length <= 2 || arguments[2] === undefined ? false : arguments[2];
-  var placeholder = arguments.length <= 3 || arguments[3] === undefined ? undefined : arguments[3];
+  var placeholder = arguments.length <= 2 || arguments[2] === undefined ? undefined : arguments[2];
 
-  if (!(0, _checks.isFunction)(func)) throw new Error("Argument \"" + func + "\" of currify is not a function!");
+  if ((typeof func === "undefined" ? "undefined" : _typeof(func)) !== _types.pFunction) throw new Error("Argument \"" + func + "\" of curry is not a function!");
 
   if (fnLen <= 0) fnLen = func.length;
 
-  if (arguments.length < 4) return _currify(func, fnLen, right);
+  if (fnLen === 0) return _markCurried(0, function () {
+    return func.apply(undefined, arguments);
+  });
 
-  return _currifyPlaceholder(func, fnLen, right, placeholder, Array(fnLen).fill(placeholder));
-};
+  if (arguments.length < 3) return _curry(func, fnLen);
+
+  return _curryPlaceholder(func, fnLen, placeholder, Array(fnLen).fill(placeholder));
+}
 
 /**
- * @private @function _currify
- * - currify's internal helper recursive method
+ * @private @function _curry
+ * - curry's internal helper recursive method
  *
- * @see @public @function currify
+ * @see @public @function curry
  */
-var _currify = function _currify(func, fnLen, right) {
-  for (var _len2 = arguments.length, args = Array(_len2 > 3 ? _len2 - 3 : 0), _key2 = 3; _key2 < _len2; _key2++) {
-    args[_key2 - 3] = arguments[_key2];
+var _curry = function _curry(func, fnLen) {
+  for (var _len3 = arguments.length, args = Array(_len3 > 2 ? _len3 - 2 : 0), _key3 = 2; _key3 < _len3; _key3++) {
+    args[_key3 - 2] = arguments[_key3];
   }
 
-  if (fnLen <= args.length) return func.apply(undefined, _toConsumableArray(right ? args.reverse() : args));
+  if (fnLen <= 0) return func.apply(undefined, args);
 
-  return function () {
-    for (var _len3 = arguments.length, newArgs = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-      newArgs[_key3] = arguments[_key3];
-    }
-
-    return _currify.apply(undefined, [func, fnLen, right].concat(args, newArgs));
-  };
-};
-
-/**
- * @private @function _currifyPlaceholder
- * - currify's internal helper method if placeholder is used
- *
- * @see @public @function currify
- * @see @public @function currify @param {Any} placeholder
- */
-var _currifyPlaceholder = function _currifyPlaceholder(func, fnLen, right, placeholder, args) {
-  var pos = args.indexOf(placeholder);
-  if (pos === -1 || pos >= fnLen) return func.apply(undefined, _toConsumableArray(right ? args.reverse() : args));
-
-  return function () {
+  return _markCurried(fnLen, function () {
     for (var _len4 = arguments.length, newArgs = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
       newArgs[_key4] = arguments[_key4];
     }
 
-    return _currifyPlaceholder(func, fnLen, right, placeholder, _replacePlaceholders(placeholder, newArgs, args.slice()));
-  };
+    if (newArgs.length === 0) throw new Error("Curried funtions must be called with at least 1 argument!");
+
+    return _curry.apply(undefined, [func, fnLen - newArgs.length].concat(args, newArgs));
+  });
+};
+
+/**
+ * @private @function _curryPlaceholder
+ * - curry's internal helper method if placeholder is used
+ *
+ * @see @public @function curry
+ * @see @public @function curry @param {Any} placeholder
+ */
+var _curryPlaceholder = function _curryPlaceholder(func, fnLen, placeholder, args) {
+  var arityRemain = fnLen - _countExcludeMatchInRange(placeholder, args, 0, fnLen);
+
+  if (arityRemain <= 0) return func.apply(undefined, _toConsumableArray(args));
+
+  return _markCurried(arityRemain, function () {
+    for (var _len5 = arguments.length, newArgs = Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      newArgs[_key5] = arguments[_key5];
+    }
+
+    return _curryPlaceholder(func, fnLen, placeholder, _replacePlaceholders(placeholder, newArgs, args.slice()));
+  });
 };
 
 /**
  * @private @function _replacePlaceholders
- * - _currifyPlaceholder's helper method to replace any placeholders from
+ * - _curryPlaceholder's helper method to replace any placeholders from
  *   the currently collected arguments with new arguments
  *
- * @see @private @function _currifyPlaceholder
+ * @see @private @function _curryPlaceholder
  *
  * @param {Any} match
  * - the target placeholder/dummy value to match
@@ -219,73 +333,41 @@ var _replacePlaceholders = function _replacePlaceholders(match, newArray, baseAr
 };
 
 /**
- * @public @function autoCurry
- * - same as currify for functions that returns non-functions as return value
- * - if func's execution returns another function autoCurry is re-applied
+ * @private @function _countExcludeMatchInRange
+ * - counts the number of strictly equal elements in array of a given range
+ *   that does not match a target
+ * - helper function used by _curryPlaceholder
  *
- * @see @public @function currify
- * @see @private @function _autoCurry
+ * @see @private @function _curryPlaceholder
  *
- * @example
- *   const addFiveVals = autoCurry(a => b => c => d => e => a + b + c + d + e);
+ * @param {Any} match
+ * - the match to exclude from the resulting count
  *
- *   addFiveVals.should.be.a("function");
- *   addFiveVals(1)(2).should.be.a("function");
- *   addFiveVals(1, 2).should.be.a("function");
- *   addFiveVals(1, 2, 3, 4, 5).should.equal(15);
- *   addFiveVals(1)(2)(3)(4)(5).should.equal(15);
- *   addFiveVals(1, 2)(3, 4)(5).should.equal(15);
+ * @param {Array} array
+ * - the source array to count from
+ *
+ * @param {Number} start (optional)
+ * - the start index of the array
+ *
+ * @param {Number} end (optional)
+ * - the end index of the array
+ *
+ * @return {Number}
+ * - the number of occurences of elements in array that does not equal match
  */
-var autoCurry = exports.autoCurry = function autoCurry(func) {
-  var fnLen = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+var _countExcludeMatchInRange = function _countExcludeMatchInRange(match, array) {
+  var start = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+  var end = arguments.length <= 3 || arguments[3] === undefined ? array.length : arguments[3];
 
-  if (!(0, _checks.isFunction)(func)) throw new Error("Argument '" + func + "' of currify is not a function!");
+  var result = 0;
+  var e = void 0;
 
-  if (fnLen <= 0) fnLen = func.length;
+  end = end > array.length ? array.length : end;
 
-  return _autoCurry(func, fnLen);
-};
-
-/**
- * @private @function _autoCurry
- * - recursive helper function for autoCurry
- *
- * @param {Function} func
- * - the function to be curried
- *
- * @param {Number} fnLen
- * - the remaining number of arguments (function arity) for func
- *
- * @param {Any, variadic} ...args
- * - the arbitrary number of arguments to be bound to func
- *
- * @returns {Any|Function}
- * - the result if func returns non-function
- * - result of autoCurry wrapping the returned function
- *
- * @see @public @function autoCurry
- */
-var _autoCurry = function _autoCurry(func, fnLen) {
-  for (var _len5 = arguments.length, args = Array(_len5 > 2 ? _len5 - 2 : 0), _key5 = 2; _key5 < _len5; _key5++) {
-    args[_key5 - 2] = arguments[_key5];
+  while (start < end) {
+    e = array[start++];
+    result += e !== match ? 1 : 0;
   }
 
-  var argsToBind = args.splice(0, fnLen);
-
-  // Got less arguments than necessary for current function execution,
-  // build up accumulated arguments with bind
-  if (fnLen > argsToBind.length) return function () {
-    for (var _len6 = arguments.length, newArgs = Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
-      newArgs[_key6] = arguments[_key6];
-    }
-
-    return _autoCurry.apply(undefined, [func.bind.apply(func, [undefined].concat(_toConsumableArray(argsToBind))), fnLen - argsToBind.length].concat(newArgs));
-  };
-
-  // Got enough arguments, execute function and check if
-  // result is another function, if so, recurse, otherwise return result
-  var result = func.apply(undefined, _toConsumableArray(argsToBind));
-  if (!(0, _checks.isFunction)(result)) return result;
-
-  return _autoCurry.call.apply(_autoCurry, [undefined, result, result.length].concat(args));
+  return result;
 };

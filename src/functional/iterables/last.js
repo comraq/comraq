@@ -1,4 +1,5 @@
-import { isArray, isUndefined, isIterable } from "./../../utils/checks";
+import { isArray, isIterable } from "./../../utils/checks";
+import { pUndefined } from "./../../utils/types";
 
 /**
  * @public @function last
@@ -18,7 +19,7 @@ export default target => {
     throw new Error(`Cannot get last element of non-iterable ${target}!`);
 
   else if (isArray(target))
-    return (isUndefined(target[target.length - 1]))?
+    return (typeof target[target.length - 1] === pUndefined)?
       null: target[target.length - 1];
 
   for (var item of target);

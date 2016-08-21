@@ -12,6 +12,6 @@ var _library = require("./../library");
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
  */
-exports.default = (0, _library.currify)(function (begin, end, target) {
+exports.default = (0, _library.curry)(function (begin, end, target) {
   return target.slice(begin, end);
-}, 3, false, _library.placeholder);
+}, 3, _library.placeholder);

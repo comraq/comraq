@@ -7,6 +7,10 @@ exports.isInstance = exports.isPrimitive = exports.isIterable = exports.isGenera
 
 var _curry = require("./../functional/library/curry");
 
+var _curry2 = _interopRequireDefault(_curry);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 /**
  * @private @function is
  * - checking whether target is of type
@@ -276,6 +280,6 @@ var isPrimitive = exports.isPrimitive = function isPrimitive(target) {
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof
  */
-var isInstance = exports.isInstance = (0, _curry.currify)(function (target, instance) {
+var isInstance = exports.isInstance = (0, _curry2.default)(function (target, instance) {
   return target[Symbol.hasInstance](instance);
-}, 2, false, _curry.placeholder);
+}, 2, _curry.placeholder);

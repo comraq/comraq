@@ -5,7 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.takeNth = exports.takeWhile = undefined;
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _checks = require("./../../utils/checks");
+
+var _types = require("./../../utils/types");
 
 var _library = require("./../library");
 
@@ -40,8 +44,8 @@ var _marked = [_takeGen, _takeWhileGen, __takeNthGen].map(regeneratorRuntime.mar
  * @throws TypeError
  * - total number to take is not a number
  */
-exports.default = (0, _library.currify)(function (total, target) {
-  if (!(0, _checks.isNumber)(total)) throw new TypeError("Cannot take elements with a non-number limit " + total + "!");else if (!(0, _Transformer.isTransformer)(target)) return _takeGen(total, target);
+exports.default = (0, _library.curry)(function (total, target) {
+  if ((typeof total === "undefined" ? "undefined" : _typeof(total)) !== _types.pNumber) throw new TypeError("Cannot take elements with a non-number limit " + total + "!");else if (!(0, _Transformer.isTransformer)(target)) return _takeGen(total, target);
 
   var count = 0;
 
@@ -58,7 +62,7 @@ exports.default = (0, _library.currify)(function (total, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _takeGen
@@ -125,7 +129,7 @@ function _takeGen(num, target) {
  *   holds true
  * - like other functions, this also passes the index and original iterable
  *   to the predicate function as the second and third argument
- * 
+ *
  * @param {Function} predicate
  * - the predicate function returning a Boolean value that is applied
  *   against the elements within the iterable
@@ -141,8 +145,8 @@ function _takeGen(num, target) {
  * @throws TypeError
  * - predicate is not a function
  */
-var takeWhile = exports.takeWhile = (0, _library.currify)(function (predicate, target) {
-  if (!(0, _checks.isFunction)(predicate)) throw new TypeError("Cannot takeWhile elements with non-function predicate " + predicate + "!");
+var takeWhile = exports.takeWhile = (0, _library.curry)(function (predicate, target) {
+  if ((typeof predicate === "undefined" ? "undefined" : _typeof(predicate)) !== _types.pFunction) throw new TypeError("Cannot takeWhile elements with non-function predicate " + predicate + "!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _takeWhileGen(predicate, target);
 
@@ -159,7 +163,7 @@ var takeWhile = exports.takeWhile = (0, _library.currify)(function (predicate, t
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _takeWhileGen
@@ -222,7 +226,7 @@ function _takeWhileGen(predicate, target) {
  * @public @function takeNth
  * - gets every nth element from of an iterable specified by
  *   a numerical starting posiiton/index
- * 
+ *
  * @param {Number} n
  * - the number of elements to skip before taking from the iterable, must be
  *   positive ( n >= 0 )
@@ -255,7 +259,7 @@ function _takeWhileGen(predicate, target) {
  *   takeNth(100, -2)(arr)  --> [];
  *
  *   // Take every 1th elements -> should be same as original
- *   takeNth(1)(arr)        --> arr; 
+ *   takeNth(1)(arr)        --> arr;
  *
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
@@ -265,7 +269,7 @@ function _takeWhileGen(predicate, target) {
  * - a generator yielding only every nth element starting from index start
  *   (start defaults to 0)
  */
-var takeNth = exports.takeNth = (0, _library.currify)(function (n, start, target) {
+var takeNth = exports.takeNth = (0, _library.curry)(function (n, start, target) {
   if ((0, _checks.isIterable)(start) || (0, _Transformer.isTransformer)(start)) return _takeNth(n, 0, start);
 
   if (arguments.length > 2) return _takeNth(n, start, target);
@@ -273,7 +277,7 @@ var takeNth = exports.takeNth = (0, _library.currify)(function (n, start, target
   return function (target) {
     return _takeNth(n, start, target);
   };
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /*
  * @private @function _takeNth
@@ -289,7 +293,7 @@ var takeNth = exports.takeNth = (0, _library.currify)(function (n, start, target
  * - start is not a number
  */
 var _takeNth = function _takeNth(n, start, target) {
-  if (!(0, _checks.isNumber)(n) || n <= 0) throw new TypeError("Cannot takeNth elements with an invalid n: '" + n + "'!");else if (!(0, _checks.isNumber)(start)) throw new TypeError("Second argument to takeNth must be a starting index number, " + "transformer or iterable!");
+  if ((typeof n === "undefined" ? "undefined" : _typeof(n)) !== _types.pNumber || n <= 0) throw new TypeError("Cannot takeNth elements with an invalid n: '" + n + "'!");else if ((typeof start === "undefined" ? "undefined" : _typeof(start)) !== _types.pNumber) throw new TypeError("Second argument to takeNth must be a starting index number, " + "transformer or iterable!");
 
   if (start < 0) start %= n;
 

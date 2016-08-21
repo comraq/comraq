@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", {
 
 var _checks = require("./../../utils/checks");
 
+var _types = require("./../../utils/types");
+
 var _library = require("./../library");
 
 var _iterables = require("./../iterables");
@@ -37,8 +39,9 @@ var _marked = [_replaceGen].map(regeneratorRuntime.mark);
  * @throws TypeError
  * - map is not of type Object or Map
  */
-exports.default = (0, _library.currify)(function (map, target) {
-  if (!(0, _checks.isMap)(map) && !(0, _checks.isObject)(map)) throw new TypeError("replace cannot be applied without providing a replacement map or object!");
+exports.default = (0, _library.curry)(function (map, target) {
+  var type = (0, _types.toString)(map);
+  if (type !== _types.sMap && type !== _types.sObject) throw new TypeError("replace cannot be applied without providing a replacement map or object!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _replaceGen(map, target);
 
@@ -53,7 +56,7 @@ exports.default = (0, _library.currify)(function (map, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _replaceGen

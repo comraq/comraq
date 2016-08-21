@@ -1,4 +1,4 @@
-import { isFunction } from "./../../utils/checks";
+import { pFunction } from "./../../utils/types";
 import { Functor, Applicative } from "./../categories";
 
 /**
@@ -122,7 +122,7 @@ export default {
    * - if func is not a function
    */
   lift: func => {
-    if (!isFunction(func))
+    if (typeof func !== pFunction)
       throw new TypeError(
         `Non-Function '${func}' cannot be made into Arrow using 'lift'!`
       );

@@ -1,4 +1,4 @@
-import { isString } from "./checks";
+import { pString } from "./types";
 
 /**
  * @private @function ajax
@@ -32,7 +32,7 @@ export default req =>
     let password = req.password || "";
     let body = null;
     if (req.body) {
-      if (!isString(req.body))
+      if (typeof req.body !== pString)
         body = JSON.stringify(req.body);
       else
         body = req.body;
@@ -60,7 +60,7 @@ export default req =>
  * - not using Object.assign because header names (object properties)
  *   are case-insensitive, don't want to duplicate headers
  *
- * @param {Object} defaults 
+ * @param {Object} defaults
  * - default headers { headerName: headerValue }
  *
  * @param {Object} headers (optional)

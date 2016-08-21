@@ -16,6 +16,6 @@ var _cat2 = _interopRequireDefault(_cat);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-exports.default = (0, _library.currify)(function (func, target) {
+exports.default = (0, _library.curry)(function (func, target) {
   return (0, _map2.default)(func, (0, _cat2.default)(target));
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);

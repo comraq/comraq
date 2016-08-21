@@ -1,4 +1,4 @@
-import { isFunction, isIterable } from "./../../utils/checks";
+import { isIterable } from "./../../utils/checks";
 import { types } from "./../../utils";
 import { curry, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
@@ -33,7 +33,7 @@ import {
  * - predicate function is not a function
  */
 export default curry((predicate, target) => {
-  if (!isFunction(predicate))
+  if (typeof predicate !== types.pFunction)
     throw new Error(
       "filter cannot be applied without first specifying a predicate function!"
     );
@@ -105,7 +105,7 @@ function* _filterGen(predicate, target) {
  * - predicate function func is not a function
  */
 export const remove = curry((predicate, target) => {
-  if (!isFunction(predicate))
+  if (typeof predicate !== types.pFunction)
     throw new Error(
       "remove cannot be applied without first specifying a predicate function!"
     );
@@ -319,7 +319,7 @@ function* _dedupeGen(target) {
  * - predicate function func is not a function
  */
 export const keep = curry((predicate, target) => {
-  if (!isFunction(predicate))
+  if (typeof predicate !== types.pFunction)
     throw new Error(
       "keep cannot be applied without first specifying a predicate function!"
     );

@@ -1,4 +1,5 @@
-import { isIterable, isUndefined } from "./../../utils/checks";
+import { isIterable } from "./../../utils/checks";
+import { pUndefined } from "./../../utils/types";
 import { getIterator } from "./../iterables";
 import { length } from "./../strings";
 
@@ -27,7 +28,7 @@ export default target => {
   let stored = undefined;
   return Transformer(
     (acc, next, ...args) => {
-      if (isUndefined(stored)) {
+      if (typeof stored === pUndefined) {
         stored = [ next, ...args ];
         return acc;
       }

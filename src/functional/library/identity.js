@@ -1,3 +1,5 @@
+import curry from "./curry";
+
 /**
  * @public @function identity
  * - the identity function that takes an argument and returns it
@@ -8,4 +10,4 @@
  * @returns {Any}
  * - the exact target passed in as argument
  */
-export default target => target;
+export default curry(target => target);

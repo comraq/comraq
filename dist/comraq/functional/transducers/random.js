@@ -4,7 +4,11 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _checks = require("./../../utils/checks");
+
+var _types = require("./../../utils/types");
 
 var _library = require("./../library");
 
@@ -38,8 +42,8 @@ var _marked = [_randomGen].map(regeneratorRuntime.mark);
  * @throws TypeError
  * - prob is not a valid number between 0.0 - 1.0 (inclusive)
  */
-exports.default = (0, _library.currify)(function (prob, target) {
-  if (!(0, _checks.isNumber)(prob) || prob < 0 || prob > 1) throw new TypeError("random cannot be applied with invalid probability " + prob + "!");
+exports.default = (0, _library.curry)(function (prob, target) {
+  if ((typeof prob === "undefined" ? "undefined" : _typeof(prob)) !== _types.pNumber || prob < 0 || prob > 1) throw new TypeError("random cannot be applied with invalid probability " + prob + "!");
 
   if (!(0, _Transformer.isTransformer)(target)) return _randomGen(prob, target);
 
@@ -54,7 +58,7 @@ exports.default = (0, _library.currify)(function (prob, target) {
   }, function () {
     return (0, _Transformer.init)(target);
   });
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _randomGen

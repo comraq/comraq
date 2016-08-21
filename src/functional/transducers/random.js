@@ -1,4 +1,5 @@
-import { isNumber, isIterable } from "./../../utils/checks";
+import { isIterable } from "./../../utils/checks";
+import { pNumber } from "./../../utils/types";
 import { curry, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
@@ -29,7 +30,7 @@ import {
  * - prob is not a valid number between 0.0 - 1.0 (inclusive)
  */
 export default curry((prob, target) => {
-  if (!isNumber(prob) || prob < 0 || prob > 1)
+  if (typeof prob !== pNumber || prob < 0 || prob > 1)
     throw new TypeError(
       `random cannot be applied with invalid probability ${prob}!`
     );

@@ -3,7 +3,7 @@ import iterReduce from "./../../src/functional/iterables/iterable-reduce";
 
 import {
   numbersData,
-  inc10,
+  inc10, inc5,
   triple,
   even,
   add,
@@ -18,7 +18,7 @@ const {
   head, last
 } = comraq.functional.iterables;
 
-const { compose } = comraq.functional.library;
+const { compose, identity, flip } = comraq.functional.library;
 const { map, filter } = comraq.functional.transducers;
 
 export default () => {
@@ -107,6 +107,14 @@ export default () => {
       );
 
       reduceR(add, "asdf")([]).should.equal("asdf");
+    });
+
+    it("should curry apply the reducing function if it is curried", () => {
+      const id = flip(identity);
+
+      const array = [ inc5, triple, inc10 ];
+
+      reduceL(id, 0, array).should.equal((0 + 5) * 3 + 10);
     });
   });
 

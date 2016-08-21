@@ -5,7 +5,11 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.reduceRight1 = exports.reduceRight = exports.reduce1 = undefined;
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 var _checks = require("./../../utils/checks");
+
+var _types = require("./../../utils/types");
 
 var _library = require("./../library");
 
@@ -41,11 +45,11 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @throws TypeError
  * - iterable is not/does not implement the iterable interface
  */
-exports.default = (0, _library.currify)(function (func, acc, iterable) {
-  if (!(0, _checks.isFunction)(func)) throw new TypeError("reduce cannot be applied without first specifying a function!");else if (!(0, _checks.isIterable)(iterable)) throw new TypeError("reduce cannot be applied on a non-iterable!");
+exports.default = (0, _library.curry)(function (func, acc, iterable) {
+  if ((typeof func === "undefined" ? "undefined" : _typeof(func)) !== _types.pFunction) throw new TypeError("reduce cannot be applied without first specifying a function!");else if (!(0, _checks.isIterable)(iterable)) throw new TypeError("reduce cannot be applied on a non-iterable!");
 
   return (0, _iterableReduce2.default)(func, acc, iterable);
-}, 3, false, _library.placeholder);
+}, 3, _library.placeholder);
 
 /**
  * @public @function reduce1
@@ -58,15 +62,15 @@ exports.default = (0, _library.currify)(function (func, acc, iterable) {
  * - iterable is empty
  */
 
-var reduce1 = exports.reduce1 = (0, _library.currify)(function (func, iterable) {
-  if (!(0, _checks.isFunction)(func)) throw new TypeError("reduce1 cannot be applied without first specifying a function!");else if (!(0, _checks.isIterable)(iterable)) throw new TypeError("reduce1 cannot be applied on a non-iterable!");
+var reduce1 = exports.reduce1 = (0, _library.curry)(function (func, iterable) {
+  if ((typeof func === "undefined" ? "undefined" : _typeof(func)) !== _types.pFunction) throw new TypeError("reduce1 cannot be applied without first specifying a function!");else if (!(0, _checks.isIterable)(iterable)) throw new TypeError("reduce1 cannot be applied on a non-iterable!");
 
   var iterator = (0, _getIterator2.default)(iterable);
   var first = iterator.next();
   if (first.done) throw new TypeError("Cannot reduce1 aganist empty iterables!");
 
   return (0, _iterableReduce2.default)(func, first.value, iterable, 1, iterator);
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
 
 /**
  * @private @function _reduceR
@@ -97,12 +101,12 @@ var _reduceR = function _reduceR(reducer) {
  *
  * @see @function reduce
  */
-var reduceRight = exports.reduceRight = (0, _library.currify)(function (func, acc, iterable) {
-  if (!(0, _checks.isFunction)(func)) throw new TypeError("reduceRight cannot be applied without first specifying a function!");else if (!(0, _checks.isIterable)(iterable)) throw new TypeError("reduceRight cannot be applied on a non-iterable!");
+var reduceRight = exports.reduceRight = (0, _library.curry)(function (func, acc, iterable) {
+  if ((typeof func === "undefined" ? "undefined" : _typeof(func)) !== _types.pFunction) throw new TypeError("reduceRight cannot be applied without first specifying a function!");else if (!(0, _checks.isIterable)(iterable)) throw new TypeError("reduceRight cannot be applied on a non-iterable!");
 
   var f = _reduceR(func);
   return (0, _iterableReduce2.default)(f, _library.identity, iterable)(acc);
-}, 3, false, _library.placeholder);
+}, 3, _library.placeholder);
 
 /**
  * @public @function reduceRight1
@@ -113,8 +117,8 @@ var reduceRight = exports.reduceRight = (0, _library.currify)(function (func, ac
  * @see @function reduce1
  * @see @function reduceRight
  */
-var reduceRight1 = exports.reduceRight1 = (0, _library.currify)(function (func, iterable) {
-  if (!(0, _checks.isFunction)(func)) throw new TypeError("reduceRight1 cannot be applied without first specifying a function!");else if (!(0, _checks.isIterable)(iterable)) throw new TypeError("reduceRight1 cannot be applied on a non-iterable!");
+var reduceRight1 = exports.reduceRight1 = (0, _library.curry)(function (func, iterable) {
+  if ((typeof func === "undefined" ? "undefined" : _typeof(func)) !== _types.pFunction) throw new TypeError("reduceRight1 cannot be applied without first specifying a function!");else if (!(0, _checks.isIterable)(iterable)) throw new TypeError("reduceRight1 cannot be applied on a non-iterable!");
 
   var last = { done: true, value: undefined };
   var proxy = regeneratorRuntime.mark(function proxy(iterable) {
@@ -173,4 +177,4 @@ var reduceRight1 = exports.reduceRight1 = (0, _library.currify)(function (func, 
   if (last.done) throw new TypeError("Cannot reduceRight1 aganist empty iterables!");
 
   return res(last.value);
-}, 2, false, _library.placeholder);
+}, 2, _library.placeholder);
