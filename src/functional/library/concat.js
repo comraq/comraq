@@ -1,5 +1,5 @@
 import { types } from "./../../utils";
-import { currify, placeholder } from "./curry";
+import { default as curry, placeholder } from "./curry";
 
 /**
  * @public @function concat
@@ -21,7 +21,7 @@ import { currify, placeholder } from "./curry";
  * @throws TypeError
  * - if sg and value are not of the same semigroup
  */
-export default currify((sg, value) => {
+export default curry((sg, value) => {
   let vType = types.toString(value);
 
   switch(types.toString(sg)) {
@@ -54,7 +54,7 @@ export default currify((sg, value) => {
         `Do not know how to concat for unknown type: ${sg}!`
       );
   }
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function concatMutable
@@ -62,7 +62,7 @@ export default currify((sg, value) => {
  *
  * @see @function concat
  */
-export const concatMutable = currify((sg, value) => {
+export const concatMutable = curry((sg, value) => {
   let vType = types.toString(value);
 
   switch(types.toString(sg)) {
@@ -96,5 +96,4 @@ export const concatMutable = currify((sg, value) => {
         `Do not know how to concatMutable for unknown type: ${sg}!`
       );
   }
-}, 2, false, placeholder);
-
+}, 2, placeholder);

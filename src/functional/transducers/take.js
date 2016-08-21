@@ -1,5 +1,5 @@
 import { isNumber, isFunction, isIterable } from "./../../utils/checks";
-import { currify, placeholder } from "./../library";
+import { curry, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
 import { ensureReduced } from "./Reduced";
@@ -28,7 +28,7 @@ import {
  * @throws TypeError
  * - total number to take is not a number
  */
-export default currify((total, target) => {
+export default curry((total, target) => {
   if (!isNumber(total))
     throw new TypeError(
       `Cannot take elements with a non-number limit ${total}!`
@@ -54,7 +54,7 @@ export default currify((total, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _takeGen
@@ -91,7 +91,7 @@ function* _takeGen(num, target) {
  *   holds true
  * - like other functions, this also passes the index and original iterable
  *   to the predicate function as the second and third argument
- * 
+ *
  * @param {Function} predicate
  * - the predicate function returning a Boolean value that is applied
  *   against the elements within the iterable
@@ -107,7 +107,7 @@ function* _takeGen(num, target) {
  * @throws TypeError
  * - predicate is not a function
  */
-export const takeWhile = currify((predicate, target) => {
+export const takeWhile = curry((predicate, target) => {
   if (!isFunction(predicate))
     throw new TypeError(
       `Cannot takeWhile elements with non-function predicate ${predicate}!`
@@ -128,7 +128,7 @@ export const takeWhile = currify((predicate, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _takeWhileGen
@@ -164,7 +164,7 @@ function* _takeWhileGen(predicate, target) {
  * @public @function takeNth
  * - gets every nth element from of an iterable specified by
  *   a numerical starting posiiton/index
- * 
+ *
  * @param {Number} n
  * - the number of elements to skip before taking from the iterable, must be
  *   positive ( n >= 0 )
@@ -197,7 +197,7 @@ function* _takeWhileGen(predicate, target) {
  *   takeNth(100, -2)(arr)  --> [];
  *
  *   // Take every 1th elements -> should be same as original
- *   takeNth(1)(arr)        --> arr; 
+ *   takeNth(1)(arr)        --> arr;
  *
  * @param {Transformer|Iterable} target
  * - the target transformer or iterable
@@ -207,7 +207,7 @@ function* _takeWhileGen(predicate, target) {
  * - a generator yielding only every nth element starting from index start
  *   (start defaults to 0)
  */
-export const takeNth = currify(function(n, start, target) {
+export const takeNth = curry(function(n, start, target) {
   if (isIterable(start) || isTransformer(start))
     return _takeNth(n, 0, start);
 
@@ -215,7 +215,7 @@ export const takeNth = currify(function(n, start, target) {
     return _takeNth(n, start, target);
 
   return target => _takeNth(n, start, target);
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /*
  * @private @function _takeNth

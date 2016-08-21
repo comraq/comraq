@@ -1,4 +1,4 @@
-import { currify, placeholder } from "./../functional/library/curry";
+import { default as curry, placeholder } from "./../functional/library/curry";
 
 /**
  * @private @function is
@@ -236,9 +236,8 @@ export const isPrimitive = target => !Object.prototype.isPrototypeOf(target);
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof
  */
-export const isInstance = currify(
+export const isInstance = curry(
   (target, instance) => target[Symbol.hasInstance](instance),
   2,
-  false,
   placeholder
 );

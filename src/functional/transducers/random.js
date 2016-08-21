@@ -1,5 +1,5 @@
 import { isNumber, isIterable } from "./../../utils/checks";
-import { currify, placeholder } from "./../library";
+import { curry, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
 import {
@@ -28,7 +28,7 @@ import {
  * @throws TypeError
  * - prob is not a valid number between 0.0 - 1.0 (inclusive)
  */
-export default currify((prob, target) => {
+export default curry((prob, target) => {
   if (!isNumber(prob) || prob < 0 || prob > 1)
     throw new TypeError(
       `random cannot be applied with invalid probability ${prob}!`
@@ -45,7 +45,7 @@ export default currify((prob, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _randomGen

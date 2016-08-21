@@ -1,6 +1,6 @@
 import { isFunction, isIterable } from "./../../utils/checks";
 import { types } from "./../../utils";
-import { currify, placeholder } from "./../library";
+import { curry, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
 import {
@@ -32,7 +32,7 @@ import {
  * @throws TypeError
  * - predicate function is not a function
  */
-export default currify((predicate, target) => {
+export default curry((predicate, target) => {
   if (!isFunction(predicate))
     throw new Error(
       "filter cannot be applied without first specifying a predicate function!"
@@ -49,7 +49,7 @@ export default currify((predicate, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _filterGen
@@ -104,7 +104,7 @@ function* _filterGen(predicate, target) {
  * @throws TypeError
  * - predicate function func is not a function
  */
-export const remove = currify((predicate, target) => {
+export const remove = curry((predicate, target) => {
   if (!isFunction(predicate))
     throw new Error(
       "remove cannot be applied without first specifying a predicate function!"
@@ -121,7 +121,7 @@ export const remove = currify((predicate, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _removeGen
@@ -318,7 +318,7 @@ function* _dedupeGen(target) {
  * @throws TypeError
  * - predicate function func is not a function
  */
-export const keep = currify((predicate, target) => {
+export const keep = curry((predicate, target) => {
   if (!isFunction(predicate))
     throw new Error(
       "keep cannot be applied without first specifying a predicate function!"
@@ -341,7 +341,7 @@ export const keep = currify((predicate, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _keepGen

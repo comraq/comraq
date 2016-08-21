@@ -8,7 +8,7 @@ import {
 } from "./../../test-data";
 
 const {
-  curry, compose, pipe,
+  partial, compose, pipe,
   getProp, withProp, hasProp, placeholder: _
 } = comraq.functional.library;
 
@@ -115,7 +115,7 @@ export default () => {
       A(namesData).should.eql([]);
 
       const lengthLT = (len, e) => e.length < len;
-      let lenLT5 = curry(lengthLT, 5);
+      let lenLT5 = partial(lengthLT, 5);
 
       const B = compose(
         toArray,

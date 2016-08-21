@@ -36,14 +36,29 @@ const Arrow = {
  * - as to avoid mutating Function.prototype, duck typing as Arrow
  */
 const _pure = f => {
-  for (const prop in Arrow)
-    f[prop] = Arrow[prop];
+  /**
+   * Alternative For Instantiating Arrow as functions
+   * by copying all properties and symbols from the Arrow class to
+   * the created function
+   * - Not used because unecessary/expensive to copy all properties
+   *   everytime?
+   *
+   * for (const prop in Arrow)
+   *   f[prop] = Arrow[prop];
+   *
+   * for (const symbol of Object.getOwnPropertySymbols(Arrow))
+   *   f[symbol] = Arrow[symbol];
+   *
+   * f.__func = f;
+   * return f;
+   */
 
-  for (const symbol of Object.getOwnPropertySymbols(Arrow))
-    f[symbol] = Arrow[symbol];
+  const arrow = Object.create(Arrow, {
+    __func: { value: f },
+    run:  { value: f }
+  });
 
-  f.__func = f;
-  return f;
+  return arrow;
 };
 
 /**
@@ -64,7 +79,7 @@ const of = x => _pure(() => x);
  */
 Functor.implement(Arrow, {
   fmap: function(g) {
-    const f = _compose(g, this.__func)
+    const f = _compose(g, this.__func);
     return _pure(f);
   }
 });

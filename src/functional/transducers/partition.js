@@ -5,7 +5,7 @@ import {
   isFunction
 } from "./../../utils/checks";
 
-import { currify, placeholder, empty } from "./../library";
+import { curry, placeholder, empty } from "./../library";
 import { getIterator } from "./../iterables";
 import { length } from "./../strings";
 import { pushMutable } from "./../arrays";
@@ -36,7 +36,7 @@ import {
  * @throws TypeError
  * - size of each partition is not a number
  */
-export const partitionAll = currify((size, target) => {
+export const partitionAll = curry((size, target) => {
   if (!isNumber(size))
     throw new TypeError(
       `Cannot partitionAll with a non-number ${size}!`
@@ -76,7 +76,7 @@ export const partitionAll = currify((size, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _partitionAllGen
@@ -143,7 +143,7 @@ function* _partitionAllGen(size, target) {
  * @throws TypeError
  * - predicate argument is not a function
  */
-export const partitionBy = currify((predicate, target) => {
+export const partitionBy = curry((predicate, target) => {
   if (!isFunction(predicate))
     throw new TypeError(
       `Cannot partitionBy with non-function ${predicate}!`
@@ -189,7 +189,7 @@ export const partitionBy = currify((predicate, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _partitionByGen

@@ -15,12 +15,11 @@ export default () => {
     });
 
     it("returned arrow instance should return contained value "
-       + "when called as a function", () => {
+       + "when called using the 'run' method", () => {
       const value = {};
-
       const arr = Arrow.of(value);
 
-      arr().should.equal(value);
+      arr.run().should.equal(value);
     });
   });
 
@@ -38,18 +37,19 @@ export default () => {
     it("should not mutate the original function", () => {
       const arr = Arrow.lift(triple);
       arr.should.not.equal(triple);
+      arr.run.should.not.equal(triple);
     });
 
     it("lifted instance should return results as normal if called", () => {
       const arrTriple = Arrow.lift(triple);
-      arrTriple(10).should.equal(30);
+      arrTriple.run(10).should.equal(30);
     });
   });
 
-  it("should also be functions", () => {
+  it("should have a 'run' method", () => {
     const arr = Arrow.of("anything");
 
-    arr.should.be.a("function");
+    arr.run.should.be.a("function");
   });
 
   it("instances are functors", () => {
@@ -63,22 +63,22 @@ export default () => {
     const arr = Arrow.of(2);
     const willReturn6 = arr.fmap(triple);
 
-    willReturn6().should.equal(6);
+    willReturn6.run().should.equal(6);
 
     const willReturn11 = willReturn6.fmap(inc5);
-    willReturn11().should.equal(11);
+    willReturn11.run().should.equal(11);
   });
 
   it("can pipe regular functions by lift then fmap", () => {
     const arr = Arrow.lift(inc5);
     const add5Times3 = arr.fmap(triple);
 
-    add5Times3(2).should.equal(21);
+    add5Times3.run(2).should.equal(21);
 
     const add5Times3Add10 = add5Times3.fmap(inc10);
-    add5Times3Add10(2).should.equal(31);
+    add5Times3Add10.run(2).should.equal(31);
 
-    Arrow.lift( inc5 ).fmap( triple ).fmap( inc10 )(2).should.equal(31);
+    Arrow.lift( inc5 ).fmap( triple ).fmap( inc10 ).run(2).should.equal(31);
   });
 
   it("instances are applicatives", () => {

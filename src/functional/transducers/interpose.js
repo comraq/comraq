@@ -1,5 +1,5 @@
 import { isIterable } from "./../../utils/checks";
-import { currify, placeholder } from "./../library";
+import { curry, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
 import { isReduced } from "./Reduced";
@@ -25,7 +25,7 @@ import {
  * - returns a generator yielding avlues with entry inserted between each
  *   element from the original collection
  */
-export default currify((entry, target) => {
+export default curry((entry, target) => {
   if (!isTransformer(target))
     return _interposeGen(entry, target);
 
@@ -48,7 +48,7 @@ export default currify((entry, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _interposeGen

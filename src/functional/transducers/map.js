@@ -1,5 +1,5 @@
 import { isFunction, isIterable } from "./../../utils/checks";
-import { currify, placeholder } from "./../library";
+import { curry, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
 import {
@@ -30,7 +30,7 @@ import {
  * @throws TypeError
  * - mapping function func is not a function
  */
-export default currify((func, target) => {
+export default curry((func, target) => {
   if (!isFunction(func))
     throw new TypeError(
       "map cannot be applied without first specifying a function!"
@@ -48,7 +48,7 @@ export default currify((func, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _mapGen

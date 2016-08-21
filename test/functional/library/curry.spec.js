@@ -3,63 +3,85 @@ import comraq from "./../../../src";
 import {
   multiply,
   getZero,
-  add, inc5,
-  arity1Add,
+  add,
   toArray
 } from "./../../test-data";
 
-const { curry, currify, autoCurry } = comraq.functional.library;
+const {
+  curry,
+  placeholder: __,
+  partial,
+  isCurried,
+  getArity,
+  curriedApply
+} = comraq.functional.library;
 
 export default () => {
-  describe("curry:", () => {
+  describe("partial:", () => {
     it("should return a function", () => {
-      curry(() => {}).should.be.a("function");
+      partial(() => {}).should.be.a("function");
     });
 
     it("should throw error with non-function as first argument", () => {
-      expect(curry).to.throw(/.*/);
-      expect(curry.bind(null, "a string")).to.throw(/.*/);
-      expect(curry.bind(null, "a string", () => {})).to.throw(/.*/);
+      expect(partial).to.throw(/.*/);
+      expect(partial.bind(null, "a string")).to.throw(/.*/);
+      expect(partial.bind(null, "a string", () => {})).to.throw(/.*/);
     });
 
-    it("can curry function with 1 argument", () => {
+    it("can partially apply function with 1 argument", () => {
       const add = (a, b, c) => a + b + c;
 
-      const add10 = curry(add, 10);
+      const add10 = partial(add, 10);
       add10(1, 2).should.equal(10 + 1 + 2);
     });
 
-    it("can curry function with multiple arguments", () => {
+    it("can partially apply function with multiple arguments", () => {
       const add = (a, b, c) => a + b + c;
 
-      const add10And11 = curry(add, 10, 11);
+      const add10And11 = partial(add, 10, 11);
       add10And11(1).should.equal(10 + 11 + 1);
 
-      const add10And11And12 = curry(add, 10, 11, 12);
+      const add10And11And12 = partial(add, 10, 11, 12);
       add10And11And12().should.equal(10 + 11 + 12);
       add10And11And12("more args", "should not affect result", 99).should.equal(
         10 + 11 + 12
       );
     });
 
-    it("can repeatedly curry functions", () => {
+    it("can repeatedly partially apply functions", () => {
       const add = (a, b, c) => a + b + c;
 
-      const add10And11And12 = curry(curry(curry(add, 10), 11), 12);
+      const add10And11And12 = partial(partial(partial(add, 10), 11), 12);
       add10And11And12().should.equal(10 + 11 + 12);
     });
   });
 
-  describe("currify:", () => {
+  describe("curry:", () => {
     it("should return a function with not enough arguments passed", () => {
-      currify(a => a).should.be.a("function");
-      currify((a, b) => b)(123).should.be.a("function");
+      curry(a => a).should.be.a("function");
+      curry((a, b) => b)(123).should.be.a("function");
+    });
+
+    it("should return new curried function if "
+       + "original function's arity is 0", () => {
+      const orig = () => "a;lskdfjsad;kfjasd";
+      const curried = curry(orig);
+
+      curried.should.not.equal(orig);
+      curried().should.equal(orig());
     });
 
     it("should evaluate results when enough arguments are passed", () => {
-      expect(currify(() => {})).to.equal(undefined);
-      currify(getZero).should.equal(0);
-      currify(multiply)(13)(2).should.equal(26);
+      expect(curry(() => {})()).to.equal(undefined);
+      curry(getZero)().should.equal(0);
+      curry(multiply)(13)(2).should.equal(26);
+    });
+
+    it("should throw error if curried functions with pending arguments "
+       + "are called with no arguments", () => {
+      const multC = curry(multiply);
+
+      expect(multC.bind(null)).to.throw(/.*/);
     });
 
     it("currified functions can take variadic number of arguments", () => {
@@ -67,38 +89,14 @@ export default () => {
         return Array.prototype.reduce.call(arguments, add);
       };
 
-      currify(getZero).should.equal(0);
-      currify(multiply)(13, 2).should.equal(26);
-      currify(fiveArgs)(1, 2)(3, 4, 5).should.equal(15);
-    });
-
-    it("can curry from right to left", () => {
-      const appendString = currify(
-        (target, toAppend) => target + toAppend,
-        2,
-        true
-      );
-      const map = currify((array, func) => array.map(func), 2, true);
-
-      const appendHash = appendString("#");
-      const addFive = map(inc5);
-
-      appendHash.should.be.a("function");
-      addFive.should.be.a("function");
-
-      const strResults = "comraq#";
-      const arrResults = [ 6, 7, 8 ];
-
-      appendHash("comraq").should.equal(strResults);
-      addFive([ 1, 2, 3 ]).should.eql(arrResults);
-
-      appendString("#", "comraq").should.equal(strResults);
-      map(inc5, [ 1, 2, 3 ]).should.eql(arrResults);
+      curry(getZero)().should.equal(0);
+      curry(multiply)(13, 2).should.equal(26);
+      curry(fiveArgs)(1, 2)(3, 4, 5).should.equal(15);
     });
 
     it("can curry with placeholders", () => {
       const dummy = null;
-      const func = currify(toArray, 5, false, dummy);
+      const func = curry(toArray, 5, dummy);
 
       const before = func("a", "b", dummy, dummy);
       const after  = func(dummy, dummy, "c");
@@ -141,37 +139,137 @@ export default () => {
     });
   });
 
-  describe("autoCurry:", () => {
-    it("should return a function with not enough arguments passed", () => {
-      autoCurry(a => a).should.be.a("function");
-      autoCurry((a, b) => b)(123).should.be.a("function");
+  describe("isCurried:", () => {
+    it("should be true for functions returned by curry", () => {
+      const curried = curry(a => a);
+      isCurried(curried).should.be.true;
     });
 
-    it("should evaluate results when enough arguments are passed", () => {
-      expect(autoCurry(() => {})).to.equal(undefined);
-      autoCurry(getZero).should.equal(0);
-      autoCurry(multiply)(13)(2).should.equal(26);
+    it("should also be true for curried functions of 0 arity", () => {
+      const curried = curry(() => {});
+      isCurried(curried).should.be.true;
+    });
+  });
+
+  describe("getArity:", () => {
+    it("should return the arity of a curried function, the number of "
+       + "arguments to recieve before calling the function", () => {
+      const c0 = curry(() => {});
+      getArity(c0).should.equal(0);
     });
 
-    it("autoCurried functions can take variadic number of arguments", () => {
-      const fiveArgs = function(a, b, c, d, e) {
-        return Array.prototype.reduce.call(arguments, add);
+    it("should return -1 if the function is not curried", () => {
+      const notCurried = () => {};
+
+      getArity(notCurried).should.equal(-1);
+      isCurried(notCurried).should.be.false;
+    });
+
+    it("should return decreasing arity values when "
+       + "curried function is partially applied", () => {
+      const c5 = curry((a, b, c, d, e) => {});
+
+      getArity(c5).should.equal(5);
+      getArity(c5(null)).should.equal(4);
+      getArity(c5(null)(null)).should.equal(3);
+      getArity(c5(null, null)(null, null)).should.equal(1);
+      getArity(c5(null, null, null, null)).should.equal(1);
+    });
+
+    it("should also return decreasing arity values for placeholder"
+       + "curried function when partially applied", () => {
+      const c5 = curry((a, b, c, d, e) => {}, 5, __);
+
+      getArity(c5).should.equal(5);
+      getArity(c5(null)).should.equal(4);
+      getArity(c5(null)(__)).should.equal(4);
+      getArity(c5(__, __)(null, null)).should.equal(3);
+      getArity(c5(null, __, __, null)(null)).should.equal(2);
+    });
+  });
+
+  describe("curriedApply:", () => {
+    it("should throw error if non-function is passed", () => {
+      expect(curriedApply.bind(null, "not a function")).to.throw(/.*/);
+    });
+
+    it("should call a non-curried function as normal", () => {
+      const array = [ null, {}, [], false, true, "1", "number" ];
+      curriedApply(toArray, ...array).should.eql(array);
+    });
+
+    it("should call non-curried functions with all arguments, "
+       + "regardless of arity", () => {
+      const array = [ null, {}, [], false, true, "1", "number" ];
+      const func = function(a, b) {
+        return Array.prototype.slice.call(arguments);
       };
 
-      autoCurry(getZero).should.equal(0);
-      autoCurry(multiply)(13, 2).should.equal(26);
-      autoCurry(fiveArgs)(1, 2)(3, 4, 5).should.equal(15);
+      curriedApply(func, ...array).should.eql(array);
     });
 
-    it("should work with functions returning arity 1 functions", () => {
-      let addFiveVals = autoCurry(arity1Add);
+    it("should decrease the curried arity of curried function if "
+       + "insufficient number of arguments are applied", () => {
 
-      addFiveVals.should.be.a("function");
-      addFiveVals(1)(2).should.be.a("function");
-      addFiveVals(1, 2).should.be.a("function");
-      addFiveVals(1, 2, 3, 4, 5).should.equal(15);
-      addFiveVals(1)(2)(3)(4)(5).should.equal(15);
-      addFiveVals(1, 2)(3, 4)(5).should.equal(15);
+      const array = [ null, {}, [] ];
+      const c5 = curry(toArray, 5);
+      const c2 = curriedApply(c5, ...array);
+
+      c2.should.be.a("function");
+      getArity(c2).should.equal(2);
+    });
+
+    it("should call curried function with only the number of arguments equal "
+       + "to the curried arity even if excess arguments are supplied", () => {
+      const array = [ null, {}, [], false, true, "1", "number" ];
+      const c5 = curry(toArray, 5);
+
+      curriedApply(c5, ...array).should.eql(array.slice(0, 5));
+
+      const c0 = curry(toArray, 0);
+      curriedApply(c0, ...array).should.eql([]);
+    });
+
+    it("should repeated apply arguments if curried functions returns another "
+       + "function when excess arguments are supplied", () => {
+      const curried = curry(a => curry(b => c => a + b + c));
+
+      curriedApply(curried, 1, 2, 3).should.equal(6);
+      curriedApply(curried, 1, 2, 3, 4).should.equal(6);
+    });
+
+    it("should repeated apply arguments if curried functions returns another "
+       + "function until arguments runs out", () => {
+      const e = curry(() => {});
+      const d = curry(_ => e);
+      const c = curry(_ => d);
+      const b = curry(_ => c);
+      const a = curry(_ => b);
+
+      curriedApply(a, 1, 2, 3).should.equal(d);
+      curriedApply(a, 1, 2, 3, 4).should.equal(e);
+    });
+
+    it("should repeated call curried functions with no arguments if "
+       + "the curried arity is 0", () => {
+      const e = arg => arg;
+      const d = curry(() => e);
+      const c = curry(() => d);
+      const b = curry(() => c);
+      const a = curry(() => b);
+
+      const arg = "this is not passed to a, b, c, d because they have 0 arity";
+      curriedApply(a, arg).should.eql(arg);
+    });
+
+    it("non-curried functions will catch all remaining excess/remaining "
+       + "arguments even if they will return a function when called", () => {
+      const c = (a, b, ...args) => [a, b, ...args];
+      const b = curry(_ => c);
+      const a = curry(_ => b);
+
+      const array = [ null, {}, [], false, true, "1", "number" ];
+      curriedApply(a, ...array).should.eql(array.slice(2));
     });
   });
 };

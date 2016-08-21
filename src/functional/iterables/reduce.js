@@ -1,5 +1,5 @@
 import { isFunction, isIterable } from "./../../utils/checks";
-import { currify, placeholder, identity } from "./../library";
+import { curry, placeholder, identity } from "./../library";
 
 import iterReduce from "./iterable-reduce";
 import getIterator from "./get-iterator";
@@ -26,7 +26,7 @@ import getIterator from "./get-iterator";
  * @throws TypeError
  * - iterable is not/does not implement the iterable interface
  */
-export default currify((func, acc, iterable) => {
+export default curry((func, acc, iterable) => {
   if (!isFunction(func))
     throw new TypeError(
       "reduce cannot be applied without first specifying a function!"
@@ -38,7 +38,7 @@ export default currify((func, acc, iterable) => {
     );
 
   return iterReduce(func, acc, iterable);
-}, 3, false, placeholder);
+}, 3, placeholder);
 
 /**
  * @public @function reduce1
@@ -50,7 +50,7 @@ export default currify((func, acc, iterable) => {
  * @throws TypeError
  * - iterable is empty
  */
-export const reduce1 = currify((func, iterable) => {
+export const reduce1 = curry((func, iterable) => {
   if (!isFunction(func))
     throw new TypeError(
       "reduce1 cannot be applied without first specifying a function!"
@@ -69,7 +69,7 @@ export const reduce1 = currify((func, iterable) => {
     );
 
   return iterReduce(func, first.value, iterable, 1, iterator);
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _reduceR
@@ -95,7 +95,7 @@ const _reduceR = reducer => (prevFunc, val, index, source) => acc =>
  *
  * @see @function reduce
  */
-export const reduceRight = currify((func, acc, iterable) => {
+export const reduceRight = curry((func, acc, iterable) => {
   if (!isFunction(func))
     throw new TypeError(
       "reduceRight cannot be applied without first specifying a function!"
@@ -108,7 +108,7 @@ export const reduceRight = currify((func, acc, iterable) => {
 
   const f = _reduceR(func);
   return iterReduce(f, identity, iterable)(acc);
-}, 3, false, placeholder);
+}, 3, placeholder);
 
 /**
  * @public @function reduceRight1
@@ -119,7 +119,7 @@ export const reduceRight = currify((func, acc, iterable) => {
  * @see @function reduce1
  * @see @function reduceRight
  */
-export const reduceRight1 = currify((func, iterable) => {
+export const reduceRight1 = curry((func, iterable) => {
   if (!isFunction(func))
     throw new TypeError(
       "reduceRight1 cannot be applied without first specifying a function!"
@@ -159,4 +159,4 @@ export const reduceRight1 = currify((func, iterable) => {
     );
 
   return res(last.value);
-}, 2, false, placeholder);
+}, 2, placeholder);

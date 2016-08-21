@@ -1,4 +1,4 @@
-import { currify, placeholder } from "./../library";
+import { curry, placeholder } from "./../library";
 import { isIterable, isFunction } from "./../../utils/checks";
 
 import getIterator from "./get-iterator";
@@ -37,7 +37,7 @@ import { isReduced, deref } from "./../transducers/Reduced";
  * @throws Error
  * - if iterable is not/does not implement the iterator interface
  */
-const reduce =  currify((
+const reduce =  curry((
   func,
   acc,
   iterable,
@@ -63,7 +63,7 @@ const reduce =  currify((
 
   acc = func(acc, item.value, index, iterable);
   return reduce(func, acc, iterable, index + 1, iterator);
-}, 3, false, placeholder);
+}, 3, placeholder);
 
 export default reduce;
 

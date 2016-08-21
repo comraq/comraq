@@ -4,7 +4,7 @@ import getIterator from "./get-iterator";
 /**
  * @public @function head
  * - gets the first element of the iterable
- * 
+ *
  * @param {Iterable} target
  * - the target iterable
  *

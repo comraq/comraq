@@ -1,4 +1,4 @@
-import { currify, placeholder } from "./../library";
+import { curry, placeholder } from "./../library";
 
 /**
  * @public @function slice
@@ -6,9 +6,8 @@ import { currify, placeholder } from "./../library";
  *
  * @link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice
  */
-export default currify(
+export default curry(
   (begin, end, target) => target.slice(begin, end),
   3,
-  false,
   placeholder
 );

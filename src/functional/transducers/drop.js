@@ -1,5 +1,5 @@
 import { isNumber, isFunction, isIterable } from "./../../utils/checks";
-import { currify, placeholder } from "./../library";
+import { curry, placeholder } from "./../library";
 import { getIterator } from "./../iterables";
 
 import {
@@ -12,7 +12,7 @@ import {
  * @public @function drop
  * - drops the first 'number' of elements from an iterable specified
  *   by num and returns the rest
- * 
+ *
  * @param {Number} total
  * - the count of elements to drop from iterable
  *
@@ -28,7 +28,7 @@ import {
  * @throws TypeError
  * - total number to take is not a number
  */
-export default currify((total, target) => {
+export default curry((total, target) => {
   if (!isNumber(total))
     throw new TypeError(
       `Cannot drop elements with a non-number limit ${total}!`
@@ -51,7 +51,7 @@ export default currify((total, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _dropGen
@@ -108,7 +108,7 @@ function* _dropGen(num, target) {
  * @throws TypeError
  * - predicate is not a function
  */
-export const dropWhile = currify((predicate, target) => {
+export const dropWhile = curry((predicate, target) => {
   if (!isFunction(predicate))
     throw new TypeError(
       `Cannot dropWhile elements with non-function predicate ${predicate}!`
@@ -131,7 +131,7 @@ export const dropWhile = currify((predicate, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _dropWhileGen

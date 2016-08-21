@@ -1,5 +1,5 @@
 import { isIterable, isObject, isMap } from "./../../utils/checks";
-import { currify, placeholder, getProp, hasProp } from "./../library";
+import { curry, placeholder, getProp, hasProp } from "./../library";
 import { getIterator } from "./../iterables";
 
 import {
@@ -27,7 +27,7 @@ import {
  * @throws TypeError
  * - map is not of type Object or Map
  */
-export default currify((map, target) => {
+export default curry((map, target) => {
   if (!isMap(map) && !isObject(map))
     throw new TypeError(
       "replace cannot be applied without providing a replacement map or object!"
@@ -48,7 +48,7 @@ export default currify((map, target) => {
 
     () => init(target)
   );
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @private @function _replaceGen

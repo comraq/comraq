@@ -1,41 +1,155 @@
-import { isFunction } from "./../../utils/checks";
+import { pFunction, pNumber } from "./../../utils/types";
 
 /**
  * @public @var {Symbol} placeholder
- * - a placeholder symbol for filling in gaps when currying with currify
+ * - a placeholder symbol for filling in gaps when currying with curry
  *
- * @see @public @function currify
+ * @see @public @function curry
  */
 export const placeholder = Symbol.for("comraq/curry/placeholder");
 
 /**
- * @public @function curry
- * - curries a function with any number of arguments
+ * @public @var {Symbol} aritySymbol
+ * - a symbol keeping track of the arity of a curried function
+ *
+ * @see @public @function curry
+ */
+const aritySymbol = Symbol.for("comraq/curry/curryArity");
+
+/**
+ * @public @function isCurried
+ * - checks whether a function is a curried function
+ *
+ * @param {Function} f
+ * - the function to check
+ *
+ * @return {Boolean}
+ * - true if the function is curried
+ *   (ie: marked as curried by the 'curry' function)
+ * - false otherwise
+ *
+ * @see @public @function curry
+ */
+export const isCurried = f => typeof f[aritySymbol] === pNumber;
+
+/**
+ * @public @function getArity
+ * - gets the curried arity of a function
+ *
+ * @param {Function} f
+ * - the function to get the arity for
+ *
+ * @return {Number}
+ * - (-1) if the function is not marked as curried by 'curry'
+ * - the natural number arity of the curried function otherwise
+ *
+ * @see @public @function curry
+ */
+export const getArity = f => {
+  const result = f[aritySymbol];
+  if (typeof result === pNumber)
+    return result;
+
+  return -1;
+};
+
+
+/**
+ * @public @function curriedApply
+ * - applies arguments to a function
+ * - if the function is marked as 'curried', it will only apply the number of
+ *   arguments equal to the curried arity of the function
+ * - otherwise, calls the non-curried function with all arguments
+ * - as long as arguments remain and func returns another function,
+ *   the function will be continuously applied with the curried number of
+ *   arguments (all args if non-curried) until either:
+ *   - arguments run out
+ *   - returned result is not a function
  *
  * @param {Function} func
- * - the function to curry
+ * - the function to apply
+ *
+ * @param {Any, variadic} args
+ * - any number of arguments to call the function with
+ *
+ * @returns {Any}
+ * - if all arguments are consumed by func, the return value of func is returned
+ * - otherwise, repeatedly apply func and its result func with arguments
+ *   equal to the curried arity of the result func
+ *
+ * @throws TypeError
+ * - if func is not a function
+ */
+export const curriedApply = (func, ...args) => {
+  if (typeof func !== pFunction)
+    throw new TypeError("First argument of curriedApply must be a function!");
+
+  let arity = func[aritySymbol];
+  if (typeof arity !== pNumber)
+    return func(...args);
+
+  else if (args.length <= arity)
+    return func(...args);
+
+  let result = func;
+  while (typeof result === pFunction && args.length !== 0) {
+    arity = (typeof result[aritySymbol] === pNumber)?
+      result[aritySymbol] : args.length;
+
+    result = result(...(args.splice(0, arity)));
+  }
+  return result;
+};
+
+/**
+ * @private @function _markCurried
+ * - marks a function as curried by setting the 'aritySymbol'
+ *   property to have the curried function arity value
+ *
+ * @param {Number} n
+ * - the curried function arity to set
+ *
+ * @param {Function} f
+ * - the function to mark as 'curried'
+ *
+ * @return {Function}
+ * - the marked function f, with an 'aritySymbol' property
+ *   containing the curried arity number
+ *
+ * @see @private @var {Symbol} aritySymbol
+ */
+const _markCurried = (n, f) => (f[aritySymbol] = n, f);
+
+/**
+ * @public @function partial
+ * - partially applies a function with any number of arguments
+ *
+ * @param {Function} func
+ * - the function to partially apply
  *
  * @param {Any, variadic} ...args
  * - any number of arguments
  *
  * @returns {Function}
- * - the curried function
+ * - the partially function
  *
- * @throws Error
+ * @throws TypeError
  * - non-function passed as first argument
  */
-const curry = (func, ...args) => {
-  if (!isFunction(func))
-    throw new Error(`First argument '${func}' of curry is not a function!`);
+export const partial = (func, ...args) => {
+  if (typeof func !== pFunction)
+    throw new TypeError(
+      `First argument '${func}' of partial is not a function!`
+    );
 
   return func.bind(this, ...args);
 };
 
-export default curry;
-
 /**
- * @public @function currify
+ * @public @function curry
  * - auto curries a function
+ * - curried function are marked with 'aritySymbol', indicating the arity of
+ *   the returned 'curried' function
  *
  * @param {Function} func
  * - the function to be auto-curried
@@ -45,13 +159,6 @@ export default curry;
  *   those with default parameters will not have a useful length property,
  *   pass in fnLen to specify a custom function.length if preferred
  *
- * @param {Boolean} right (optional)
- * - the direction of curried arguments
- * - if right === true:
- *     - args will be curried from right to left for func
- * - otherwise:
- *     - args will be curried from left to right for func
- *
  * @param {Any} placeholder (optional)
  * - optional dummy value that can be used as placeholders when partially
  *   applying parameters in the middle of the function declaration
@@ -59,7 +166,7 @@ export default curry;
  *   arguments to be passed to the curried function
  * - @example:
  *     const pl = "some placeholder value";
- *     let init = currify((...args) => args, 5, false, pl);
+ *     let init = curry((...args) => args, 5, false, pl);
  *     let func;
  *
  *     func = init(pl, pl, pl, pl, "e"); // func( ___, ___, ___, ___, "e")
@@ -88,78 +195,86 @@ export default curry;
  *           +-> not yet evaluated, still a function!
  *
  * @return {Function}
- * - a curried function that will currify all arguments for func
+ * - a curried function that will curry all arguments for func
  *   if not enough parameters are passed in
  *
  * @throws Error
  * - non-function passed as first argument
  */
-export const currify = function currify(
-  func, 
+export default function curry(
+  func,
   fnLen = -1,
-  right = false,
   placeholder = undefined
 ) {
-  if (!isFunction(func))
-    throw new Error(`Argument "${func}" of currify is not a function!`);
+  if (typeof func !== pFunction)
+    throw new Error(`Argument "${func}" of curry is not a function!`);
 
   if (fnLen <= 0)
     fnLen = func.length;
-  
-  if (arguments.length < 4)
-    return _currify(func, fnLen, right);
 
-  return _currifyPlaceholder(
+  if (fnLen === 0)
+    return _markCurried(0, () => func());
+
+  if (arguments.length < 3)
+    return _curry(func, fnLen);
+
+  return _curryPlaceholder(
     func,
     fnLen,
-    right,
     placeholder,
     Array(fnLen).fill(placeholder)
   );
+}
+
+/**
+ * @private @function _curry
+ * - curry's internal helper recursive method
+ *
+ * @see @public @function curry
+ */
+const _curry = (func, fnLen, ...args) => {
+  if (fnLen <= 0)
+    return func(...args);
+
+  return _markCurried(fnLen, (...newArgs) => {
+    if (newArgs.length === 0)
+      throw new Error(
+        "Curried funtions must be called with at least 1 argument!"
+      );
+
+    return _curry(func, fnLen - newArgs.length, ...args, ...newArgs);
+  });
 };
 
 /**
- * @private @function _currify
- * - currify's internal helper recursive method
+ * @private @function _curryPlaceholder
+ * - curry's internal helper method if placeholder is used
  *
- * @see @public @function currify
+ * @see @public @function curry
+ * @see @public @function curry @param {Any} placeholder
  */
-const _currify = (func, fnLen, right, ...args) => {
-  if (fnLen <= args.length)
-    return func(...((right)? args.reverse(): args));
+const _curryPlaceholder = (func, fnLen, placeholder, args) => {
+  const arityRemain =
+    fnLen - _countExcludeMatchInRange(placeholder, args, 0, fnLen);
 
-  return (...newArgs) =>
-    _currify(func, fnLen, right, ...args, ...newArgs);
-};
+  if (arityRemain <= 0)
+    return func(...args);
 
-/**
- * @private @function _currifyPlaceholder
- * - currify's internal helper method if placeholder is used
- *
- * @see @public @function currify
- * @see @public @function currify @param {Any} placeholder
- */
-const _currifyPlaceholder = (func, fnLen, right, placeholder, args) => {
-  const pos = args.indexOf(placeholder);
-  if (pos === -1 || pos >= fnLen)
-    return func(...((right)? args.reverse(): args));
-
-  return (...newArgs) =>
-    _currifyPlaceholder(
+  return _markCurried(arityRemain, (...newArgs) =>
+    _curryPlaceholder(
       func,
       fnLen,
-      right,
       placeholder,
       _replacePlaceholders(placeholder, newArgs, args.slice())
-    );
+    ));
 };
 
 /**
  * @private @function _replacePlaceholders
- * - _currifyPlaceholder's helper method to replace any placeholders from
+ * - _curryPlaceholder's helper method to replace any placeholders from
  *   the currently collected arguments with new arguments
  *
- * @see @private @function _currifyPlaceholder
+ * @see @private @function _curryPlaceholder
  *
  * @param {Any} match
  * - the target placeholder/dummy value to match
@@ -193,69 +308,43 @@ const _replacePlaceholders = (match, newArray, baseArray) => {
 };
 
 /**
- * @public @function autoCurry
- * - same as currify for functions that returns non-functions as return value
- * - if func's execution returns another function autoCurry is re-applied
+ * @private @function _countExcludeMatchInRange
+ * - counts the number of strictly equal elements in array of a given range
+ *   that does not match a target
+ * - helper function used by _curryPlaceholder
  *
- * @see @public @function currify
- * @see @private @function _autoCurry
+ * @see @private @function _curryPlaceholder
  *
- * @example
- *   const addFiveVals = autoCurry(a => b => c => d => e => a + b + c + d + e);
+ * @param {Any} match
+ * - the match to exclude from the resulting count
  *
- *   addFiveVals.should.be.a("function");
- *   addFiveVals(1)(2).should.be.a("function");
- *   addFiveVals(1, 2).should.be.a("function");
- *   addFiveVals(1, 2, 3, 4, 5).should.equal(15);
- *   addFiveVals(1)(2)(3)(4)(5).should.equal(15);
- *   addFiveVals(1, 2)(3, 4)(5).should.equal(15);
+ * @param {Array} array
+ * - the source array to count from
+ *
+ * @param {Number} start (optional)
+ * - the start index of the array
+ *
+ * @param {Number} end (optional)
+ * - the end index of the array
+ *
+ * @return {Number}
+ * - the number of occurences of elements in array that does not equal match
  */
-export const autoCurry = (func, fnLen = 0) => {
-  if (!isFunction(func))
-    throw new Error(`Argument '${func}' of currify is not a function!`);
+const _countExcludeMatchInRange = (
+  match,
+  array,
+  start = 0,
+  end = array.length
+) => {
+  let result = 0;
+  let e;
 
-  if (fnLen <= 0)
-    fnLen = func.length;
+  end = (end > array.length)? array.length: end;
 
-  return _autoCurry(func, fnLen);
-};
+  while (start < end) {
+    e = array[start++];
+    result += (e !== match)? 1: 0;
+  }
 
-/**
- * @private @function _autoCurry
- * - recursive helper function for autoCurry
- *
- * @param {Function} func
- * - the function to be curried
- *
- * @param {Number} fnLen
- * - the remaining number of arguments (function arity) for func
- *
- * @param {Any, variadic} ...args
- * - the arbitrary number of arguments to be bound to func
- *
- * @returns {Any|Function}
- * - the result if func returns non-function
- * - result of autoCurry wrapping the returned function
- *
- * @see @public @function autoCurry
- */
-const _autoCurry = (func, fnLen, ...args) => {
-  let argsToBind = args.splice(0, fnLen);
-
-  // Got less arguments than necessary for current function execution,
-  // build up accumulated arguments with bind
-  if (fnLen > argsToBind.length)
-    return (...newArgs) =>  _autoCurry(
-      func.bind(this, ...argsToBind),
-      fnLen - argsToBind.length,
-      ...newArgs
-    );
-
-  // Got enough arguments, execute function and check if
-  // result is another function, if so, recurse, otherwise return result
-  let result = func(...argsToBind);
-  if (!isFunction(result))
-    return result;
-
-  return _autoCurry.call(this, result, result.length, ...args);
+  return result;
 };

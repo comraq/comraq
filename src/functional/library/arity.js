@@ -1,6 +1,5 @@
 import { isFunction } from "./../../utils/checks";
-import { currify, placeholder } from "./curry";
-
+import { default as curry, placeholder } from "./curry";
 
 /**
  * @public @function nAry
@@ -23,7 +22,7 @@ import { currify, placeholder } from "./curry";
  * @throws TypeError
  * - if func is not a function
  */
-export default currify((n, func) => {
+export default curry((n, func) => {
   if (n < 0)
     throw new TypeError(
       `nAry cannot fix the arity given a non natural number: ${n}!`
@@ -37,8 +36,9 @@ export default currify((n, func) => {
   if (n === 0)
     return () => func();
 
-  return currify(
+  return curry(
     (...args) => func(...(args.slice(0, n))),
-    n, false, placeholder
+    n,
+    placeholder
   );
-}, 2, false, placeholder);
+}, 2, placeholder);

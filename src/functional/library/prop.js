@@ -3,7 +3,7 @@ import { isPrimitive } from "./../../utils/checks";
 import { types } from "./../../utils";
 const { toString, sNumber, sString, sMap, sSet } = types;
 
-import { currify, placeholder } from "./curry";
+import { default as curry, placeholder } from "./curry";
 
 /**
  * @public @function getProp
@@ -23,7 +23,7 @@ import { currify, placeholder } from "./curry";
  * @throws Error
  * - non-string or number passed as prop if target is object
  */
-export const getProp = currify((prop, target) => {
+export const getProp = curry((prop, target) => {
   if (!hasProp(prop, target))
     return null;
 
@@ -35,7 +35,7 @@ export const getProp = currify((prop, target) => {
     default:
       return target[prop];
   }
-}, 2, false, placeholder);
+}, 2, placeholder);
 
 /**
  * @public @function withProp
@@ -58,7 +58,7 @@ export const getProp = currify((prop, target) => {
  * @throws Error
  * - non-string or number passed as prop
  */
-export const withProp = currify((prop, value, target, mutate = false) => {
+export const withProp = curry((prop, value, target, mutate = false) => {
   let sPropType = toString(prop);
   if (sPropType !== sString && sPropType !== sNumber)
     throw new Error(
@@ -80,7 +80,7 @@ export const withProp = currify((prop, value, target, mutate = false) => {
 
   return Object.assign(target, toMerge);
 
-}, 3, false, placeholder);
+}, 3, placeholder);
 
 /**
  * @public @function hasProp
@@ -100,7 +100,7 @@ export const withProp = currify((prop, value, target, mutate = false) => {
  * - true if target has prop, if inherited is true, then inherited
  *   properties are also checked, false otherwise
  */
-export const hasProp = currify((prop, target, inherited = false) => {
+export const hasProp = curry((prop, target, inherited = false) => {
   if (inherited && (prop in target))
     return true;
 
@@ -112,4 +112,4 @@ export const hasProp = currify((prop, target, inherited = false) => {
     default:
       return target.hasOwnProperty(prop);
   }
-}, 2, false, placeholder);
+}, 2, placeholder);

@@ -1,4 +1,4 @@
-import { currify } from "./curry";
+import { default as curry, placeholder } from "./curry";
 
 /**
  * @public @function trace
@@ -14,7 +14,7 @@ import { currify } from "./curry";
  * @returns {Any}
  * - returns/passes the incoming data to the next function in the pipeline
  */
-export const trace = currify((msg, data) => {
+export const trace = curry((msg, data) => {
   console.log(`${msg}:\nData: ${data}`);
   return data;
-});
+}, 2, placeholder);
