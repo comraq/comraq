@@ -109,7 +109,7 @@ export default {
   },
 
   /**
-   * @public @function lift
+   * @public @function fnToArrow
    * - lifts a regular function into an Arrow instance
    * - TODO: Verify is curried, to allow for 'ap'
    *
@@ -121,10 +121,10 @@ export default {
    * @throws TypeError
    * - if func is not a function
    */
-  lift: func => {
+  fnToArrow: func => {
     if (typeof func !== pFunction)
       throw new TypeError(
-        `Non-Function '${func}' cannot be made into Arrow using 'lift'!`
+        `Non-Function '${func}' cannot be made into Arrow using 'fnToArrow'!`
       );
 
     return _pure((...args) => func(...args));

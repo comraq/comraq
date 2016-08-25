@@ -23,25 +23,25 @@ export default () => {
     });
   });
 
-  describe("lift:", () => {
+  describe("fnToArrow:", () => {
     it("should lift a regular function into an Arrow instance", () => {
-      const arr = Arrow.lift(() => {});
+      const arr = Arrow.fnToArrow(() => {});
       arr.should.be.an.instanceof(Arrow);
     });
 
     it("should throw error if non-function is passed", () => {
-      expect(Arrow.lift).to.throw(/.*/);
-      expect(Arrow.lift.bind(null, "a string")).to.throw(/.*/);
+      expect(Arrow.fnToArrow).to.throw(/.*/);
+      expect(Arrow.fnToArrow.bind(null, "a string")).to.throw(/.*/);
     });
 
     it("should not mutate the original function", () => {
-      const arr = Arrow.lift(triple);
+      const arr = Arrow.fnToArrow(triple);
       arr.should.not.equal(triple);
       arr.run.should.not.equal(triple);
     });
 
     it("lifted instance should return results as normal if called", () => {
-      const arrTriple = Arrow.lift(triple);
+      const arrTriple = Arrow.fnToArrow(triple);
       arrTriple.run(10).should.equal(30);
     });
   });
@@ -70,7 +70,7 @@ export default () => {
   });
 
   it("can pipe regular functions by lift then fmap", () => {
-    const arr = Arrow.lift(inc5);
+    const arr = Arrow.fnToArrow(inc5);
     const add5Times3 = arr.fmap(triple);
 
     add5Times3.run(2).should.equal(21);
@@ -78,7 +78,8 @@ export default () => {
     const add5Times3Add10 = add5Times3.fmap(inc10);
     add5Times3Add10.run(2).should.equal(31);
 
-    Arrow.lift( inc5 ).fmap( triple ).fmap( inc10 ).run(2).should.equal(31);
+    Arrow.fnToArrow( inc5 ).fmap( triple ).fmap( inc10 )
+      .run(2).should.equal(31);
   });
 
   it("instances are applicatives", () => {
