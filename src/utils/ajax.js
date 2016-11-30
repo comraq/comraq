@@ -40,8 +40,7 @@ export default req =>
 
     const xmlhttp = new XMLHttpRequest();
 
-    xmlhttp.onreadystatechange = () =>
-      xmlReadyStateChanged(xmlhttp, resolve, reject);
+    xmlhttp.onload = () => xmlOnload(xmlhttp, resolve, reject);
 
     xmlhttp.open(method, url, true, user, password);
 
@@ -91,11 +90,11 @@ const getMergedHeaders = (defaults, headers = null) => {
 };
 
 /**
- * @private @function xmlReadyStateChanged
- * - event handler function for xmlonreadystatechange
+ * @private @function xmlOnload
+ * - event handler function for xmlOnload
  *
  * @param {XMLHttpRequest} xmlhttp
- * - xmlhttp target for readystatechanged
+ * - xmlhttp target for xmlOnload
  *
  * @param {function} resolve
  * - promise resolve function to be called if request successful (200s)
@@ -107,16 +106,14 @@ const getMergedHeaders = (defaults, headers = null) => {
  * @returns {undefined}
  * - event handler function, nowhere to return to
  */
-const xmlReadyStateChanged = (xmlhttp, resolve, reject) => {
-  if (xmlhttp.readyState == 4) {
-    const res = getXmlHttpResponse(xmlhttp);
+const xmlOnload = (xmlhttp, resolve, reject) => {
+  const res = getXmlHttpResponse(xmlhttp);
 
-    if (xmlhttp.status == 200)
-      return resolve(JSON.stringify(res));
+  if (xmlhttp.status === 200)
+    resolve(JSON.stringify(res));
 
-    else
-      return reject(JSON.stringify(res));
-  }
+  else
+    reject(JSON.stringify(res));
 };
 
 /**
